@@ -142,10 +142,10 @@ export default function Home() {
               <p className="text-lg font-bold text-foreground mb-2">請問您是否已申請過長照補助 (CMS)？</p>
               <button 
                 onClick={() => startQuiz(true)} 
-                className="group flex w-full items-center justify-between rounded-2xl bg-primary text-primary-foreground h-16 px-6 text-xl font-bold shadow-md transition-transform active:scale-95"
+                className="group flex w-full items-center justify-between rounded-2xl bg-card text-foreground ring-1 ring-border h-16 px-6 text-xl font-bold shadow-sm transition-all hover:bg-secondary active:scale-95"
               >
                 <span>有申請過 CMS</span>
-                <ArrowRight className="size-6 transition-transform group-hover:translate-x-1" aria-hidden="true" />
+                <ArrowRight className="size-6 text-muted-foreground transition-transform group-hover:translate-x-1" aria-hidden="true" />
               </button>
               
               <button 
