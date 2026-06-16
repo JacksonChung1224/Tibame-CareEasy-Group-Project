@@ -96,8 +96,14 @@ export default function Home() {
           <div className="w-full flex flex-col items-center">
             {/* 首圖區塊 */}
             <div className="relative w-full overflow-hidden rounded-3xl bg-secondary h-48 md:h-56 flex items-center justify-center">
-               {/* 這裡目前用色塊模擬圖片，如果您有準備 /images/care-hero.png 可以換回 Image tag */}
-               <HeartHandshake className="size-20 text-primary opacity-20" />
+              <Image
+                src="/images/care-hero.png"
+                alt="女兒陪伴並攙扶著年長的家人一起散步"
+                width={640}
+                height={480}
+                priority
+                className="h-full w-full object-cover object-center"
+              />
             </div>
 
             <span className="mt-8 inline-flex items-center gap-2 rounded-full bg-accent/12 px-4 py-2 text-base font-semibold text-accent">
