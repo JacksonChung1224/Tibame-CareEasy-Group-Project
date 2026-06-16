@@ -139,21 +139,25 @@ export default function Home() {
             </ul>
 
             <div className="mt-10 w-full space-y-4">
-              <p className="text-lg font-bold text-foreground mb-2">請問您是否已申請過長照補助 (CMS)？</p>
+              <div className="text-center mb-4">
+                <span className="inline-block bg-primary text-primary-foreground text-sm font-bold px-3 py-1 rounded-full mb-2">開始試算</span>
+                <p className="text-lg font-bold text-foreground">請問您是否已申請過長照補助 (CMS)？</p>
+              </div>
+
               <button 
                 onClick={() => startQuiz(true)} 
-                className="group flex w-full items-center justify-between rounded-2xl bg-card text-foreground ring-1 ring-border h-16 px-6 text-xl font-bold shadow-sm transition-all hover:bg-secondary active:scale-95"
+                className="group flex w-full items-center justify-between rounded-2xl bg-primary/10 text-foreground ring-2 ring-primary/30 h-16 px-6 text-xl font-bold shadow-sm transition-all hover:bg-primary/20 active:scale-95"
               >
                 <span>有申請過 CMS</span>
-                <ArrowRight className="size-6 text-muted-foreground transition-transform group-hover:translate-x-1" aria-hidden="true" />
+                <ArrowRight className="size-6 text-primary transition-transform group-hover:translate-x-1" aria-hidden="true" />
               </button>
               
               <button 
                 onClick={() => startQuiz(false)} 
-                className="group flex w-full items-center justify-between rounded-2xl bg-card text-foreground ring-1 ring-border h-16 px-6 text-xl font-bold shadow-sm transition-all hover:bg-secondary active:scale-95"
+                className="group flex w-full items-center justify-between rounded-2xl bg-primary/10 text-foreground ring-2 ring-primary/30 h-16 px-6 text-xl font-bold shadow-sm transition-all hover:bg-primary/20 active:scale-95"
               >
                 <span>沒有申請過</span>
-                <ArrowRight className="size-6 text-muted-foreground transition-transform group-hover:translate-x-1" aria-hidden="true" />
+                <ArrowRight className="size-6 text-primary transition-transform group-hover:translate-x-1" aria-hidden="true" />
               </button>
             </div>
             
