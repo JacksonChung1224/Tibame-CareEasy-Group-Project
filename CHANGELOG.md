@@ -33,6 +33,7 @@
 - `src/app/page.js`: 將原本的分頁切換按鈕優化為 1 ➔ 2 ➔ 3 步進器 (Stepper) 視覺，強化流程引導感。
 
 ### Changed
+- `src/app/page.js`: 優化「回到首頁」按鈕：放大點擊範圍、加上白底膠囊狀視覺，並增加「回首頁」文字提示，提升長輩使用者的操作直覺性與安心感。
 - `src/components/AssessmentQuiz.jsx`: 變更 Supabase `insert` 邏輯，現在會手動抓取精確的台灣時間 (`Asia/Taipei`) 帶入 `created_at` 欄位寫入資料庫，解決預設 UTC 時差問題。
 
 ### Fixed

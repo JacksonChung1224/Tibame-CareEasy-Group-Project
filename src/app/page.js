@@ -42,10 +42,11 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-stone-50 flex flex-col items-center py-6 px-4 relative">
+    <div className="min-h-screen bg-stone-50 flex flex-col items-center pt-16 pb-6 px-4 relative">
       {tab !== "start" && (
-        <button onClick={goHome} className="absolute top-6 left-4 p-2 text-stone-400 hover:text-teal-600 hover:bg-teal-50 rounded-full transition">
-          <HomeIcon className="w-6 h-6" />
+        <button onClick={goHome} className="absolute top-4 left-4 z-10 flex items-center gap-2 px-4 py-2.5 bg-white border-2 border-stone-200 text-stone-600 hover:text-teal-700 hover:border-teal-400 hover:bg-teal-50 rounded-full shadow-sm transition-all active:scale-95">
+          <HomeIcon className="w-5 h-5 md:w-6 md:h-6" />
+          <span className="font-bold text-sm md:text-base tracking-wide">回首頁</span>
         </button>
       )}
       
