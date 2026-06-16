@@ -29,8 +29,10 @@
 > 尚未發版的變更請記錄於此區塊，發版時再移至正式版本號下。
 
 ### Added
-- `src/app/page.js`: 新增「回到首頁」圖示按鈕，附帶 `window.confirm` 防呆機制，避免使用者誤觸流失資料。
-- `src/app/page.js`: 將原本的分頁切換按鈕優化為 1 ➔ 2 ➔ 3 步進器 (Stepper) 視覺，強化流程引導感。
+- 🎨 **全站設計系統導入**：依據 `DESIGN_SYSTEM_CareEasy.md` 與 `home-hero.tsx`，徹底翻新全站 UI 介面。
+  - **色彩與排版**：全面導入 Tailwind CSS 變數，設定溫暖橘 (`Primary`)、沉穩綠 (`Accent`) 與米白 (`Background`)。
+  - **首頁 (`page.js`)**：引進帶有 `Home` 圖示與 `Care Easy` 品牌標示的專屬頭部列；新增情境圖片與三大信賴小點卡片；將原本單調的按鈕改為視覺凸出的大雙選項按鈕。
+  - **問卷與試算表 (`AssessmentQuiz.jsx`, `SubsidyCalculator.jsx`, `ResultTable.jsx`)**：套用大圓角 (`rounded-2xl`)、大高度觸控區 (`h-14` / `min-h-[56px]`) 與更清晰的陰影卡片設計，解決原本過於簡陋的問題，確保 50歲以上長輩使用者能直覺點擊、安心操作。
 
 ### Changed
 - `src/app/page.js`: 優化「回到首頁」按鈕：放大點擊範圍、加上白底膠囊狀視覺，並增加「回首頁」文字提示，提升長輩使用者的操作直覺性與安心感。
