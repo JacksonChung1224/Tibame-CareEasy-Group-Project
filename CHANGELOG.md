@@ -28,6 +28,10 @@
 
 > 尚未發版的變更請記錄於此區塊，發版時再移至正式版本號下。
 
+---
+
+## [1.1.0] - 2026-06-16
+
 ### Added
 - 🎨 **全站設計系統導入**：依據 `DESIGN_SYSTEM_CareEasy.md` 與 `home-hero.tsx`，徹底翻新全站 UI 介面。
   - **色彩與排版**：全面導入 Tailwind CSS 變數，設定溫暖橘 (`Primary`)、沉穩綠 (`Accent`) 與米白 (`Background`)。
