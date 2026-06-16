@@ -51,23 +51,39 @@ export default function AssessmentQuiz({ hasApplied, actualLevel, onResult }) {
       // Calculate final min level to store
       const calculated_cms_level = lvlInfo.min; 
       
+      // Get precise Taiwan time for record
+      const taiwanTimeStr = new Date().toLocaleString("sv-SE", { timeZone: "Asia/Taipei" }) + "+08:00";
+      
+      // Add custom tw_time to answers JSON for extra safety
+      const finalAnswers = { ...answers, tw_time: taiwanTimeStr };
+
       const { error } = await supabase.from('assessment_records').insert([
         {
           has_applied_cms: hasApplied,
           calculated_cms_level,
           actual_cms_level: hasApplied ? actualLevel : null,
-          answers,
-          is_dementia_path: isDementia
+          answers: finalAnswers,
+          is_dementia_path: isDementia,
+          created_at: taiwanTimeStr // Force UTC+8 time into timestamptz column
         }
       ]);
       
-      if (error) console.error("Supabase Error:", error);
+      if (error) {
+        console.error("Supabase Error:", error);
+        alert("網路異常或存檔失敗，請確認環境變數後再試一次！");
+        setSubmitting(false);
+        return; // Stop execution, don't show result page
+      }
+      
+      // If success, show result
+      setSubmitting(false);
+      setResult(lvlInfo);
+      setDone(true);
     } catch (err) {
       console.error("Save Error:", err);
+      alert("系統發生未預期錯誤，請稍後再試！");
+      setSubmitting(false);
     }
-    setSubmitting(false);
-    setResult(lvlInfo);
-    setDone(true);
   };
 
   const next = () => {
