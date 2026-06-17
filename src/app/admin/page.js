@@ -64,6 +64,7 @@ export default function AdminPage() {
         "紀錄ID": row.id,
         "建立時間(台灣)": twTime,
         "是否申請過CMS": row.has_applied_cms ? "是" : "否",
+        "實際核定級數": row.actual_cms_level || "無",
         "系統推估級數": row.calculated_cms_level || "無",
         "是否走失智路徑": row.is_dementia_path ? "是" : "否",
         
@@ -140,6 +141,7 @@ export default function AdminPage() {
       { wch: 36 }, // 紀錄ID
       { wch: 20 }, // 建立時間
       { wch: 15 }, // 是否申請過CMS
+      { wch: 15 }, // 實際核定級數
       { wch: 12 }, // 系統推估級數
       { wch: 15 }, // 是否走失智路徑
       { wch: 15 }, // 申請者身分別
@@ -254,6 +256,7 @@ export default function AdminPage() {
                     <tr>
                       <th className="pb-3 px-2 font-bold whitespace-nowrap">建立時間 (台灣)</th>
                       <th className="pb-3 px-2 font-bold whitespace-nowrap">申請過 CMS</th>
+                      <th className="pb-3 px-2 font-bold whitespace-nowrap">實際級數</th>
                       <th className="pb-3 px-2 font-bold whitespace-nowrap">推估級數</th>
                       <th className="pb-3 px-2 font-bold whitespace-nowrap">失智路徑</th>
                       <th className="pb-3 px-2 font-bold whitespace-nowrap">同住家人</th>
@@ -273,6 +276,7 @@ export default function AdminPage() {
                               {record.has_applied_cms ? "是" : "否"}
                             </span>
                           </td>
+                          <td className="py-3 px-2 text-foreground font-bold">{record.actual_cms_level || "-"}</td>
                           <td className="py-3 px-2 text-foreground font-bold">{record.calculated_cms_level || "-"}</td>
                           <td className="py-3 px-2 text-muted-foreground">{record.is_dementia_path ? "是" : "否"}</td>
                           <td className="py-3 px-2 text-muted-foreground">{living}</td>
