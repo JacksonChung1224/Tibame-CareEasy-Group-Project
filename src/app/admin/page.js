@@ -69,10 +69,7 @@ export default function AdminPage() {
         "是否走失智路徑": row.is_dementia_path ? "是" : "否",
         
         // 攤平 Answers 的核心欄位
-        "申請者身分別": ans.identity === "elder" ? "65歲以上" : ans.identity === "indigenous" ? "55歲以上原住民" : ans.identity === "disability" ? "身心障礙者" : ans.identity || "",
-        "居住縣市": ans.region || "",
-        "居住狀況": ans.living_status === "alone" ? "獨居" : ans.living_status === "with_family" ? "與家人同住" : ans.living_status === "institution" ? "住機構" : ans.living_status || "",
-        "照顧者狀況": ans.caregiver_status === "foreign" ? "有外籍看護" : ans.caregiver_status === "family" ? "無外籍看護，家人照顧" : ans.caregiver_status === "none" ? "無人照顧" : ans.caregiver_status || "",
+        "申請者身分別": ans.identity === "elder" ? "65歲以上" : ans.identity === "indigenous" ? "55歲以上原住民" : ans.identity === "disability" ? "身心障礙者" : ans.identity || "一般/未填寫",
         
         // 失智與特殊醫療
         "CDR分數(失智路徑)": ans.cdr ?? "",
@@ -145,9 +142,6 @@ export default function AdminPage() {
       { wch: 12 }, // 系統推估級數
       { wch: 15 }, // 是否走失智路徑
       { wch: 15 }, // 申請者身分別
-      { wch: 12 }, // 居住縣市
-      { wch: 15 }, // 居住狀況
-      { wch: 20 }, // 照顧者狀況
       { wch: 15 }, // CDR分數
       { wch: 15 }, // 行為與精神症狀
       { wch: 30 }, // 特殊醫療照護需求
@@ -259,14 +253,14 @@ export default function AdminPage() {
                       <th className="pb-3 px-2 font-bold whitespace-nowrap">實際級數</th>
                       <th className="pb-3 px-2 font-bold whitespace-nowrap">推估級數</th>
                       <th className="pb-3 px-2 font-bold whitespace-nowrap">失智路徑</th>
-                      <th className="pb-3 px-2 font-bold whitespace-nowrap">同住家人</th>
+                      <th className="pb-3 px-2 font-bold whitespace-nowrap">身分別</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border/50">
                     {records.slice(0, 10).map((record) => {
                       const ans = record.answers || {};
                       const twTime = ans.tw_time ? ans.tw_time.replace("+08:00", "") : new Date(record.created_at).toLocaleString("zh-TW", { timeZone: "Asia/Taipei" });
-                      const living = ans.living_status === "alone" ? "獨居" : ans.living_status === "with_family" ? "與家人同住" : ans.living_status === "institution" ? "住機構" : "未填寫";
+                      const identityLabel = ans.identity === "elder" ? "65歲以上" : ans.identity === "indigenous" ? "原住民" : ans.identity === "disability" ? "身心障礙" : "-";
                       
                       return (
                         <tr key={record.id} className="hover:bg-secondary/50 transition-colors">
@@ -279,7 +273,7 @@ export default function AdminPage() {
                           <td className="py-3 px-2 text-foreground font-bold">{record.actual_cms_level || "-"}</td>
                           <td className="py-3 px-2 text-foreground font-bold">{record.calculated_cms_level || "-"}</td>
                           <td className="py-3 px-2 text-muted-foreground">{record.is_dementia_path ? "是" : "否"}</td>
-                          <td className="py-3 px-2 text-muted-foreground">{living}</td>
+                          <td className="py-3 px-2 text-muted-foreground">{identityLabel}</td>
                         </tr>
                       );
                     })}

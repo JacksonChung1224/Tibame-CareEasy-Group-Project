@@ -135,7 +135,10 @@ export default function AssessmentQuiz({ hasApplied, actualLevel, onResult }) {
           <p className="text-base text-muted-foreground mb-4">請確認長輩符合以下至少一項資格：</p>
           <div className="space-y-3">
             {ELIGIBILITY_OPTIONS.map(opt => (
-              <button key={opt.id} onClick={() => { setIsDementia(false); setStage("quiz"); setStep(0); }} className="w-full text-left px-5 py-4 rounded-2xl ring-1 ring-border bg-card text-foreground hover:ring-accent hover:bg-accent/12 transition-all flex gap-3 items-center active:scale-95">
+              <button key={opt.id} onClick={() => { 
+                setAnswers(prev => ({ ...prev, identity: opt.id }));
+                setIsDementia(false); setStage("quiz"); setStep(0); 
+              }} className="w-full text-left px-5 py-4 rounded-2xl ring-1 ring-border bg-card text-foreground hover:ring-accent hover:bg-accent/12 transition-all flex gap-3 items-center active:scale-95">
                 <span className="text-2xl">{opt.icon}</span>
                 <span className="font-bold text-lg">{opt.label}</span>
               </button>
