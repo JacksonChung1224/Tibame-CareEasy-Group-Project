@@ -25,16 +25,22 @@ export default function AdminPage() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from("assessment_records")
-        .select("*")
-        .order("created_at", { ascending: false });
+      const response = await fetch("/api/admin/records", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: "care2026" })
+      });
 
-      if (error) throw error;
-      setRecords(data);
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to fetch data");
+      }
+
+      setRecords(result.data);
     } catch (err) {
       console.error(err);
-      setError("讀取資料失敗，請確認 Supabase 連線狀態。");
+      setError("讀取資料失敗，請確認伺服器連線狀態。");
     } finally {
       setLoading(false);
     }

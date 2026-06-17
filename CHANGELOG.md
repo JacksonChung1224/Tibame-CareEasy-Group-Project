@@ -31,6 +31,7 @@
 ### Added
 - 🚀 **新增報表匯出專用後台 (`/admin`)**：為營運團隊打造專屬的資料下載頁面。
   - **安全防護**：加入簡單的通關密碼機制 (`care2026`)，避免資料外洩。
+  - **🛡️ 企業級資安升級 (RLS & Service Role Key)**：廢棄前端直連資料庫的危險作法。新增 `src/app/api/admin/records/route.js` 後端 API，前端必須攜帶密碼呼叫後端，由後端持「無敵金鑰 (Service Role Key)」繞過 RLS 撈取資料。此架構確保了資料庫能在 RLS 完全開啟的狀態下依然能安全匯出。
   - **資料清洗與翻譯**：自動攤平 `answers` JSON 結構，並將所有欄位名稱及選項內容翻譯為易讀的中文（例如：將 `calculated_cms_level` 轉換為 `系統推估級數`）。
   - **修復 CSV 中文亂碼**：匯出 CSV 時強制寫入 UTF-8 BOM (`\uFEFF`)，徹底解決以 Microsoft Excel 開啟時的中文亂碼問題。
   - **支援原生 Excel 格式**：整合 `xlsx` 套件，新增 `.xlsx` 一鍵下載功能，方便行政人員直接編輯整理。
