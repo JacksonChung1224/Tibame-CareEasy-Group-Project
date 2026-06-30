@@ -15,7 +15,9 @@ export default function AssessmentQuiz({ hasApplied, actualLevel, onResult }) {
   const [result, setResult] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const questions = isDementia ? DEMENTIA_QUESTIONS : [...ADL_QUESTIONS, ...NON_DEMENTIA_EXTRA];
+  const questions = isDementia 
+    ? [...DEMENTIA_QUESTIONS, ...ADL_QUESTIONS] 
+    : [...ADL_QUESTIONS, ...NON_DEMENTIA_EXTRA];
   const q = questions[step];
 
   const resetAll = () => {
