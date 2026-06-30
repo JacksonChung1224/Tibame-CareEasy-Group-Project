@@ -54,22 +54,23 @@ export default function AssessmentQuiz({ hasApplied, actualLevel, onResult }) {
       const taiwanTimeStr = new Date().toLocaleString("sv-SE", { timeZone: "Asia/Taipei" }) + "+08:00";
       const finalAnswers = { ...answers, tw_time: taiwanTimeStr };
 
-      const { error } = await supabase.from('assessment_records').insert([
-        {
+      const response = await fetch('/api/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
           has_applied_cms: hasApplied,
           calculated_cms_level,
           actual_cms_level: hasApplied ? actualLevel : null,
           answers: finalAnswers,
           is_dementia_path: isDementia,
           created_at: taiwanTimeStr
-        }
-      ]);
-      
-      if (error) {
-        console.error("Supabase Error:", error);
-        alert("網路異常或存檔失敗，請確認環境變數後再試一次！");
-        setSubmitting(false);
-        return; 
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error("API request failed");
       }
       
       setSubmitting(false);
