@@ -1,0 +1,148 @@
+[
+  {
+    "note": "健康長輩,巴氏滿分,無 IADL 障礙 → 未達失能(1級)",
+    "is_dementia_path": false,
+    "actual_cms_level": 1,
+    "answers": {
+      "adl_eating": 10, "adl_transfer": 15, "adl_hygiene": 5, "adl_toilet": 10,
+      "adl_bathing": 5, "adl_walking": 15, "adl_stairs": 10, "adl_dressing": 10,
+      "adl_bowel": 10, "adl_bladder": 10, "iadl": [], "behavior": 0, "medical": ["__none__"]
+    }
+  },
+  {
+    "note": "身體大致自理但 IADL 多項障礙(備餐/購物/理財) → 輕度 2級",
+    "is_dementia_path": false,
+    "actual_cms_level": 2,
+    "answers": {
+      "adl_eating": 10, "adl_transfer": 15, "adl_hygiene": 5, "adl_toilet": 10,
+      "adl_bathing": 5, "adl_walking": 15, "adl_stairs": 5, "adl_dressing": 10,
+      "adl_bowel": 10, "adl_bladder": 10,
+      "iadl": ["購物買菜", "備餐煮飯", "處理金錢帳務", "搭乘交通工具外出"],
+      "behavior": 0, "medical": ["__none__"]
+    }
+  },
+  {
+    "note": "洗澡上下樓需協助,巴氏約 70 → 輕度 3級",
+    "is_dementia_path": false,
+    "actual_cms_level": 3,
+    "answers": {
+      "adl_eating": 10, "adl_transfer": 10, "adl_hygiene": 5, "adl_toilet": 5,
+      "adl_bathing": 0, "adl_walking": 10, "adl_stairs": 5, "adl_dressing": 5,
+      "adl_bowel": 10, "adl_bladder": 10,
+      "iadl": ["購物買菜", "備餐煮飯"], "behavior": 0, "medical": ["__none__"]
+    }
+  },
+  {
+    "note": "需輪椅,多項 ADL 高度協助,巴氏約 50 → 中度 4級",
+    "is_dementia_path": false,
+    "actual_cms_level": 4,
+    "answers": {
+      "adl_eating": 5, "adl_transfer": 10, "adl_hygiene": 0, "adl_toilet": 5,
+      "adl_bathing": 0, "adl_walking": 5, "adl_stairs": 0, "adl_dressing": 5,
+      "adl_bowel": 10, "adl_bladder": 10,
+      "iadl": ["購物買菜", "備餐煮飯", "管理用藥", "洗衣服"], "behavior": 0, "medical": ["__none__"]
+    }
+  },
+  {
+    "note": "巴氏約 35,偶發失禁 → 中度 5級",
+    "is_dementia_path": false,
+    "actual_cms_level": 5,
+    "answers": {
+      "adl_eating": 5, "adl_transfer": 5, "adl_hygiene": 0, "adl_toilet": 5,
+      "adl_bathing": 0, "adl_walking": 5, "adl_stairs": 0, "adl_dressing": 5,
+      "adl_bowel": 5, "adl_bladder": 0,
+      "iadl": [], "behavior": 0, "medical": ["__none__"]
+    }
+  },
+  {
+    "note": "巴氏約 20,大量依賴 → 中重度 6級",
+    "is_dementia_path": false,
+    "actual_cms_level": 6,
+    "answers": {
+      "adl_eating": 5, "adl_transfer": 5, "adl_hygiene": 0, "adl_toilet": 0,
+      "adl_bathing": 0, "adl_walking": 0, "adl_stairs": 0, "adl_dressing": 5,
+      "adl_bowel": 0, "adl_bladder": 0,
+      "iadl": [], "behavior": 0, "medical": ["__none__"]
+    }
+  },
+  {
+    "note": "巴氏約 10,幾近全臥床,無管路 → 重度 7級",
+    "is_dementia_path": false,
+    "actual_cms_level": 7,
+    "answers": {
+      "adl_eating": 0, "adl_transfer": 5, "adl_hygiene": 0, "adl_toilet": 0,
+      "adl_bathing": 0, "adl_walking": 0, "adl_stairs": 0, "adl_dressing": 0,
+      "adl_bowel": 0, "adl_bladder": 0,
+      "iadl": [], "behavior": 0, "medical": ["__none__"]
+    }
+  },
+  {
+    "note": "完全臥床 + 鼻胃管+導尿管(黃金組合) → 極重度 8級",
+    "is_dementia_path": false,
+    "actual_cms_level": 8,
+    "answers": {
+      "adl_eating": 0, "adl_transfer": 0, "adl_hygiene": 0, "adl_toilet": 0,
+      "adl_bathing": 0, "adl_walking": 0, "adl_stairs": 0, "adl_dressing": 0,
+      "adl_bowel": 0, "adl_bladder": 0,
+      "iadl": [], "behavior": 0, "medical": ["鼻胃管灌食", "導尿管護理"]
+    }
+  },
+  {
+    "note": "身體健康但攻擊行為+強烈抗拒照顧(BPSD跳級) → 中度約 5級",
+    "is_dementia_path": false,
+    "actual_cms_level": 5,
+    "answers": {
+      "adl_eating": 10, "adl_transfer": 15, "adl_hygiene": 5, "adl_toilet": 10,
+      "adl_bathing": 5, "adl_walking": 15, "adl_stairs": 10, "adl_dressing": 10,
+      "adl_bowel": 10, "adl_bladder": 10,
+      "iadl": ["備餐煮飯"], "behavior": 2, "medical": ["__none__"]
+    }
+  },
+  {
+    "note": "失智 CDR 0.5,身體自理 → 輕度 2級",
+    "is_dementia_path": true,
+    "actual_cms_level": 2,
+    "answers": { "cdr": 0.5, "behavior": 0, "medical": ["__none__"] }
+  },
+  {
+    "note": "失智 CDR 1,需提醒督促 → 輕度 3級",
+    "is_dementia_path": true,
+    "actual_cms_level": 3,
+    "answers": { "cdr": 1, "behavior": 0, "medical": ["__none__"] }
+  },
+  {
+    "note": "失智 CDR 1 但同時身體臥床(ADL差) → 應取較嚴重者,非僅看CDR",
+    "is_dementia_path": true,
+    "actual_cms_level": 6,
+    "answers": {
+      "cdr": 1, "behavior": 0, "medical": ["__none__"],
+      "adl_eating": 5, "adl_transfer": 5, "adl_hygiene": 0, "adl_toilet": 0,
+      "adl_bathing": 0, "adl_walking": 0, "adl_stairs": 0, "adl_dressing": 5,
+      "adl_bowel": 0, "adl_bladder": 0, "iadl": []
+    }
+  },
+  {
+    "note": "失智 CDR 2,出門走失 → 中度約 5級",
+    "is_dementia_path": true,
+    "actual_cms_level": 5,
+    "answers": { "cdr": 2, "behavior": 0, "medical": ["__none__"] }
+  },
+  {
+    "note": "失智 CDR 2 + 頻繁攻擊行為(BPSD加權) → 中重度約 6級",
+    "is_dementia_path": true,
+    "actual_cms_level": 6,
+    "answers": { "cdr": 2, "behavior": 2, "medical": ["__none__"] }
+  },
+  {
+    "note": "失智 CDR 3,不認識家人,完全依賴 → 重度 7級",
+    "is_dementia_path": true,
+    "actual_cms_level": 7,
+    "answers": { "cdr": 3, "behavior": 0, "medical": ["__none__"] }
+  },
+  {
+    "note": "失智 CDR 3 + 鼻胃管(黃金組合) → 極重度 8級",
+    "is_dementia_path": true,
+    "actual_cms_level": 8,
+    "answers": { "cdr": 3, "behavior": 0, "medical": ["鼻胃管灌食"] }
+  }
+]
