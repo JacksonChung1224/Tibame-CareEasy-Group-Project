@@ -29,6 +29,10 @@
 > 尚未發版的變更請記錄於此區塊，發版時再移至正式版本號下。
 
 ### Added
+- 🚀 **首頁三入口重構 (Landing Page)**：
+  - 新增包含「試算補助」、「我是家屬」、「我是機構」三個入口卡片的首頁 (`src/app/page.js`)，作為完整的三端樞紐。
+- 🚀 **機構端雛形實作 (Institution Dashboard)**：
+  - 將原有的機構端 Alpine.js 原型全面改寫為純前端 React Component (`src/components/InstitutionDashboard.jsx`)，建立於 `/institution` 路由，支援排班計畫載入與紙本對帳室模擬，並整合 `xlsx` 套件提供核銷報表匯出功能。
 - 🚀 **家屬端照護日誌升級 (FamilyDiaryV3)**：
   - **邀請碼連動流程**：新增與機構端連動的 UI 骨架，輸入邀請碼後可切換至 `connected` 模式查看居服員紀錄。
   - **快速標籤 (Chips)**：取代純自由文字，支援「嗆咳、吃得少」等結構化標籤複選，大幅降低輸入摩擦。
@@ -50,6 +54,8 @@
   - **支援原生 Excel 格式**：整合 `xlsx` 套件，新增 `.xlsx` 一鍵下載功能，方便行政人員直接編輯整理。
 
 ### Changed
+- `src/app/calculator/page.js`: 將原先的首頁試算平台整體搬遷至獨立的 `/calculator` 路由。
+- 🔧 **常數收斂 (Backlog B1)**：將 `FamilyDiaryV3.jsx` 中的硬編碼費率常數（`BA_MAP`, `CMS_BUDGET`, `WELFARE_RATE`）全面移除，並統一由 `src/utils/careData.js` 引入，確保全站法規資料的單一來源 (Single Source of Truth)。
 - `src/components/SubsidyCalculator.jsx`: 全面翻新四包錢明細的顯示邏輯。棄用原本直接展開的純文字，改為依賴 `ExpandablePackage` 與 `PartnerServiceCard` 組成具備高度互動性的區塊。
 - `src/app/page.js`: 增強首頁底部行動呼籲 (CTA) 區塊的 UX 設計。將按鈕改為淺橘色底 (`bg-primary/10`) 並加上主色外框，且在標題上方新增「開始試算」的提示小標籤，引導長輩明確知道該從何處開始操作。
 - `src/app/page.js`: 微調首頁底部選項按鈕樣式，將「有申請過 CMS」的橘色背景改為與未申請相同的白底外框 (`bg-card`)，避免過於強烈的視覺暗示導致使用者直覺誤點。

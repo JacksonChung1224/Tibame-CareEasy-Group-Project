@@ -400,3 +400,18 @@ export function calcTransport(amount, identityKey, regionIdx) {
 export function canUseTransport(level) {
   return level >= 2;
 }
+
+export const BA_MAP = {
+  BA01:{name:"基本身體清潔",price:260}, BA02:{name:"基本日常照顧",price:195},
+  BA03:{name:"測量生命徵象",price:35},  BA04:{name:"協助進食或管灌",price:130},
+  BA05:{name:"餐食照顧",price:310},     BA07:{name:"協助沐浴及洗頭",price:325},
+  BA10:{name:"翻身拍背",price:155},     BA11:{name:"肢體關節活動",price:195},
+  BA12:{name:"協助上下樓梯",price:130}, BA13:{name:"陪同外出",price:195},
+  BA14:{name:"陪同就醫",price:685},     BA15:{name:"家務協助",price:195},
+  BA16:{name:"代購代領代送",price:130}, BA17a:{name:"人工氣道抽吸",price:75},
+  BA17b:{name:"口腔分泌物抽吸",price:65},BA17c:{name:"尿管鼻胃管清潔",price:50},
+  BA17d1:{name:"血糖機驗血糖",price:50},BA17d2:{name:"甘油球通便",price:50},
+  BA17e:{name:"依指示置入藥盒",price:50},BA18:{name:"安全看視",price:200},
+  BA20:{name:"陪伴服務",price:175},     BA22:{name:"巡視服務",price:130},
+  BA23:{name:"協助洗頭",price:200},     BA24:{name:"協助排泄",price:220},
+};

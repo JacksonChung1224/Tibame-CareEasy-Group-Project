@@ -94,6 +94,7 @@ export default function SubsidyCalculator({ initLevel }) {
               >{v}</button>
             ))}
           </div>
+          <div className="text-xs text-muted-foreground mt-2">實際身分類別以照管中心核定為準</div>
         </div>
 
         <div>
@@ -102,7 +103,7 @@ export default function SubsidyCalculator({ initLevel }) {
             className={`w-full text-left px-4 py-3 rounded-xl ring-1 transition-all active:scale-95 min-h-[56px] ${hasForeign ? "ring-2 ring-accent bg-accent/12 text-accent shadow-sm" : "ring-border bg-card text-foreground hover:ring-accent/50"}`}
           >
             <span className="font-bold text-base">{hasForeign ? "✓ 有聘僱外籍看護" : "沒有聘僱外籍看護"}</span>
-            {hasForeign && <span className="block mt-1 text-sm leading-relaxed text-accent/80">長照 3.0 起，本包額度以 30% 計算，可用於日間照顧中心、家庭托顧或專業服務。</span>}
+            {hasForeign && <span className="block mt-1 text-sm leading-relaxed text-accent/80">長照 3.0 起，本包額度以 30% 計算，可用於日間照顧中心、家庭托顧或專業服務。<br/>外看請假返國或空窗期間，出具證明可暫依一般額度使用服務。</span>}
           </button>
         </div>
 

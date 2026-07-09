@@ -14,24 +14,9 @@
  */
 import { useState } from "react";
 import { computeSignals, shouldSuggestReassessment } from "@/utils/signalEngine";
+import { BA_MAP, CARE_SUBSIDY as CMS_BUDGET, IDENTITY_RATES } from "@/utils/careData";
 
-// ── 官方費率（衛福部附表四 114/06/19）⚠️ P0-3 驗證中 ──────
-const BA_MAP = {
-  BA01:{name:"基本身體清潔",price:260}, BA02:{name:"基本日常照顧",price:195},
-  BA03:{name:"測量生命徵象",price:35},  BA04:{name:"協助進食或管灌",price:130},
-  BA05:{name:"餐食照顧",price:310},     BA07:{name:"協助沐浴及洗頭",price:325},
-  BA10:{name:"翻身拍背",price:155},     BA11:{name:"肢體關節活動",price:195},
-  BA12:{name:"協助上下樓梯",price:130}, BA13:{name:"陪同外出",price:195},
-  BA14:{name:"陪同就醫",price:685},     BA15:{name:"家務協助",price:195},
-  BA16:{name:"代購代領代送",price:130}, BA17a:{name:"人工氣道抽吸",price:75},
-  BA17b:{name:"口腔分泌物抽吸",price:65},BA17c:{name:"尿管鼻胃管清潔",price:50},
-  BA17d1:{name:"血糖機驗血糖",price:50},BA17d2:{name:"甘油球通便",price:50},
-  BA17e:{name:"依指示置入藥盒",price:50},BA18:{name:"安全看視",price:200},
-  BA20:{name:"陪伴服務",price:175},     BA22:{name:"巡視服務",price:130},
-  BA23:{name:"協助洗頭",price:200},     BA24:{name:"協助排泄",price:220},
-};
-const WELFARE_RATE = { general:0.16, mid_low:0.05, low:0 }; // ⚠️ P0-3 第1、2項
-const CMS_BUDGET = {2:10020,3:15460,4:18580,5:24100,6:28070,7:32090,8:36180}; // ⚠️ P0-3 第4項
+const WELFARE_RATE = IDENTITY_RATES.care; // ⚠️ P0-3 第1、2項
 
 // ── P0-2：邀請碼（先寫死常數，之後接 Supabase）─────────────
 const INVITE = { code: "CARE01", institution: "台北市居家服務中心", caseId: "c1" };
@@ -148,7 +133,7 @@ function WorkerCard({log, date}) {
       <div className="flex flex-wrap gap-1.5">
         {log.codes.map(c=>(
           <span key={c} className="text-xs bg-white border border-teal-200 text-teal-700 font-mono font-bold px-2 py-0.5 rounded-md">
-            {c} {BA_MAP[c]?.name}
+            {c} {BA_MAP[c]?.name} {["BA08","BA09","BA09a"].includes(c) ? "(金額以最新公告為準)" : ""}
           </span>
         ))}
       </div>
@@ -321,9 +306,9 @@ function QuotaPanel({caseData}) {
         <div className="flex gap-2">
           <span className={`font-bold px-2 py-0.5 rounded-full ${
             welfare==="low"?"bg-emerald-100 text-emerald-700":
-            welfare==="mid_low"?"bg-teal-100 text-teal-700":"bg-stone-100 text-stone-600"
+            welfare==="midlow"?"bg-teal-100 text-teal-700":"bg-stone-100 text-stone-600"
           }`}>
-            {welfare==="low"?"低收入戶":welfare==="mid_low"?"中低收入戶":"一般戶"}
+            {welfare==="low"?"低收入戶":welfare==="midlow"?"中低收入戶":"一般戶"}
           </span>
           <span className="text-stone-400">自付 {Math.round(rate*100)}%</span>
         </div>
@@ -523,7 +508,7 @@ export default function FamilyDiaryV3() {
                 <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">{caseData.institution}</span>
                 <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">CMS {caseData.cmsLevel}</span>
                 <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">
-                  {caseData.welfare==="low"?"低收入戶":caseData.welfare==="mid_low"?"中低收入戶":"一般戶"}
+                  {caseData.welfare==="low"?"低收入戶":caseData.welfare==="midlow"?"中低收入戶":"一般戶"}
                 </span>
                 <button onClick={()=>setShowDisconnect(true)}
                   className="text-xs underline opacity-50 hover:opacity-90 ml-1">
@@ -716,7 +701,7 @@ export default function FamilyDiaryV3() {
                 <p className="text-xs text-red-700 leading-relaxed">
                   {/* ⚠️ P0-3 第6項：文案由「依規定可申請」改為行動引導，待 Specialist 確認 */}
                   有 {concordantDims.length} 個面向出現家屬與居服員一致觀察到的退步（{concordantDims.join("、")}）。
-                  若狀況明顯改變，可聯繫照管專員或 A 個管，討論是否申請提前複評（須經照管中心評估）。
+                  若長輩狀況明顯改變，可聯繫照管專員或 A 個管討論是否提前複評（是否辦理由照管中心評估決定）。
                 </p>
                 <div className="flex gap-2">
                   <button className="flex-1 py-2.5 rounded-xl bg-teal-600 text-white text-xs font-bold hover:bg-teal-700 transition">
