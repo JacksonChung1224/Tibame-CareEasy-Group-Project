@@ -77,5 +77,26 @@ graph TD
   * **前端寫入 (Anon Key)**：開放任意寫入，但嚴格阻擋讀取。
   * **後端拉取 (Service Role Key)**：`/admin` 路由透過伺服器端 API (`/api/admin/records`) 驗證管理員密碼後，繞過 RLS 撈取資料進行 CSV/Excel 報表匯出。
 
-## 6. 未來擴充
+## 6. AI 協作與 UI/UX 開發規範 (Guidelines for AI Assistants)
+
+為了確保團隊成員使用其他 AI 平台協作產出的 UI/UX 程式碼在 Merge 時不破壞現有架構，**所有協作開發的 AI 助理必須嚴格遵守以下準則**：
+
+1. **樣式與元件庫限制 (Styling & Components)**
+   - **唯一標準**：只允許使用 `Tailwind CSS` 撰寫樣式，嚴禁引入其他 CSS 框架（如 Bootstrap、Material UI、Ant Design）。
+   - **圖示庫**：限定使用 `lucide-react`，不得私自 `npm install` 其他圖示套件。
+   - **客製化元件**：盡量以原生的 HTML 標籤搭配 Tailwind 實作（如使用 `<button className="...">` 而非封裝過度複雜的第三方套件），保持高自由度與輕量化。
+
+2. **邏輯與資料隔離原則 (Separation of Concerns)**
+   - **嚴禁在 UI 中 Hardcode 邏輯**：任何涉及「金額、費率、補助規則、CMS 級數判斷、異常訊號警示閾值」的邏輯，**絕對禁止**寫死在 React Component 內。
+   - **統一資料來源**：必須 import `src/utils/` 下的純函式（如 `careData.js`, `signalEngine.js`, `reconcile.js`）來取得資料與運算結果，UI 層僅負責「呈現」。
+
+3. **依賴套件管理 (Dependencies)**
+   - **零新增套件原則**：開發 UI 介面時，請使用專案既有的依賴，除非有架構師明確授權，否則**禁止新增任何 npm 套件**。
+
+4. **路由架構 (Routing Structure)**
+   - 遵循 `Next.js App Router` 規範。新的頁面請建置於 `src/app/` 目錄下對應的資料夾中（使用 `page.js`），共用或獨立的 UI 元件請統一放置於 `src/components/` 之下。
+
+---
+
+## 7. 未來擴充
 目前機構端的「邀請碼連動」為前端 Mock 流程，未來將藉由 Supabase 建立 `users`, `institutions`, `cases` 的關聯表，實現真正的 JWT 驗證與資料隔離權限控管。
