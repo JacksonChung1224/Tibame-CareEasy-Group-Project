@@ -3,6 +3,8 @@
 import { useState } from "react";
 import * as XLSX from "xlsx";
 import { CloudUpload, Table, Download, CheckCircle, AlertTriangle, FileSpreadsheet, ClipboardPaste, AlertCircle, Eye, Info } from "lucide-react";
+import { BA_MAP } from "@/utils/careData";
+import { reconcile } from "@/utils/reconcile";
 
 export default function InstitutionDashboard() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -15,10 +17,12 @@ export default function InstitutionDashboard() {
   // Load Mock CSV
   const loadMockData = () => {
     setImportedData([
-      { id: 1, date: "6/25", caseId: "A141408XXX", worker: "陳小美", code: "BA02", hours: 1 }, // Will match OK
-      { id: 2, date: "6/26", caseId: "A141408XXX", worker: "陳小美", code: "BA05", hours: 1 }, // Missing in OCR -> D1
-      { id: 3, date: "6/27", caseId: "A141408XXX", worker: "陳小美", code: "BA02", hours: 1.5 }, // Hours diff -> D3
-      { id: 4, date: "6/28", caseId: "A141408XXX", worker: "陳小美", code: "BA04", hours: 1 }, // Code diff -> D4
+      { id: 1, date: "6/25", caseId: "A141408XXX", worker: "陳小美", code: "BA02", hours: 1 },
+      { id: 2, date: "6/25", caseId: "A141408XXX", worker: "陳小美", code: "BA03", hours: 0.5 },
+      { id: 3, date: "6/26", caseId: "A141408XXX", worker: "陳小美", code: "BA05", hours: 1 },
+      { id: 4, date: "6/27", caseId: "A141408XXX", worker: "陳小美", code: "BA02", hours: 1.5 },
+      { id: 5, date: "6/27", caseId: "A141408XXX", worker: "陳小美", code: "BA07", hours: 1 },
+      { id: 6, date: "6/28", caseId: "A141408XXX", worker: "陳小美", code: "BA04", hours: 1 },
     ]);
     alert("已載入模擬排班表");
   };
@@ -27,9 +31,11 @@ export default function InstitutionDashboard() {
   const loadMockOcrData = () => {
     setOcrData([
       { id: 'o1', date: "6/25", caseId: "A141408XXX", code: "BA02", hours: 1, bp: "120/80", temp: "36.5", note: "", confidence: { code: 1, hours: 1, bp: 1, temp: 1, caseId: 1, date: 1, note: 1 } },
-      { id: 'o2', date: "6/27", caseId: "A141408XXX", code: "BA02", hours: 1, bp: "135/85", temp: "37.2", note: "", confidence: { caseId: 1, temp: 0.8, note: 1, code: 1, hours: 1, bp: 1, date: 1 } },
-      { id: 'o3', date: "6/28", caseId: "A141408XXX", code: "BA07", hours: 1, bp: "120/80", temp: "36.5", note: "", confidence: { caseId: 1, temp: 1, note: 1, code: 0.7, hours: 1, bp: 1, date: 1 } },
-      { id: 'o4', date: "6/29", caseId: "A141408XXX", code: "BA08", hours: 1.5, bp: "120/80", temp: "36.5", note: "臨時服務", confidence: { caseId: 1, temp: 1, note: 1, code: 1, hours: 1, bp: 1, date: 1 } }, // Missing in CSV -> D2
+      { id: 'o2', date: "6/25", caseId: "A141408XXX", code: "BA03", hours: 0.5, bp: "120/80", temp: "36.5", note: "", confidence: { caseId: 1, temp: 1, note: 1, code: 1, hours: 1, bp: 1, date: 1 } },
+      { id: 'o3', date: "6/27", caseId: "A141408XXX", code: "BA02", hours: 1, bp: "135/85", temp: "37.2", note: "", confidence: { caseId: 1, temp: 0.8, note: 1, code: 1, hours: 1, bp: 1, date: 1 } },
+      { id: 'o4', date: "6/27", caseId: "A141408XXX", code: "BA07", hours: 1, bp: "120/80", temp: "36.5", note: "", confidence: { caseId: 1, temp: 1, note: 1, code: 1, hours: 1, bp: 1, date: 1 } },
+      { id: 'o5', date: "6/28", caseId: "A141408XXX", code: "BA07", hours: 1, bp: "120/80", temp: "36.5", note: "", confidence: { caseId: 1, temp: 1, note: 1, code: 0.7, hours: 1, bp: 1, date: 1 } },
+      { id: 'o6', date: "6/29", caseId: "A141408XXX", code: "BA05", hours: 1.5, bp: "120/80", temp: "36.5", note: "", confidence: { caseId: 1, temp: 1, note: 1, code: 1, hours: 1, bp: 1, date: 1 } },
     ]);
   };
 
@@ -74,86 +80,9 @@ export default function InstitutionDashboard() {
       return;
     }
 
-    // Run reconciliation logic
-    let result = [];
-    let ocrUsed = new Set();
-
-    importedData.forEach(csvRow => {
-      const matchOcr = ocrData.find(ocr => ocr.caseId === csvRow.caseId && ocr.date === csvRow.date && !ocrUsed.has(ocr.id));
-      if (!matchOcr) {
-        result.push({
-          id: `csv-${csvRow.id}`,
-          date: csvRow.date,
-          caseId: csvRow.caseId,
-          worker: csvRow.worker,
-          code: csvRow.code,
-          hours: csvRow.hours,
-          status: 'D1',
-          source: 'csv',
-          note: ''
-        });
-      } else {
-        ocrUsed.add(matchOcr.id);
-        if (csvRow.code !== matchOcr.code) {
-          result.push({
-            id: `merge-${matchOcr.id}`,
-            date: csvRow.date,
-            caseId: csvRow.caseId,
-            worker: csvRow.worker,
-            code: matchOcr.code,
-            csvCode: csvRow.code,
-            hours: matchOcr.hours,
-            status: 'D4',
-            source: 'ocr_confirmed',
-            note: `原排班: ${csvRow.code}`
-          });
-        } else if (parseFloat(csvRow.hours) !== parseFloat(matchOcr.hours)) {
-          result.push({
-            id: `merge-${matchOcr.id}`,
-            date: csvRow.date,
-            caseId: csvRow.caseId,
-            worker: csvRow.worker,
-            code: matchOcr.code,
-            hours: matchOcr.hours,
-            csvHours: csvRow.hours,
-            status: 'D3',
-            source: 'ocr_confirmed',
-            note: `原時數: ${csvRow.hours}h`
-          });
-        } else {
-          result.push({
-            id: `merge-${matchOcr.id}`,
-            date: csvRow.date,
-            caseId: csvRow.caseId,
-            worker: csvRow.worker,
-            code: matchOcr.code,
-            hours: matchOcr.hours,
-            status: 'ok',
-            source: 'ocr_confirmed',
-            note: ''
-          });
-        }
-      }
-    });
-
-    ocrData.forEach(ocrRow => {
-      if (!ocrUsed.has(ocrRow.id)) {
-        result.push({
-          id: `ocr-${ocrRow.id}`,
-          date: ocrRow.date,
-          caseId: ocrRow.caseId,
-          worker: "待查",
-          code: ocrRow.code,
-          hours: ocrRow.hours,
-          status: 'D2',
-          source: 'ocr_confirmed',
-          note: '',
-          d2Confirmed: false
-        });
-      }
-    });
-
-    setReconciledData(result);
+    // Call pure function reconcile engine
+    const { rows } = reconcile(importedData, ocrData);
+    setReconciledData(rows);
     setCurrentStep(3);
   };
 
@@ -168,22 +97,60 @@ export default function InstitutionDashboard() {
   const unhandledD1D2 = reconciledData.filter(r => (r.status === 'D1' && !r.note) || (r.status === 'D2' && !r.d2Confirmed)).length;
 
   const exportExcel = () => {
-    const exportData = reconciledData.map(row => ({
+    // Sheet 1: 核銷明細 (ok, D3, D4, and D2 with confirmed)
+    const validData = reconciledData.filter(r => r.status === 'ok' || r.status === 'D3' || r.status === 'D4' || (r.status === 'D2' && r.d2Confirmed));
+    let totalSum = 0;
+    
+    const exportValidData = validData.map(row => {
+      const price = BA_MAP[row.code]?.price;
+      const subtotal = price ? price : 0; // BA is usually per instance
+      if (price) totalSum += subtotal;
+
+      const baseNote = row.note || "";
+      const displayNote = !price ? `${baseNote} (金額以最新公告為準)`.trim() : baseNote;
+
+      return {
+        "日期": row.date,
+        "個案代號": row.caseId,
+        "居服員": row.worker,
+        "BA碼": row.code,
+        "服務名稱": BA_MAP[row.code]?.name || "待查",
+        "時數": row.hours,
+        "單價": price ? price : "待補價",
+        "小計": price ? subtotal : "待補價",
+        "差異類型": row.status === 'ok' ? '完全一致' : 
+                    row.status === 'D2' ? '計畫外服務' : 
+                    row.status === 'D3' ? '時數差異' : '項目差異',
+        "督導處理註記": displayNote,
+        "資料來源": row.source === 'ocr_confirmed' ? 'OCR掃描 (已確認)' : '排班系統 (CSV)'
+      };
+    });
+
+    // Add total row
+    if (exportValidData.length > 0) {
+      exportValidData.push({
+        "日期": "", "個案代號": "", "居服員": "", "BA碼": "", "服務名稱": "", "時數": "",
+        "單價": "合計", "小計": totalSum,
+        "差異類型": "", "督導處理註記": "", "資料來源": ""
+      });
+    }
+
+    // Sheet 2: 異常附表 (D1 only)
+    const errorData = reconciledData.filter(r => r.status === 'D1');
+    const exportErrorData = errorData.map(row => ({
       "日期": row.date,
       "個案代號": row.caseId,
       "居服員": row.worker,
       "BA碼": row.code,
-      "時數": row.hours,
-      "督導處理註記": row.note || "",
-      "差異類型": row.status === 'ok' ? '完全一致' : 
-                  row.status === 'D1' ? '疑似未執行' : 
-                  row.status === 'D2' ? '計畫外服務' : 
-                  row.status === 'D3' ? '時數差異' : '項目差異',
-      "資料來源": row.source === 'ocr_confirmed' ? 'OCR掃描 (已確認)' : '排班系統 (CSV)'
+      "排班時數": row.hours,
+      "督導處理註記": row.note || "" // 未執行原因
     }));
-    const ws = XLSX.utils.json_to_sheet(exportData);
+
+    const ws1 = XLSX.utils.json_to_sheet(exportValidData);
+    const ws2 = XLSX.utils.json_to_sheet(exportErrorData);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "核銷報表");
+    XLSX.utils.book_append_sheet(wb, ws1, "核銷明細");
+    XLSX.utils.book_append_sheet(wb, ws2, "異常附表");
     XLSX.writeFile(wb, "核銷報表.xlsx");
   };
 
@@ -397,54 +364,69 @@ export default function InstitutionDashboard() {
                     <th className="p-3 font-bold">個案代號</th>
                     <th className="p-3 font-bold">BA碼</th>
                     <th className="p-3 font-bold">核銷時數</th>
+                    <th className="p-3 font-bold text-right">單價</th>
+                    <th className="p-3 font-bold text-right">小計</th>
                     <th className="p-3 font-bold">差異狀態 (D1-D4)</th>
                     <th className="p-3 font-bold">督導處理註記</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {reconciledData.map((row) => (
-                    <tr key={row.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="p-3 font-mono text-slate-500">{row.date}</td>
-                      <td className="p-3 font-bold text-slate-700">{row.caseId}</td>
-                      <td className="p-3"><span className="font-mono bg-slate-100 px-2 py-0.5 rounded">{row.code}</span></td>
-                      <td className="p-3 font-bold">{row.hours}h</td>
-                      <td className="p-3">
-                        {row.status === 'ok' && <span className="text-emerald-700 bg-emerald-100 px-2 py-1 rounded-full font-bold text-xs"><CheckCircle className="w-3 h-3 inline mr-1"/>完全一致</span>}
-                        {row.status === 'D1' && <span className="text-red-700 bg-red-100 px-2 py-1 rounded-full font-bold text-xs"><AlertTriangle className="w-3 h-3 inline mr-1"/>🔴 D1 疑似未執行</span>}
-                        {row.status === 'D2' && <span className="text-orange-700 bg-orange-100 px-2 py-1 rounded-full font-bold text-xs"><AlertTriangle className="w-3 h-3 inline mr-1"/>🟠 D2 計畫外服務</span>}
-                        {row.status === 'D3' && (
+                  {reconciledData.map((row) => {
+                    const price = BA_MAP[row.code]?.price;
+                    const displayPrice = price ? `$${price}` : "待補價";
+                    const displaySubtotal = price ? `$${price}` : "待補價";
+                    const isMissingPrice = !price && row.status !== 'D1';
+
+                    return (
+                      <tr key={row.id} className={`hover:bg-slate-50 transition-colors ${row.status === 'D1' ? 'opacity-70 bg-slate-50/50' : ''}`}>
+                        <td className="p-3 font-mono text-slate-500">{row.date}</td>
+                        <td className="p-3 font-bold text-slate-700">{row.caseId}</td>
+                        <td className="p-3"><span className="font-mono bg-slate-100 px-2 py-0.5 rounded">{row.code}</span></td>
+                        <td className="p-3 font-bold">{row.hours}h</td>
+                        <td className={`p-3 text-right ${isMissingPrice ? 'text-amber-600 font-bold' : 'text-slate-600'}`}>{displayPrice}</td>
+                        <td className={`p-3 text-right ${isMissingPrice ? 'text-amber-600 font-bold' : 'text-slate-800 font-bold'}`}>{displaySubtotal}</td>
+                        <td className="p-3">
+                          {row.status === 'ok' && <span className="text-emerald-700 bg-emerald-100 px-2 py-1 rounded-full font-bold text-xs"><CheckCircle className="w-3 h-3 inline mr-1"/>完全一致</span>}
+                          {row.status === 'D1' && <span className="text-red-700 bg-red-100 px-2 py-1 rounded-full font-bold text-xs"><AlertTriangle className="w-3 h-3 inline mr-1"/>🔴 D1 疑似未執行</span>}
+                          {row.status === 'D2' && <span className="text-orange-700 bg-orange-100 px-2 py-1 rounded-full font-bold text-xs"><AlertTriangle className="w-3 h-3 inline mr-1"/>🟠 D2 計畫外服務</span>}
+                          {row.status === 'D3' && (
+                            <div className="flex flex-col gap-1">
+                              <span className="text-yellow-800 bg-yellow-100 px-2 py-1 rounded-full font-bold text-xs w-max"><AlertCircle className="w-3 h-3 inline mr-1"/>🟡 D3 時數差異</span>
+                              <span className="text-[10px] text-slate-500">{row.note}</span>
+                            </div>
+                          )}
+                          {row.status === 'D4' && (
+                            <div className="flex flex-col gap-1">
+                              <span className="text-yellow-800 bg-yellow-100 px-2 py-1 rounded-full font-bold text-xs w-max"><AlertCircle className="w-3 h-3 inline mr-1"/>🟡 D4 項目差異</span>
+                              <span className="text-[10px] text-slate-500">{row.note}</span>
+                            </div>
+                          )}
+                        </td>
+                        <td className="p-3">
                           <div className="flex flex-col gap-1">
-                            <span className="text-yellow-800 bg-yellow-100 px-2 py-1 rounded-full font-bold text-xs w-max"><AlertCircle className="w-3 h-3 inline mr-1"/>🟡 D3 時數差異</span>
-                            <span className="text-[10px] text-slate-500">{row.note}</span>
+                            {row.status === 'D1' ? (
+                              <input 
+                                placeholder="請填寫未執行原因..."
+                                className="border border-red-300 bg-red-50 text-red-900 text-xs px-2 py-1.5 rounded outline-none focus:ring-1 focus:ring-red-500 w-full"
+                                value={row.note}
+                                onChange={(e) => handleReconcileNote(row.id, e.target.value)}
+                              />
+                            ) : row.status === 'D2' && !row.d2Confirmed ? (
+                              <button onClick={() => handleD2Confirm(row.id)} className="bg-orange-500 hover:bg-orange-600 text-white text-xs px-3 py-1.5 rounded-lg shadow-sm">
+                                確認可核銷
+                              </button>
+                            ) : row.status === 'D2' && row.d2Confirmed ? (
+                              <span className="text-xs text-orange-700 font-bold">✓ 已確認</span>
+                            ) : (
+                              <span className="text-slate-400 text-xs">{row.note || "無須註記"}</span>
+                            )}
+                            {isMissingPrice && <span className="text-[10px] text-amber-600">匯出前需人工補價</span>}
+                            {row.status === 'D1' && <span className="text-[10px] text-red-600">不列入核銷明細</span>}
                           </div>
-                        )}
-                        {row.status === 'D4' && (
-                          <div className="flex flex-col gap-1">
-                            <span className="text-yellow-800 bg-yellow-100 px-2 py-1 rounded-full font-bold text-xs w-max"><AlertCircle className="w-3 h-3 inline mr-1"/>🟡 D4 項目差異</span>
-                            <span className="text-[10px] text-slate-500">{row.note}</span>
-                          </div>
-                        )}
-                      </td>
-                      <td className="p-3">
-                        {row.status === 'D1' ? (
-                          <input 
-                            placeholder="請填寫未執行原因..."
-                            className="border border-red-300 bg-red-50 text-red-900 text-xs px-2 py-1.5 rounded outline-none focus:ring-1 focus:ring-red-500 w-full"
-                            value={row.note}
-                            onChange={(e) => handleReconcileNote(row.id, e.target.value)}
-                          />
-                        ) : row.status === 'D2' && !row.d2Confirmed ? (
-                          <button onClick={() => handleD2Confirm(row.id)} className="bg-orange-500 hover:bg-orange-600 text-white text-xs px-3 py-1.5 rounded-lg shadow-sm">
-                            確認可核銷
-                          </button>
-                        ) : row.status === 'D2' && row.d2Confirmed ? (
-                          <span className="text-xs text-orange-700 font-bold">✓ 已確認</span>
-                        ) : (
-                          <span className="text-slate-400 text-xs">{row.note || "無須註記"}</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -481,7 +463,7 @@ export default function InstitutionDashboard() {
             </p>
             <button onClick={exportExcel} disabled={reconciledData.length === 0}
                     className="bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-8 py-3 rounded-xl font-bold text-lg shadow-sm flex items-center gap-2 transition-all">
-              <FileSpreadsheet className="w-5 h-5" /> 匯出核銷報表
+              <FileSpreadsheet className="w-5 h-5" /> 匯出核銷報表 (含異常附表)
             </button>
           </section>
         )}
