@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import * as XLSX from "xlsx";
-import { CloudUpload, Table, Download, CheckCircle, AlertTriangle, FileSpreadsheet, ClipboardPaste, AlertCircle, Eye, Info } from "lucide-react";
+import { CloudUpload, Table, Download, CheckCircle, AlertTriangle, FileSpreadsheet, ClipboardPaste, AlertCircle, Eye, Info, UserPlus } from "lucide-react";
 import { BA_MAP } from "@/utils/careData";
 import { reconcile } from "@/utils/reconcile";
 
@@ -13,6 +13,17 @@ export default function InstitutionDashboard() {
   const [reconciledData, setReconciledData] = useState([]);
   const [showWarningModal, setShowWarningModal] = useState(false);
   const [unconfirmedFields, setUnconfirmedFields] = useState([]);
+
+  // P0-2: Invite Family logic
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const INVITE = { code:"CARE01", caseName:"王奶奶", caseId:"A141408XXX" };
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(INVITE.code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   // Load Mock CSV
   const loadMockData = () => {
@@ -156,6 +167,41 @@ export default function InstitutionDashboard() {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800">
+      {showInviteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-100 overflow-hidden">
+            <div className="p-6">
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="bg-blue-100 text-blue-600 p-2 rounded-full">
+                  <UserPlus className="w-5 h-5" />
+                </div>
+                <h3 className="text-lg font-bold text-slate-950">邀請家屬連動個案</h3>
+              </div>
+              <p className="text-sm text-slate-600 leading-relaxed mb-4">
+                個案：{INVITE.caseName}（{INVITE.caseId}）
+              </p>
+              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-center mb-4">
+                <div className="text-3xl font-mono tracking-widest font-bold text-slate-800 select-all">
+                  {INVITE.code}
+                </div>
+              </div>
+              <p className="text-sm text-slate-600 leading-relaxed bg-blue-50 p-3 rounded-lg border border-blue-100">
+                請家屬前往「照護一點通」首頁 → 我是家屬 → 輸入此邀請碼。<br/>
+                連動後家屬可查看居服員服務紀錄與即時額度；家屬的照護日誌不會提供給機構。
+              </p>
+            </div>
+            <div className="bg-slate-50 px-6 py-4 flex justify-end gap-2 border-t">
+              <button onClick={() => setShowInviteModal(false)} className="px-5 py-2 text-sm font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg transition-colors shadow-sm">
+                關閉
+              </button>
+              <button onClick={handleCopy} className="px-5 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors shadow-sm">
+                {copied ? "✓ 已複製" : "複製邀請碼"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showWarningModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-100 overflow-hidden">
@@ -194,6 +240,9 @@ export default function InstitutionDashboard() {
               </div>
             </div>
           </div>
+          <button onClick={() => setShowInviteModal(true)} className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-700 transition">
+            <UserPlus className="w-5 h-5" /> 邀請家屬連動
+          </button>
         </div>
       </header>
 

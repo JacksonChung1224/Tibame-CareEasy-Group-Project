@@ -71,11 +71,15 @@ export default function Home() {
       {(tab === "quiz" || tab === "calc" || tab === "table") && (
         <div className="mx-auto w-full max-w-md mt-6 px-6">
           <div className="flex items-center justify-between">
-            {STEPS.map((s, i) => (
+            {STEPS.map((s, i) => {
+              const stepEnabled = s.id === "quiz" ? true : calcLevel !== null;
+              return (
               <div key={s.id} className="flex items-center flex-1">
                 <button 
-                  onClick={() => setTab(s.id)}
-                  className={`flex flex-col items-center flex-1 transition-opacity ${tab === s.id ? "opacity-100" : "opacity-40 hover:opacity-70"}`}
+                  onClick={() => stepEnabled && setTab(s.id)}
+                  disabled={!stepEnabled}
+                  title={stepEnabled ? "" : "請先完成失能評估"}
+                  className={`flex flex-col items-center flex-1 transition-opacity ${tab === s.id ? "opacity-100" : "opacity-40"} ${stepEnabled ? "hover:opacity-70" : "cursor-not-allowed"}`}
                 >
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold mb-1 ${tab === s.id ? "bg-accent text-accent-foreground shadow-sm" : "bg-border text-muted-foreground"}`}>
                     {i + 1}
@@ -84,7 +88,7 @@ export default function Home() {
                 </button>
                 {i < STEPS.length - 1 && <ChevronRight className="size-4 text-border mx-1 flex-shrink-0" />}
               </div>
-            ))}
+            )})}
           </div>
         </div>
       )}

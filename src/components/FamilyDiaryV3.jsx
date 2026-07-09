@@ -13,6 +13,7 @@
  * ⚠️ 本檔常數與 careData.js 重複，屬原型暫態；P0-3 完成後應收斂至單一來源。
  */
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { computeSignals, shouldSuggestReassessment } from "@/utils/signalEngine";
 import { BA_MAP, CARE_SUBSIDY as CMS_BUDGET, IDENTITY_RATES } from "@/utils/careData";
 
@@ -392,6 +393,7 @@ function QuotaEstimatePanel({level, onRecalc}) {
 
 // ══ Main ═════════════════════════════════════════════════════
 export default function FamilyDiaryV3() {
+  const router = useRouter();
   // P0-2：連動狀態（dev 切換器與邀請碼流程共用同一 state）
   const [connected, setConnected] = useState(false);
   const caseData = connected ? CONNECTED_CASE : SOLO_CASE;
@@ -704,12 +706,12 @@ export default function FamilyDiaryV3() {
                   若長輩狀況明顯改變，可聯繫照管專員或 A 個管討論是否提前複評（是否辦理由照管中心評估決定）。
                 </p>
                 <div className="flex gap-2">
-                  <button className="flex-1 py-2.5 rounded-xl bg-teal-600 text-white text-xs font-bold hover:bg-teal-700 transition">
+                  <button onClick={() => router.push("/calculator")} className="flex-1 py-2.5 rounded-xl bg-teal-600 text-white text-xs font-bold hover:bg-teal-700 transition">
                     用試算平台先估新等級
                   </button>
-                  <button className="flex-1 py-2.5 rounded-xl border border-red-300 text-red-700 text-xs font-bold hover:bg-red-100 transition">
+                  <a href="tel:1966" className="flex-1 py-2.5 rounded-xl border border-red-300 text-red-700 text-xs font-bold hover:bg-red-100 transition text-center block">
                     聯繫個管 1966
-                  </button>
+                  </a>
                 </div>
               </div>
             )}
@@ -763,7 +765,7 @@ export default function FamilyDiaryV3() {
             <div className="bg-white rounded-2xl border border-stone-200 p-4 shadow-sm space-y-4">
               <div className="text-sm font-bold text-stone-800">預估額度</div>
               <QuotaEstimatePanel level={SOLO_CASE.estimatedCmsLevel}
-                onRecalc={()=>flashToast("正式版將導向試算平台（路由待接）")} />
+                onRecalc={()=>router.push("/calculator")} />
             </div>
           )
         )}
