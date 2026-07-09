@@ -8,10 +8,23 @@ export default function LandingPage() {
     <div className="min-h-screen bg-stone-50 flex flex-col items-center justify-center p-6 text-stone-800">
       <div className="max-w-4xl w-full">
         {/* Header Section */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center p-4 bg-teal-600 rounded-2xl mb-6 shadow-sm">
+        <div className="text-center mb-12 relative mt-4">
+          <div className="inline-flex items-center justify-center p-4 bg-teal-600 rounded-2xl mb-6 shadow-sm relative">
             <HeartHandshake className="w-12 h-12 text-white" />
+            <div className="absolute -top-3 -right-6 bg-rose-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-md animate-bounce">
+              v3.0
+            </div>
           </div>
+          
+          <div className="mb-4">
+            <span className="inline-block bg-teal-50 text-teal-700 border border-teal-200 text-sm px-4 py-1.5 rounded-full font-semibold shadow-sm">
+              🎉 全新上線：三端整合大改版！ 
+              <Link href="https://github.com/JacksonChung1224/Tibame-CareEasy-Group-Project" target="_blank" className="ml-2 text-teal-600 hover:text-teal-800 underline underline-offset-2">
+                查看更新日誌
+              </Link>
+            </span>
+          </div>
+
           <h1 className="text-4xl md:text-5xl font-black text-stone-900 tracking-tight mb-4">
             照護一點通
           </h1>
