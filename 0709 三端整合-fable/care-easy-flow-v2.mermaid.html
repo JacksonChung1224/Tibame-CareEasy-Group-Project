@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>照護一點通｜精簡流程圖 v2</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@700;900&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Sans+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f1ea; --card:#fffdf8; --ink:#26231d; --muted:#6b6560;
+  --pine:#1b4d48; --pine2:#2a6b63; --pine3:#d6eae6;
+  --inst:#1b4d48; --inst2:#e5f0ee;
+  --fam:#8c3f58; --fam2:#f5e4ea;
+  --ai:#a0541e; --ai2:#faeadc;
+  --calc:#2a4fa0; --calc2:#e4ebf8;
+  --vendor:#5c7a3f; --vendor2:#e8efdd;
+  --line:#ddd6c8; --lh:1px solid var(--line);
+  --r:14px; --r2:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:"Noto Sans TC",sans-serif;-webkit-font-smoothing:antialiased;padding-bottom:80px}
+.serif{font-family:"Noto Serif TC",serif}
+.mono{font-family:"Noto Sans Mono",monospace}
+
+.pg-header{background:var(--pine);color:#fff;padding:36px 24px 28px;text-align:center}
+.pg-header .eye{font-family:"Noto Sans Mono",monospace;font-size:11px;letter-spacing:.2em;opacity:.6;text-transform:uppercase;margin-bottom:10px}
+.pg-header h1{font-family:"Noto Serif TC",serif;font-size:clamp(22px,4vw,34px);font-weight:900;line-height:1.25}
+.pg-header p{font-size:13px;opacity:.65;margin-top:8px}
+
+.legend{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:18px 20px 10px;background:var(--card);border-bottom:var(--lh)}
+.leg{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--muted);background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:4px 12px}
+.ld{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+
+.node{border-radius:var(--r);padding:12px 16px;font-size:13px;line-height:1.55;border:2px solid;position:relative}
+.node .nh{font-family:"Noto Serif TC",serif;font-weight:700;font-size:14px;margin-bottom:5px}
+.node .ns{font-size:12px;color:var(--muted);line-height:1.5}
+.node .tag{font-family:"Noto Sans Mono",monospace;font-size:10px;padding:2px 8px;border-radius:5px;display:inline-block;margin-bottom:6px;letter-spacing:.05em;font-weight:700}
+
+.n-land{background:#fff;border-color:var(--pine);min-width:260px;text-align:center}
+.n-land .nh{color:var(--pine);font-size:18px}
+
+.n-inst{background:var(--inst2);border-color:var(--inst)}
+.n-inst .nh{color:var(--inst)}
+.n-inst .tag{background:var(--inst);color:#fff}
+
+.n-fam{background:var(--fam2);border-color:var(--fam)}
+.n-fam .nh{color:var(--fam)}
+.n-fam .tag{background:var(--fam);color:#fff}
+
+.n-calc{background:var(--calc2);border-color:var(--calc)}
+.n-calc .nh{color:var(--calc)}
+.n-calc .tag{background:var(--calc);color:#fff}
+
+.n-ai{background:var(--ai2);border-color:var(--ai)}
+.n-ai .nh{color:var(--ai)}
+.n-ai .tag{background:var(--ai);color:#fff}
+
+.fi{border-radius:var(--r2);padding:9px 12px;font-size:12.5px;line-height:1.55}
+.fi b{display:block;font-size:11px;font-family:"Noto Sans Mono",monospace;margin-bottom:2px;letter-spacing:.04em}
+.fi-inst{background:var(--inst2);border:1px solid #b5d5cf}
+.fi-inst b{color:var(--inst)}
+.fi-fam{background:var(--fam2);border:1px solid #ddb0bf}
+.fi-fam b{color:var(--fam)}
+.fi-calc{background:var(--calc2);border:1px solid #b0c3e8}
+.fi-calc b{color:var(--calc)}
+.fi-ai{background:var(--ai2);border:1px solid #d9a888}
+.fi-ai b{color:var(--ai)}
+.fi-vendor{background:var(--vendor2);border:1px solid #b8ca9a}
+.fi-vendor b{color:var(--vendor)}
+
+.fi-new{position:relative}
+.fi-new::after{
+  content:"NEW";
+  position:absolute;top:-8px;right:10px;
+  background:#d64545;color:#fff;
+  font-family:"Noto Sans Mono",monospace;font-size:9px;font-weight:700;
+  padding:2px 6px;border-radius:4px;letter-spacing:.08em;
+}
+
+.diagram{max-width:1020px;margin:0 auto;padding:0 16px}
+
+.page-sec{margin:28px 0 0}
+.page-sec-title{font-family:"Noto Serif TC",serif;font-weight:700;font-size:18px;color:var(--pine);padding:0 0 10px;display:flex;align-items:center;gap:10px}
+.page-sec-title::after{content:"";flex:1;height:1px;background:var(--line)}
+
+.badge{display:inline-block;font-family:"Noto Sans Mono",monospace;font-size:10px;padding:2px 7px;border-radius:5px;font-weight:700;margin-left:4px}
+.b-fam{background:var(--fam);color:#fff}
+
+footer{padding:32px 20px 0;font-size:11.5px;color:var(--muted);text-align:center;border-top:var(--lh);line-height:1.8;max-width:1020px;margin:32px auto 0}
+</style>
+</head>
+<body>
+
+<div class="pg-header">
+  <div class="eye">照護一點通 · 精簡流程圖 v2</div>
+  <h1 class="serif">首頁 × 三條主路徑</h1>
+  <p>試算平台 / 照護日誌 / 機構端</p>
+</div>
+
+<div style="background:var(--card);border-bottom:var(--lh)">
+<div class="legend">
+  <div class="leg"><div class="ld" style="background:var(--inst)"></div>機構端</div>
+  <div class="leg"><div class="ld" style="background:var(--fam)"></div>家屬端</div>
+  <div class="leg"><div class="ld" style="background:var(--calc)"></div>試算平台</div>
+  <div class="leg"><div class="ld" style="background:var(--ai)"></div>AI 產出</div>
+  <div class="leg"><div class="ld" style="background:var(--vendor)"></div>配合廠商</div>
+</div>
+</div>
+
+<div class="diagram">
+
+<!-- ══ 1. 第一頁 ══ -->
+<div class="page-sec">
+  <div class="page-sec-title">一、第一頁（首頁）</div>
+
+  <div style="display:flex;flex-direction:column;align-items:center;gap:0">
+
+    <div class="node n-land" style="width:320px">
+      <div class="nh">照護一點通</div>
+      <div class="ns" style="margin-bottom:12px">台灣長期照顧家庭的第一站</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:4px">
+        <div style="background:#f5f3ee;border:1px solid var(--line);border-radius:8px;padding:8px 6px;text-align:center;font-size:12px;color:var(--muted)">
+          <div style="font-size:18px">🔢</div>
+          <div style="font-weight:700;margin-top:3px;color:var(--calc)">試算補助</div>
+          <div style="font-size:10.5px;margin-top:2px">不用登入</div>
+        </div>
+        <div style="background:var(--fam2);border:1px solid #ddb0bf;border-radius:8px;padding:8px 6px;text-align:center;font-size:12px">
+          <div style="font-size:18px">👪</div>
+          <div style="font-weight:700;margin-top:3px;color:var(--fam)">我是家屬</div>
+          <div style="font-size:10.5px;margin-top:2px">帳密登入</div>
+        </div>
+        <div style="background:var(--inst2);border:1px solid #b5d5cf;border-radius:8px;padding:8px 6px;text-align:center;font-size:12px">
+          <div style="font-size:18px">🏢</div>
+          <div style="font-weight:700;margin-top:3px;color:var(--inst)">我是機構</div>
+          <div style="font-size:10.5px;margin-top:2px">帳密登入</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;width:320px;margin-top:2px">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0">
+        <div style="width:2px;height:20px;background:var(--calc);opacity:.5"></div>
+        <div style="color:var(--calc);font-size:14px">↓</div>
+        <div style="font-size:9.5px;color:var(--calc);font-family:'Noto Sans Mono',monospace">無需帳號</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0">
+        <div style="width:2px;height:20px;background:var(--fam);opacity:.5"></div>
+        <div style="color:var(--fam);font-size:14px">↓</div>
+        <div style="font-size:9.5px;color:var(--fam);font-family:'Noto Sans Mono',monospace">帳密</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0">
+        <div style="width:2px;height:20px;background:var(--inst);opacity:.5"></div>
+        <div style="color:var(--inst);font-size:14px">↓</div>
+        <div style="font-size:9.5px;color:var(--inst);font-family:'Noto Sans Mono',monospace">帳密</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ 2. 三條主路徑 ══ -->
+<div class="page-sec">
+  <div class="page-sec-title">二、三條主路徑</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+
+    <!-- ─── 2-1 試算平台 ─── -->
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div class="node n-calc" style="text-align:center">
+        <div class="tag">2-1 · 試算平台</div>
+        <div class="nh">長照補助試算</div>
+        <div class="ns">無需登入，任何人可用</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:0">
+        <div style="width:2px;height:14px;background:var(--calc);opacity:.4"></div>
+        <div style="color:var(--calc);font-size:14px">↓</div>
+      </div>
+
+      <div class="fi fi-calc">
+        <b>STEP 1 · 選擇軌道</b>
+        失智（CDR）或非失智（Barthel）
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center"><div style="color:var(--calc);font-size:12px">↓</div></div>
+
+      <div class="fi fi-calc">
+        <b>STEP 2 · 填寫問卷</b>
+        ADL 六項 / 認知功能評估
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center"><div style="color:var(--calc);font-size:12px">↓</div></div>
+
+      <div class="fi fi-calc">
+        <b>STEP 3 · 試算結果</b>
+        CMS 等級估算、四包錢額度<br>→ 建議撥 1966 正式評估
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center"><div style="color:var(--calc);font-size:12px">↓</div></div>
+
+      <div class="fi fi-calc fi-new">
+        <b>STEP 4 · 四包錢細項</b>
+        展開四包錢每項用途、額度、可用服務<br>→ 點選項目導流到配合廠商
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center"><div style="color:var(--vendor);font-size:12px">↓</div></div>
+
+      <div class="fi fi-vendor">
+        <b>配合廠商入口</b>
+        媒合對應項目的長照服務廠商<br>（照服員派遣 / 輔具 / 交通接送…）
+      </div>
+
+      <div style="display:flex;flex-direction:column;align-items:center;padding:10px 0 4px;gap:2px">
+        <div style="width:2px;height:14px;background:var(--fam);opacity:.5"></div>
+        <div style="font-size:10px;color:var(--muted);font-family:'Noto Sans Mono',monospace">另一路徑</div>
+      </div>
+
+      <div class="fi fi-fam fi-new">
+        <b>STEP 5 · 📓 照護日誌入口</b>
+        結果頁 Icon → 導流到<br>照護日誌首頁（家屬端）
+      </div>
+    </div>
+
+    <!-- ─── 2-2 照護日誌（家屬端） ─── -->
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div class="node n-fam" style="text-align:center">
+        <div class="tag">2-2 · 家屬端</div>
+        <div class="nh">照護日誌</div>
+        <div class="ns">帳號密碼登入</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:0">
+        <div style="width:2px;height:14px;background:var(--fam);opacity:.4"></div>
+        <div style="color:var(--fam);font-size:14px">↓</div>
+      </div>
+
+      <div class="fi fi-fam">
+        <b>首次設定 · 個案建立</b>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center"><div style="color:var(--fam);font-size:12px">↓</div></div>
+
+      <div class="fi fi-fam">
+        <b>主畫面 · 今日摘要</b>
+        今日紀錄狀態、未讀 AI 提醒
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center"><div style="color:var(--fam);font-size:12px">↓</div></div>
+
+      <div class="fi fi-fam">
+        <b>📝 每日紀錄</b>
+        紀錄「被照顧者」每天狀況：<br>
+        飲食、睡眠、情緒、身體徵象、<br>用藥、事件備註
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;padding:4px 0"><div style="color:var(--fam);font-size:12px">↓ 累積後產出 2 種報告</div></div>
+
+      <div style="display:grid;grid-template-columns:1fr;gap:8px">
+        <div class="fi fi-ai" style="text-align:left">
+          <b>報告 1 · AI 預判風險報告</b>
+          從日誌資料中偵測異常訊號<br>→ 惡化警示、就醫建議、重評提醒
+        </div>
+        <div class="fi fi-ai" style="text-align:left">
+          <b>報告 2 · 回顧記錄</b>
+          週／月／季度回顧<br>→ 給家屬看趨勢、給醫師看摘要
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── 2-3 機構端 ─── -->
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div class="node n-inst" style="text-align:center">
+        <div class="tag">2-3 · 機構端</div>
+        <div class="nh">機構管理台</div>
+        <div class="ns">機構帳號（督導登入）</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:0">
+        <div style="width:2px;height:14px;background:var(--inst);opacity:.4"></div>
+        <div style="color:var(--inst);font-size:14px">↓</div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;align-items:center;padding:4px 0"><div style="color:var(--inst);font-size:12px">↓</div></div>
+
+      <div class="fi fi-inst" style="border-width:2px;border-color:var(--inst);padding:12px 14px">
+        <b style="font-size:12px">📤 月底核銷輸出</b>
+        <div style="margin-top:6px;font-size:12px;color:var(--ink)">
+          彙整當月居服員服務紀錄，產出核銷報表
+        </div>
+        <div style="margin-top:10px;padding-top:10px;border-top:1px dashed #b5d5cf;display:flex;flex-direction:column;gap:6px">
+          <div style="font-size:11px;color:var(--inst);font-family:'Noto Sans Mono',monospace;letter-spacing:.05em">SUB · 細項功能</div>
+
+          <div style="background:#fff;border:1px solid #b5d5cf;border-radius:8px;padding:8px 10px;font-size:11.5px;line-height:1.5">
+            <b style="color:var(--inst);font-family:'Noto Sans Mono',monospace;font-size:10.5px;display:block;margin-bottom:2px">CSV 排班對照</b>
+            匯入排班表 → 差異標記 → xlsx 匯出
+          </div>
+
+          <div style="background:#fff;border:2px solid var(--inst);border-radius:8px;padding:8px 10px;font-size:11.5px;line-height:1.5;position:relative">
+            <span style="position:absolute;top:-8px;right:8px;background:#d64545;color:#fff;font-family:'Noto Sans Mono',monospace;font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.08em">NEW</span>
+            <b style="color:var(--inst);font-family:'Noto Sans Mono',monospace;font-size:10.5px;display:block;margin-bottom:2px">🆕 OCR 紙本辨識</b>
+            上傳居服員紙本紀錄照片<br>→ OCR 自動辨識 → 匯入核銷
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</div><!-- /diagram -->
+
+<footer>
+  流程圖 v2（精簡版）｜對應 Care Easy 照護一點通 MVP 範圍<br>
+  已移除：AI 整合層、跨模組串接點、資料庫對照、MVP 開發路序、命名決策<br>
+  🆕 NEW 標記：試算平台 Step 4/5、機構端 OCR 紙本辨識
+</footer>
+
+</body>
+</html>

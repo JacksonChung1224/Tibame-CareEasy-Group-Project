@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>長照 3.0 紙本對帳與多個案核銷系統</title>
+    <!-- 導入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 導入 FontAwesome 圖標 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- 導入 SheetJS (XLSX 處理) -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- 導入 Alpine.js -->
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght=300;400;500;700&display=swap');
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f8fafc;
+        }
+        .step-active {
+            color: #2563eb;
+            border-bottom: 3px solid #2563eb;
+            font-weight: 700;
+        }
+        .step-inactive {
+            color: #64748b;
+        }
+        /* 隱藏原生檔案上傳 */
+        input[type="file"] {
+            display: none;
+        }
+    </style>
+</head>
+<body x-data="appData()" class="min-h-screen flex flex-col text-slate-800">
+
+    <!-- 自訂對話框 -->
+    <div x-show="modal.show" 
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         style="display: none;">
+        <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-100 overflow-hidden">
+            <div class="p-6">
+                <div class="flex items-center space-x-3 mb-4">
+                    <template x-if="modal.type === 'success'">
+                        <div class="bg-emerald-100 text-emerald-600 p-2 rounded-full">
+                            <i class="fa-solid fa-circle-check text-xl"></i>
+                        </div>
+                    </template>
+                    <template x-if="modal.type === 'warning'">
+                        <div class="bg-amber-100 text-amber-600 p-2 rounded-full">
+                            <i class="fa-solid fa-triangle-exclamation text-xl"></i>
+                        </div>
+                    </template>
+                    <template x-if="modal.type === 'info'">
+                        <div class="bg-blue-100 text-blue-600 p-2 rounded-full">
+                            <i class="fa-solid fa-circle-info text-xl"></i>
+                        </div>
+                    </template>
+                    <h3 class="text-lg font-bold text-slate-950" x-text="modal.title"></h3>
+                </div>
+                <p class="text-sm text-slate-600 leading-relaxed" x-text="modal.message"></p>
+            </div>
+            <div class="bg-slate-50 px-6 py-4 flex justify-end space-x-3">
+                <template x-if="modal.showConfirm">
+                    <button @click="modal.show = false" class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+                        取消
+                    </button>
+                </template>
+                <button @click="triggerModalAction()" 
+                        class="px-5 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors shadow-sm"
+                        x-text="modal.showConfirm ? '確認前往' : '確定'">
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header 頂部導覽列 -->
+    <header class="bg-[#0f172a] text-white py-4 px-6 shadow-md z-10">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="bg-blue-600 p-2.5 rounded-xl shadow-inner">
+                    <i class="fa-solid fa-calculator text-2xl"></i>
+                </div>
+                <div>
+                    <div class="flex items-center flex-wrap gap-2">
+                        <h1 class="text-xl font-extrabold tracking-wide">長照 3.0 紙本對帳與多個案核銷系統</h1>
+                        <span class="text-[11px] font-semibold bg-blue-900 text-blue-200 px-2.5 py-0.5 rounded-full border border-blue-700">衛福部 114.06.19 組合表修訂版</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-1">以「紙本實績」為唯一申報基準 • 自動稽核核銷欄位 • 杜絕漏項及人工比對疏漏</p>
+                </div>
+            </div>
+            <div class="flex items-center text-xs bg-slate-800/80 px-4 py-2 rounded-xl border border-slate-700/80">
+                <span class="mr-2 text-slate-400">目前系統環境：</span>
+                <span class="flex items-center text-green-400 font-medium">
+                    <i class="fa-solid fa-circle text-[8px] mr-1.5 animate-pulse"></i> 自主比對核銷中島 (去識別化防護模式)
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- 流程步驟選單 -->
+    <nav class="bg-white border-b shadow-sm sticky top-0 z-20">
+        <div class="max-w-7xl mx-auto px-6">
+            <ul class="flex space-x-8 overflow-x-auto whitespace-nowrap">
+                <li class="cursor-pointer py-4" 
+                    :class="currentStep === 1 ? 'step-active' : 'step-inactive'"
+                    @click="setStep(1)">
+                    <span class="flex items-center space-x-2">
+                        <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs" 
+                              :class="currentStep === 1 ? 'bg-blue-100 text-blue-600 font-bold' : 'bg-slate-100 text-slate-500'">1</span>
+                        <span>排班計畫匯入 (衛福部標準版)</span>
+                    </span>
+                </li>
+                <li class="cursor-pointer py-4" 
+                    :class="currentStep === 2 ? 'step-active' : 'step-inactive'"
+                    @click="setStep(2)">
+                    <span class="flex items-center space-x-2">
+                        <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs"
+                              :class="currentStep === 2 ? 'bg-blue-100 text-blue-600 font-bold' : 'bg-slate-100 text-slate-500'">2</span>
+                        <span>個案紙本對帳比對室</span>
+                    </span>
+                </li>
+                <li class="cursor-pointer py-4" 
+                    :class="currentStep === 3 ? 'step-active' : 'step-inactive'"
+                    @click="setStep(3)">
+                    <span class="flex items-center space-x-2">
+                        <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs"
+                              :class="currentStep === 3 ? 'bg-blue-100 text-blue-600 font-bold' : 'bg-slate-100 text-slate-500'">3</span>
+                        <span>衛福部月底核銷導出 (XLSX)</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow max-w-7xl mx-auto w-full p-4 md:p-6">
+        
+        <!-- 步驟 1：排班計畫匯入 -->
+        <section x-show="currentStep === 1" x-transition.opacity class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6">
+            <div class="mb-6">
+                <div class="flex items-center space-x-2 text-blue-600 mb-1">
+                    <i class="fa-solid fa-cloud-arrow-up text-xl"></i>
+                    <h2 class="text-xl font-bold">第一步：匯入居服系統排班計畫</h2>
+                </div>
+            </div>
+
+            <div class="grid lg:grid-cols-12 gap-6">
+                <div class="lg:col-span-5 space-y-4">
+                    <label class="border-2 border-dashed border-slate-300 rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50 hover:border-blue-500 transition-all h-64 relative shadow-sm group">
+                        <input type="file" accept=".xlsx, .xls, .csv" @change="handleFileUpload">
+                        <div class="bg-blue-50 text-blue-600 p-4 rounded-full mb-3 group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-file-excel text-3xl"></i>
+                        </div>
+                        <span class="font-bold text-slate-700 text-base">點擊或拖曳上傳排班計畫表</span>
+                        <span class="text-xs text-slate-400 mt-1.5">支援衛福部標準 .xlsx, .xls, .csv 格式</span>
+                    </label>
+
+                    <div class="bg-blue-50/50 rounded-xl p-5 border border-blue-100/80 shadow-sm">
+                        <div class="flex items-center space-x-2 text-blue-800 font-bold text-sm mb-2">
+                            <i class="fa-solid fa-database"></i>
+                            <span>快速測試引導</span>
+                        </div>
+                        <p class="text-xs text-slate-600 mb-4 leading-relaxed">如果您手邊沒有衛福部範本.xls，可直接載入預設的多個案模擬排班計畫（已完美建構包含 A141408XXX 與 B222333XXX 兩案之標準欄位）。</p>
+                        <button @click="loadMockData" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-4 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-paste"></i> 載入衛福部範本模擬資料
+                        </button>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-7 border border-slate-200 rounded-2xl flex flex-col bg-slate-50/30 shadow-sm overflow-hidden h-64 lg:h-auto min-h-[300px]">
+                    <div class="p-4 border-b bg-white flex justify-between items-center">
+                        <span class="text-sm font-bold text-slate-700"><i class="fa-solid fa-table-list mr-2 text-slate-400"></i>已匯入排班計畫：</span>
+                        <span class="text-xs bg-slate-100 text-slate-600 px-3 py-1 rounded-full font-semibold border" x-text="`共 ${imp
