@@ -19,9 +19,6 @@ export default function LandingPage() {
           <div className="mb-4">
             <span className="inline-block bg-teal-50 text-teal-700 border border-teal-200 text-sm px-4 py-1.5 rounded-full font-semibold shadow-sm">
               🎉 全新上線：三端整合大改版！ 
-              <Link href="https://github.com/JacksonChung1224/Tibame-CareEasy-Group-Project" target="_blank" className="ml-2 text-teal-600 hover:text-teal-800 underline underline-offset-2">
-                查看更新日誌
-              </Link>
             </span>
           </div>
 
