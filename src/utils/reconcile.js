@@ -15,16 +15,22 @@ export function reconcile(csvRows, ocrRows) {
     
     let finalPrice = price;
     let subtotal = null;
+    let priceSource = "sheet";
     if (finalPrice === null || finalPrice === undefined) {
       finalPrice = BA_MAP[code]?.price || null;
+      if (finalPrice !== null) {
+        priceSource = "ba_map_fallback";
+      } else {
+        priceSource = null;
+      }
     }
     if (finalPrice !== null && qty !== null && qty !== undefined) {
       subtotal = finalPrice * qty;
     }
     
     let priceWarning = false;
-    if (csv && csv.price !== null && csv.price !== undefined) {
-      if (BA_MAP[csv.code] && csv.price !== BA_MAP[csv.code].price) {
+    if (finalPrice !== null && finalPrice !== undefined) {
+      if (BA_MAP[code] && finalPrice !== BA_MAP[code].price) {
         priceWarning = true;
       }
     }
@@ -36,20 +42,21 @@ export function reconcile(csvRows, ocrRows) {
       workerNatId: csv ? csv.workerNatId : "待查",
       code: code,
       qty: qty,
-      price: price,
+      price: finalPrice,
       category: cat,
       subtotal: subtotal,
       priceWarning: priceWarning,
+      priceSource: priceSource,
       hoursDerived: base.hoursDerived,
       csvQty: csv ? csv.qty : null,
       csvCode: csv ? csv.code : null,
       status: status,
       source: status === "D1" ? "csv" : (status === "D2" ? "ocr_unmatched" : "ocr_confirmed"),
       note: note,
-      startH: base.startH,
-      startM: base.startM,
-      endH: base.endH,
-      endM: base.endM
+      startH: ocr?.startH ?? csv?.startH ?? null,
+      startM: ocr?.startM ?? csv?.startM ?? null,
+      endH: ocr?.endH ?? csv?.endH ?? null,
+      endM: ocr?.endM ?? csv?.endM ?? null
     };
   }
 
