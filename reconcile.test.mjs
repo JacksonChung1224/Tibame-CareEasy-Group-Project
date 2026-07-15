@@ -1,4 +1,4 @@
-import { reconcile } from './src/utils/reconcile.js';
+import { reconcile, resolveRow } from './src/utils/reconcile.js';
 
 function runTests() {
   let passed = 0;
@@ -34,12 +34,12 @@ function runTests() {
     { id: "o1", caseNatId: "A141408XXX", dateROC: "1150301", code: "BA15-1", qty: 1, price: 50, hoursDerived: 1, startH: 9, startM: 45, endH: 10, endM: 45 },
     { id: "o2", caseNatId: "A141408XXX", dateROC: "1150305", code: "BA02", qty: 2, price: 40, hoursDerived: 0.5 }, // qty mismatch -> D3
     { id: "o3", caseNatId: "A141408XXX", dateROC: "1150305", code: "BA17e", qty: 1, price: 30, hoursDerived: 0.5 },
-    { id: "o4", caseNatId: "A141408XXX", dateROC: "1150306", code: "BA05", qty: 1, price: 310, hoursDerived: 1 }, // D2
+    { id: "o4", caseNatId: "A141408XXX", dateROC: "1150306", code: "BA05", qty: 1, price: 310, hoursDerived: 1 }, // no_schedule
     
     // H5 Cases
     { id: "o5", caseNatId: "A141408XXX", dateROC: "1150307", code: "BA03", qty: 1, price: 40, hoursDerived: 1 }, // D4
-    { id: "o6", caseNatId: "B123", dateROC: "1150308", code: "BA03", qty: 1, price: 50, hoursDerived: 1 }, // D2x1 (c6, c7 become D1)
-    { id: "o7", caseNatId: "C123", dateROC: "1150309", code: "BA01", qty: 1, price: 300, hoursDerived: 1 }, // H2: priceWarning
+    { id: "o6", caseNatId: "B123", dateROC: "1150308", code: "BA03", qty: 1, price: 50, hoursDerived: 1 }, // no_schedule x1 (c6, c7 become D1)
+    { id: "o7", caseNatId: "C123", dateROC: "1150309", code: "BA01", qty: 1, price: 300, hoursDerived: 1 }, // H2 case, ok
   ];
 
   const res = reconcile(csv, ocr);
@@ -48,7 +48,6 @@ function runTests() {
   
   const ok1 = res.find(r => r.code === "BA15-1" && r.status === "ok");
   assertEqual(!!ok1, true, "Find ok for BA15-1");
-  assertEqual(ok1.priceWarning, false, "BA15-1 priceWarning is false");
   assertEqual(ok1.startM, 45, "H1 Regression: ok row time = ocr time");
 
   const d1 = res.find(r => r.status === "D1" && r.dateROC === "1150302");
@@ -59,14 +58,17 @@ function runTests() {
   assertEqual(d3.code, "BA02", "D3 is BA02");
   assertEqual(d3.qty, 2, "D3 qty is from OCR (2)");
   assertEqual(d3.csvQty, 1, "D3 csvQty is 1");
-  assertEqual(d3.priceWarning, true, "BA02 priceWarning is true");
+
+  // D3 resolving system
+  d3.decision = "system";
+  const resolvedD3 = resolveRow(d3);
+  assertEqual(resolvedD3[4], 1, "D3 採系統 → 解析值 qty = 排班(1)");
 
   const ok2 = res.find(r => r.code === "BA17e" && r.status === "ok");
   assertEqual(!!ok2, true, "Find ok for BA17e");
-  assertEqual(ok2.priceWarning, true, "BA17e priceWarning is true");
 
-  const d2 = res.find(r => r.status === "D2" && r.code === "BA05");
-  assertEqual(!!d2, true, "Find D2 for BA05");
+  const ns1 = res.find(r => r.status === "no_schedule" && r.code === "BA05");
+  assertEqual(!!ns1, true, "Find no_schedule for BA05");
 
   // H5 Cases validation
   const d4 = res.find(r => r.status === "D4");
@@ -74,14 +76,18 @@ function runTests() {
   assertEqual(d4.code, "BA03", "D4 code is OCR code");
   assertEqual(d4.csvCode, "BA02", "D4 csvCode is retained");
 
+  // D4 resolving paper
+  d4.decision = "paper";
+  const resolvedD4 = resolveRow(d4);
+  assertEqual(resolvedD4[2], "BA03", "D4 採紙本 → 解析值 code = 紙本(BA03)");
+
   const b123_d1 = res.filter(r => r.status === "D1" && r.caseNatId === "B123");
-  const b123_d2 = res.filter(r => r.status === "D2" && r.caseNatId === "B123");
+  const b123_ns = res.filter(r => r.status === "no_schedule" && r.caseNatId === "B123");
   assertEqual(b123_d1.length, 2, "2:1 mismatch yields 2 D1s");
-  assertEqual(b123_d2.length, 1, "2:1 mismatch yields 1 D2");
+  assertEqual(b123_ns.length, 1, "2:1 mismatch yields 1 no_schedule");
 
   const c123_ok = res.find(r => r.status === "ok" && r.caseNatId === "C123");
   assertEqual(!!c123_ok, true, "Find C123 ok");
-  assertEqual(c123_ok.priceWarning, true, "H2 Regression: priceWarning true when OCR price != BA_MAP price");
   assertEqual(c123_ok.startH, 10, "H1 Regression: ok row missing OCR time falls back to CSV time");
 
   console.log(`\nTests finished: ${passed} passed, ${failed} failed.`);
@@ -89,3 +95,4 @@ function runTests() {
 }
 
 runTests();
+

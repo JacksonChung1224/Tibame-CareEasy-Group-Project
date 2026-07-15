@@ -27,13 +27,6 @@ export function reconcile(csvRows, ocrRows) {
     if (finalPrice !== null && qty !== null && qty !== undefined) {
       subtotal = finalPrice * qty;
     }
-    
-    let priceWarning = false;
-    if (finalPrice !== null && finalPrice !== undefined) {
-      if (BA_MAP[code] && finalPrice !== BA_MAP[code].price) {
-        priceWarning = true;
-      }
-    }
 
     return {
       id: `${status.toLowerCase()}-${base.id || Math.random().toString(36).substr(2, 9)}`,
@@ -45,13 +38,18 @@ export function reconcile(csvRows, ocrRows) {
       price: finalPrice,
       category: cat,
       subtotal: subtotal,
-      priceWarning: priceWarning,
       priceSource: priceSource,
       hoursDerived: base.hoursDerived,
       csvQty: csv ? csv.qty : null,
       csvCode: csv ? csv.code : null,
+      csvPrice: csv ? csv.price : null,
+      csvStartH: csv ? csv.startH : null,
+      csvStartM: csv ? csv.startM : null,
+      csvEndH: csv ? csv.endH : null,
+      csvEndM: csv ? csv.endM : null,
+      decision: "paper",
       status: status,
-      source: status === "D1" ? "csv" : (status === "D2" ? "ocr_unmatched" : "ocr_confirmed"),
+      source: status === "D1" ? "csv" : (status === "no_schedule" ? "ocr_unmatched" : "ocr_confirmed"),
       note: note,
       startH: ocr?.startH ?? csv?.startH ?? null,
       startM: ocr?.startM ?? csv?.startM ?? null,
@@ -117,9 +115,44 @@ export function reconcile(csvRows, ocrRows) {
 
   for (const ocr of ocrRows) {
     if (!usedOcr.has(ocr.id)) {
-      rows.push(buildRow("D2", null, ocr, ""));
+      rows.push(buildRow("no_schedule", null, ocr, ""));
     }
   }
 
   return rows;
+}
+
+export function resolveRow(row) {
+  if (row.decision === "system") {
+    const qty = row.csvQty !== null ? row.csvQty : row.qty;
+    const price = row.csvPrice !== null ? row.csvPrice : (BA_MAP[row.csvCode || row.code]?.price || 0);
+    const code = row.csvCode || row.code;
+    return [
+      row.caseNatId || "",
+      row.dateROC || "",
+      code,
+      row.category || 1,
+      qty,
+      price,
+      row.workerNatId || "待查",
+      row.csvStartH ?? "",
+      row.csvStartM ?? "",
+      row.csvEndH ?? "",
+      row.csvEndM ?? "",
+    ];
+  } else {
+    return [
+      row.caseNatId || "",
+      row.dateROC || "",
+      row.code || "",
+      row.category || 1,
+      row.qty || 0,
+      row.price || 0,
+      row.workerNatId || "待查",
+      row.startH ?? "",
+      row.startM ?? "",
+      row.endH ?? "",
+      row.endM ?? "",
+    ];
+  }
 }

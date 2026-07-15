@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import * as XLSX from "xlsx";
-import { CloudUpload, Table, Download, CheckCircle, AlertTriangle, FileSpreadsheet, ClipboardPaste, AlertCircle, Eye, Info, UserPlus } from "lucide-react";
+import { CloudUpload, Table, Download, CheckCircle, AlertTriangle, FileSpreadsheet, ClipboardPaste, AlertCircle, Eye, Info, UserPlus, Camera } from "lucide-react";
 import { BA_MAP } from "@/utils/careData";
-import { reconcile } from "@/utils/reconcile";
+import { reconcile, resolveRow } from "@/utils/reconcile";
 import { parseScheduleSheet, OFFICIAL_HEADERS } from "@/utils/scheduleImport";
 
 export default function InstitutionDashboard() {
@@ -25,7 +25,7 @@ export default function InstitutionDashboard() {
   ]);
   const [toastMsg, setToastMsg] = useState("");
   const [confirmModal, setConfirmModal] = useState({ show: false, caseId: null, caseName: "" });
-  const [d2ConfirmModal, setD2ConfirmModal] = useState({ show: false, rowId: null, category: 1, workerNatId: "A123456789" });
+  const [ocrPreview, setOcrPreview] = useState(null);
 
   // P0-2: Invite Family logic
   const [showInviteModal, setShowInviteModal] = useState(false);
@@ -89,11 +89,18 @@ export default function InstitutionDashboard() {
 
   const loadMockOcrData = () => {
     setOcrData([
-      { id: "o1", caseNatId: "A141408XXX", dateROC: "1150301", code: "BA15-1", qty: 1, price: 50, hoursDerived: 1, bp: "120/80", temp: "36.5", note: "", startH: 9, startM: 30, endH: 10, endM: 30, confidence: { code: 1, hoursDerived: 1, bp: 1, temp: 1, caseNatId: 1, dateROC: 1, note: 1, startH: 1, startM: 1, endH: 1, endM: 1 } },
-      { id: "o2", caseNatId: "A141408XXX", dateROC: "1150305", code: "BA02", qty: 2, price: 40, hoursDerived: 0.5, bp: "120/80", temp: "36.5", note: "", startH: 12, startM: 30, endH: 13, endM: 0, confidence: { caseNatId: 1, temp: 1, note: 1, code: 1, hoursDerived: 1, bp: 1, dateROC: 1, qty: 0.7, startH: 1, startM: 1, endH: 1, endM: 1 } },
-      { id: "o3", caseNatId: "A141408XXX", dateROC: "1150305", code: "BA17e", qty: 1, price: 30, hoursDerived: 0.5, bp: "135/85", temp: "37.2", note: "", startH: 12, startM: 30, endH: 13, endM: 0, confidence: { caseNatId: 1, temp: 0.8, note: 1, code: 1, hoursDerived: 1, bp: 1, dateROC: 1, startH: 1, startM: 1, endH: 1, endM: 1 } },
-      { id: "o4", caseNatId: "A141408XXX", dateROC: "1150306", code: "BA05", qty: 1, price: 310, hoursDerived: 1, bp: "120/80", temp: "36.5", note: "", startH: 14, startM: 0, endH: 15, endM: 0, confidence: { caseNatId: 1, temp: 1, note: 1, code: 1, hoursDerived: 1, bp: 1, dateROC: 1, startH: 1, startM: 1, endH: 1, endM: 1 } },
+      { id: "o1", caseNatId: "A141408XXX", dateROC: "1150301", code: "BA15-1", qty: 1, price: 50, hoursDerived: 1, note: "", startH: 9, startM: 30, endH: 10, endM: 30, confidence: { code: 1, hoursDerived: 1, caseNatId: 1, dateROC: 1, note: 1, startH: 1, startM: 1, endH: 1, endM: 1 } },
+      { id: "o2", caseNatId: "A141408XXX", dateROC: "1150305", code: "BA02", qty: 2, price: 40, hoursDerived: 0.5, note: "", startH: 12, startM: 30, endH: 13, endM: 0, confidence: { caseNatId: 1, note: 1, code: 1, hoursDerived: 1, dateROC: 1, qty: 0.7, startH: 1, startM: 1, endH: 1, endM: 1 } },
+      { id: "o3", caseNatId: "A141408XXX", dateROC: "1150305", code: "BA17e", qty: 1, price: 30, hoursDerived: 0.5, note: "", startH: 12, startM: 30, endH: 13, endM: 0, confidence: { caseNatId: 1, note: 1, code: 1, hoursDerived: 1, dateROC: 1, startH: 1, startM: 1, endH: 1, endM: 1 } },
+      { id: "o4", caseNatId: "A141408XXX", dateROC: "1150306", code: "BA05", qty: 1, price: 310, hoursDerived: 1, note: "", startH: 14, startM: 0, endH: 15, endM: 0, confidence: { caseNatId: 1, note: 1, code: 1, hoursDerived: 1, dateROC: 1, startH: 1, startM: 1, endH: 1, endM: 1 } },
     ]);
+  };
+
+  const handleOcrUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setOcrPreview(URL.createObjectURL(file));
+    }
   };
 
   const handleFileUpload = async (e) => {
@@ -165,73 +172,72 @@ export default function InstitutionDashboard() {
     setReconciledData(prev => prev.map(row => row.id === id ? { ...row, note: val } : row));
   };
 
-  const handleD2Confirm = (id) => {
-    setD2ConfirmModal({ show: true, rowId: id, category: 1, workerNatId: "A123456789" });
+  const handleDecisionChange = (id, val) => {
+    setReconciledData(prev => prev.map(row => row.id === id ? { ...row, decision: val } : row));
   };
 
-  const submitD2Confirm = () => {
-    if (!d2ConfirmModal.category || !d2ConfirmModal.workerNatId) return;
-    setReconciledData(prev => prev.map(row => 
-      row.id === d2ConfirmModal.rowId 
-        ? { ...row, d2Confirmed: true, category: d2ConfirmModal.category, workerNatId: d2ConfirmModal.workerNatId } 
-        : row
-    ));
-    setD2ConfirmModal({ show: false, rowId: null, category: 1, workerNatId: "A123456789" });
-  };
 
-  const unhandledD1D2 = reconciledData.filter(r => (r.status === 'D1' && !r.note) || (r.status === 'D2' && !r.d2Confirmed)).length;
-  const missingTimeCount = reconciledData.filter(r => r.status !== 'D1' && (r.startH === null || r.startM === null || r.endH === null || r.endM === null)).length;
+  const unhandledD1 = reconciledData.filter(r => r.status === 'D1' && !r.note).length;
+  const missingTimeCount = reconciledData.filter(r => r.status !== 'D1' && r.status !== 'no_schedule' && (r.startH === null || r.startM === null || r.endH === null || r.endM === null)).length;
 
   const exportExcel = () => {
-    // Sheet 1: 核銷明細 (ok, D3, D4, and D2 with confirmed)
-    const validData = reconciledData.filter(r => r.status === 'ok' || r.status === 'D3' || r.status === 'D4' || (r.status === 'D2' && r.d2Confirmed));
+    // Sheet 1: 核銷明細 (ok, D3, D4)
+    const validData = reconciledData.filter(r => r.status === 'ok' || r.status === 'D3' || r.status === 'D4');
     
     const sheet1AOA = [OFFICIAL_HEADERS];
     validData.forEach(row => {
-      sheet1AOA.push([
-        row.caseNatId || "",
-        row.dateROC || "",
-        row.code || "",
-        row.category || 1,
-        row.qty || 0,
-        row.price || 0,
-        row.workerNatId || "待查",
-        row.startH ?? "",
-        row.startM ?? "",
-        row.endH ?? "",
-        row.endM ?? "",
-        row.hoursDerived || 0
-      ]);
+      const resolved = resolveRow(row);
+      if (resolved[5] === null || resolved[5] === undefined) return; // price check
+      if (resolved[6] === "待查") return; // workerNatId check
+      sheet1AOA.push(resolved);
     });
 
     // Sheet 2: 異常附表
     const sheet2AOA = [
-      ["日期", "個案身分證", "原排班代碼", "紙本代碼", "數量", "小計", "異常狀態", "類別", "備註"]
+      ["日期", "個案身分證", "原排班代碼", "紙本代碼", "數量", "小計", "異常狀態", "類別", "裁決", "備註"]
     ];
 
     reconciledData.forEach(row => {
-      if (row.status === 'D1') {
-        isError = true; errType = "D1 疑似未執行"; errMsg = "無對應紙本";
-      } else if (row.status === 'D2' && !row.d2Confirmed) {
-        isError = true; errType = "D2 計畫外服務"; errMsg = "未確認";
-      } else if (row.status === 'D3') {
-        isError = true; errType = "D3 差異"; errMsg = row.note;
-      } else if (row.status === 'D4') {
-        isError = true; errType = "D4 項目差異"; errMsg = row.note;
-      } else if (row.priceWarning) {
-        isError = true; errType = "單價警示"; errMsg = "單價與衛福部附表不符";
-      } else if (row.price === null && row.status !== 'D1') {
-        isError = true; errType = "待補價"; errMsg = "單價為空且無預設值";
-      }
+      if (row.status !== 'ok') {
+        let statusStr = row.status;
+        let extNote = row.note || "";
+        if (row.status === 'D1') statusStr = "疑似未執行 (D1)";
+        if (row.status === 'no_schedule') statusStr = "紙本無對應排班 (請確認排班匯入是否完整)";
+        if (row.status === 'D3') statusStr = "數量/時數差異 (D3)";
+        if (row.status === 'D4') statusStr = "項目差異 (D4)";
+        if (row.priceSource === "ba_map_fallback") {
+          extNote += (extNote ? "，" : "") + "單價採衛福部附表預設值";
+        }
+        
+        let decisionStr = "";
+        if (row.status === 'D3' || row.status === 'D4') {
+          decisionStr = row.decision === "system" ? "採系統" : "採紙本";
+        }
 
-      if (isError) {
         sheet2AOA.push([
-          row.caseNatId,
           row.dateROC,
+          row.caseNatId,
+          row.csvCode || "-",
+          row.status === 'D1' ? "-" : row.code,
+          row.qty,
+          row.subtotal || "待補價",
+          statusStr,
+          row.category || 1,
+          decisionStr,
+          extNote
+        ]);
+      } else if (row.priceSource === "ba_map_fallback") {
+        sheet2AOA.push([
+          row.dateROC,
+          row.caseNatId,
           row.code,
-          errType,
-          errMsg,
-          row.note || ""
+          row.code,
+          row.qty,
+          row.subtotal || "待補價",
+          "計價警示",
+          row.category || 1,
+          "",
+          "單價採衛福部附表預設值"
         ]);
       }
     });
@@ -386,43 +392,6 @@ export default function InstitutionDashboard() {
           </div>
         )}
 
-        {d2ConfirmModal.show && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-            <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-100 overflow-hidden">
-              <div className="p-6">
-                <h3 className="text-lg font-bold text-slate-950 mb-4">確認計畫外服務 (D2)</h3>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-2">服務類別</label>
-                    <div className="flex gap-4">
-                      <label className="flex items-center gap-2">
-                        <input type="radio" name="category" value={1} checked={d2ConfirmModal.category === 1} onChange={() => setD2ConfirmModal(prev => ({...prev, category: 1}))} />
-                        1 (補助)
-                      </label>
-                      <label className="flex items-center gap-2">
-                        <input type="radio" name="category" value={2} checked={d2ConfirmModal.category === 2} onChange={() => setD2ConfirmModal(prev => ({...prev, category: 2}))} />
-                        2 (自費)
-                      </label>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-2">服務人員身分證字號</label>
-                    <input type="text" className="w-full p-2 border rounded outline-none focus:ring-2 focus:ring-blue-500" value={d2ConfirmModal.workerNatId} onChange={(e) => setD2ConfirmModal(prev => ({...prev, workerNatId: e.target.value}))} />
-                  </div>
-                </div>
-              </div>
-              <div className="bg-slate-50 px-6 py-4 flex justify-end gap-2 border-t">
-                <button onClick={() => setD2ConfirmModal({ show: false, rowId: null, category: 1, workerNatId: "A123456789" })} className="px-5 py-2 text-sm font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg transition-colors">
-                  取消
-                </button>
-                <button onClick={submitD2Confirm} disabled={!d2ConfirmModal.category || !d2ConfirmModal.workerNatId} className="px-5 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50">
-                  確定核銷
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
         {view === "cases" && (
           <div className="space-y-6 animate-in fade-in">
             <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-blue-800 text-sm leading-relaxed shadow-sm">
@@ -449,51 +418,106 @@ export default function InstitutionDashboard() {
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {cases.map(c => (
-                      <tr key={c.caseId} className="hover:bg-slate-50 transition-colors">
-                        <td className="p-4">
-                          <div className="font-bold text-slate-800">{c.name}</div>
-                          <div className="text-xs text-slate-500 font-mono mt-0.5">{c.caseId}</div>
-                        </td>
-                        <td className="p-4">
-                          {c.status === 'none' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200">未邀請</span>}
-                          {c.status === 'invited' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700 border border-amber-200">邀請中 · {c.inviteCode}</span>}
-                          {c.status === 'connected' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">已連動 · {c.family}</span>}
-                        </td>
-                        <td className="p-4">
-                          {c.status === 'connected' ? (
-                            <div className="flex flex-col gap-2 items-start">
-                              <span className="text-xs text-slate-600">最近同步 {c.lastSync} · 本月已同步 {c.syncedCount} 筆</span>
-                              <button onClick={() => handlePushRecords(c)} className="text-xs font-bold bg-blue-50 text-blue-700 hover:bg-blue-100 px-3 py-1.5 rounded-lg border border-blue-200 transition shadow-sm">
-                                推送本月紀錄
+                      <React.Fragment key={c.caseId}>
+                        <tr className="hover:bg-slate-50 transition-colors">
+                          <td className="p-4">
+                            <div className="font-bold text-slate-800">{c.name}</div>
+                            <div className="text-xs text-slate-500 font-mono mt-0.5">{c.caseId}</div>
+                          </td>
+                          <td className="p-4">
+                            {c.status === 'none' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200">未邀請</span>}
+                            {c.status === 'invited' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700 border border-amber-200">邀請中 · {c.inviteCode}</span>}
+                            {c.status === 'connected' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">已連動 · {c.family}</span>}
+                          </td>
+                          <td className="p-4">
+                            {c.status === 'connected' ? (
+                              <div className="flex flex-col gap-2 items-start">
+                                <span className="text-xs text-slate-600">最近同步 {c.lastSync} · 本月已同步 {c.syncedCount} 筆</span>
+                              </div>
+                            ) : (
+                              <span className="text-slate-400">—</span>
+                            )}
+                          </td>
+                          <td className="p-4">
+                            {c.status === 'none' && (
+                              <button onClick={() => handleGenerateInvite(c)} className="text-xs font-bold bg-slate-800 text-white hover:bg-slate-700 px-3 py-1.5 rounded-lg transition shadow-sm">
+                                產生邀請碼
                               </button>
-                            </div>
-                          ) : (
-                            <span className="text-slate-400">—</span>
-                          )}
-                        </td>
-                        <td className="p-4">
-                          {c.status === 'none' && (
-                            <button onClick={() => handleGenerateInvite(c)} className="text-xs font-bold bg-slate-800 text-white hover:bg-slate-700 px-3 py-1.5 rounded-lg transition shadow-sm">
-                              產生邀請碼
-                            </button>
-                          )}
-                          {c.status === 'invited' && (
-                            <div className="flex gap-2">
-                              <button onClick={() => { setActiveInviteCase(c); navigator.clipboard.writeText(c.inviteCode); setCopied(true); setTimeout(()=>setCopied(false),2000); }} className="text-xs font-bold bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 px-3 py-1.5 rounded-lg transition shadow-sm">
-                                {copied && activeInviteCase?.caseId === c.caseId ? "已複製" : "複製邀請碼"}
+                            )}
+                            {c.status === 'invited' && (
+                              <div className="flex gap-2">
+                                <button onClick={() => { setActiveInviteCase(c); navigator.clipboard.writeText(c.inviteCode); setCopied(true); setTimeout(()=>setCopied(false),2000); }} className="text-xs font-bold bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 px-3 py-1.5 rounded-lg transition shadow-sm">
+                                  {copied && activeInviteCase?.caseId === c.caseId ? "已複製" : "複製邀請碼"}
+                                </button>
+                                <button onClick={() => handleGenerateInvite(c)} className="text-xs font-bold bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 px-3 py-1.5 rounded-lg transition shadow-sm">
+                                  重新產生
+                                </button>
+                              </div>
+                            )}
+                            {c.status === 'connected' && (
+                              <button onClick={() => confirmRemoveConnection(c)} className="text-xs font-bold bg-white border border-red-200 text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg transition shadow-sm">
+                                解除連動
                               </button>
-                              <button onClick={() => handleGenerateInvite(c)} className="text-xs font-bold bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 px-3 py-1.5 rounded-lg transition shadow-sm">
-                                重新產生
-                              </button>
-                            </div>
-                          )}
-                          {c.status === 'connected' && (
-                            <button onClick={() => confirmRemoveConnection(c)} className="text-xs font-bold bg-white border border-red-200 text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg transition shadow-sm">
-                              解除連動
-                            </button>
-                          )}
-                        </td>
-                      </tr>
+                            )}
+                          </td>
+                        </tr>
+                        {c.status === 'connected' && c.caseId === "A141408XXX" && (
+                          <tr className="bg-slate-50/50 border-t border-slate-100">
+                            <td colSpan="4" className="p-4">
+                              <div className="ml-4 border-l-2 border-blue-200 pl-4 py-2">
+                                <h4 className="text-sm font-bold text-slate-700 mb-3">本月已確認服務紀錄（來源：月底核銷流程）</h4>
+                                {reconciledData.filter(r => r.status === 'ok' || r.status === 'D3' || r.status === 'D4').length > 0 ? (
+                                  <div className="bg-white border rounded-lg shadow-sm overflow-hidden text-xs w-2/3 mb-3">
+                                    <table className="w-full text-left border-collapse">
+                                      <thead className="bg-slate-50">
+                                        <tr>
+                                          <th className="p-2 border-b">日期</th>
+                                          <th className="p-2 border-b">BA碼</th>
+                                          <th className="p-2 border-b">數量</th>
+                                          <th className="p-2 border-b">時數</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {reconciledData.filter(r => r.status === 'ok' || r.status === 'D3' || r.status === 'D4').map(r => (
+                                          <tr key={r.id} className="border-b last:border-0">
+                                            <td className="p-2">{r.dateROC}</td>
+                                            <td className="p-2">{r.code}</td>
+                                            <td className="p-2">{r.qty}</td>
+                                            <td className="p-2">{r.hoursDerived}</td>
+                                          </tr>
+                                        ))}
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                ) : (
+                                  <div className="bg-white border rounded-lg shadow-sm p-4 text-xs flex flex-col items-start gap-3 w-2/3 mb-3">
+                                    <span className="text-slate-500 font-bold">尚無已確認紀錄——請先於「月底核銷作業」完成紙本比對</span>
+                                    <button 
+                                      onClick={() => {
+                                        const mockConfirm = [
+                                          { id: "m1", dateROC: "1150301", code: "BA15-1", qty: 1, hoursDerived: 1, status: "ok" },
+                                          { id: "m2", dateROC: "1150305", code: "BA02", qty: 2, hoursDerived: 0.5, status: "ok" },
+                                          { id: "m3", dateROC: "1150305", code: "BA17e", qty: 1, hoursDerived: 0.5, status: "ok" },
+                                          { id: "m4", dateROC: "1150306", code: "BA05", qty: 1, hoursDerived: 1, status: "ok" }
+                                        ];
+                                        setReconciledData(mockConfirm);
+                                      }}
+                                      className="bg-blue-50 text-blue-700 hover:bg-blue-100 px-3 py-1.5 rounded font-bold transition border border-blue-200">
+                                      載入示範紀錄
+                                    </button>
+                                  </div>
+                                )}
+                                <div className="flex items-center gap-3">
+                                  <button onClick={() => handlePushRecords({...c, syncedCount: reconciledData.filter(r => r.status === 'ok' || r.status === 'D3' || r.status === 'D4').length || 4})} className="text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-lg transition shadow-sm">
+                                    推送至家屬端
+                                  </button>
+                                  <span className="text-xs text-slate-500">督導於核銷流程確認的紙本實績，即為家屬端「居服紀錄」的資料來源——一筆紀錄，三種價值。</span>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                      </React.Fragment>
                     ))}
                   </tbody>
                 </table>
@@ -586,11 +610,25 @@ export default function InstitutionDashboard() {
             </div>
             
             <div className="grid lg:grid-cols-2 gap-6">
-              <div className="bg-slate-100 rounded-xl border border-slate-200 p-4 flex flex-col items-center justify-center min-h-[400px]">
-                <div className="text-slate-400 mb-4">
-                  <CloudUpload className="w-16 h-16 mx-auto opacity-50 mb-2" />
-                  <p className="text-center font-bold">紙本照片預覽區</p>
-                </div>
+              <div className="bg-slate-100 rounded-xl border border-slate-200 p-4 flex flex-col items-center justify-center min-h-[400px] relative overflow-hidden group">
+                {ocrPreview ? (
+                  <>
+                    <img src={ocrPreview} alt="OCR Preview" className="absolute inset-0 w-full h-full object-cover opacity-60" />
+                    <div className="z-10 bg-white/90 backdrop-blur px-4 py-2 rounded-lg text-sm font-bold text-slate-700 text-center shadow-sm">
+                      已載入照片 · 點擊「載入 OCR 模擬資料」進行辨識（辨識引擎示意）
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-slate-400 mb-4 text-center">
+                    <CloudUpload className="w-16 h-16 mx-auto opacity-50 mb-2" />
+                    <p className="font-bold">紙本照片預覽區</p>
+                  </div>
+                )}
+                
+                <label className="mt-4 z-10 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold shadow-sm transition-all flex items-center gap-2">
+                  <Camera className="w-4 h-4" /> 上傳紙本照片
+                  <input type="file" accept="image/*" capture="environment" className="hidden" onChange={handleOcrUpload} />
+                </label>
               </div>
 
               <div className="overflow-x-auto border rounded-xl flex flex-col h-[400px]">
@@ -602,8 +640,6 @@ export default function InstitutionDashboard() {
                       <th className="p-3 font-bold border-b">BA碼</th>
                       <th className="p-3 font-bold border-b w-16">Qty</th>
                       <th className="p-3 font-bold border-b w-16">時數</th>
-                      <th className="p-3 font-bold border-b w-20">血壓</th>
-                      <th className="p-3 font-bold border-b w-16">體溫</th>
                       <th className="p-3 font-bold border-b w-16">開始時</th>
                       <th className="p-3 font-bold border-b w-16">開始分</th>
                       <th className="p-3 font-bold border-b w-16">結束時</th>
@@ -613,7 +649,7 @@ export default function InstitutionDashboard() {
                   <tbody className="divide-y divide-slate-100">
                     {ocrData.map((row) => (
                       <tr key={row.id}>
-                        {['dateROC', 'caseNatId', 'code', 'qty', 'hoursDerived', 'bp', 'temp', 'startH', 'startM', 'endH', 'endM'].map(field => {
+                        {['dateROC', 'caseNatId', 'code', 'qty', 'hoursDerived', 'startH', 'startM', 'endH', 'endM'].map(field => {
                           const isLowConfidence = row.confidence[field] < 0.85;
                           return (
                             <td key={field} className="p-1 border-t border-slate-100">
@@ -691,7 +727,7 @@ export default function InstitutionDashboard() {
                         <td className="p-3">
                           {row.status === 'ok' && <span className="text-emerald-700 bg-emerald-100 px-2 py-1 rounded-full font-bold text-xs"><CheckCircle className="w-3 h-3 inline mr-1"/>完全一致</span>}
                           {row.status === 'D1' && <span className="text-red-700 bg-red-100 px-2 py-1 rounded-full font-bold text-xs"><AlertTriangle className="w-3 h-3 inline mr-1"/>🔴 D1 疑似未執行</span>}
-                          {row.status === 'D2' && <span className="text-orange-700 bg-orange-100 px-2 py-1 rounded-full font-bold text-xs"><AlertTriangle className="w-3 h-3 inline mr-1"/>🟠 D2 計畫外服務</span>}
+                          {row.status === 'no_schedule' && <span className="text-orange-700 bg-orange-100 px-2 py-1 rounded-full font-bold text-xs"><AlertTriangle className="w-3 h-3 inline mr-1"/>🟠 紙本無對應排班</span>}
                           {row.status === 'D3' && (
                             <div className="flex flex-col gap-1">
                               <span className="text-yellow-800 bg-yellow-100 px-2 py-1 rounded-full font-bold text-xs w-max"><AlertCircle className="w-3 h-3 inline mr-1"/>🟡 D3 數量/時數差異</span>
@@ -714,18 +750,41 @@ export default function InstitutionDashboard() {
                                 value={row.note}
                                 onChange={(e) => handleReconcileNote(row.id, e.target.value)}
                               />
-                            ) : row.status === 'D2' && !row.d2Confirmed ? (
-                              <button onClick={() => handleD2Confirm(row.id)} className="bg-orange-500 hover:bg-orange-600 text-white text-xs px-3 py-1.5 rounded-lg shadow-sm">
-                                確認可核銷
-                              </button>
-                            ) : row.status === 'D2' && row.d2Confirmed ? (
-                              <span className="text-xs text-orange-700 font-bold">✓ 已確認</span>
+                            ) : row.status === 'D3' || row.status === 'D4' ? (
+                              <div className="flex flex-col gap-2">
+                                <div className="flex items-center gap-3">
+                                  <label className="flex items-center gap-1 text-xs text-slate-700 cursor-pointer">
+                                    <input 
+                                      type="radio" 
+                                      name={`decision-${row.id}`} 
+                                      checked={row.decision === "paper"}
+                                      onChange={() => handleDecisionChange(row.id, "paper")}
+                                      className="accent-blue-600"
+                                    /> 採紙本
+                                  </label>
+                                  <label className="flex items-center gap-1 text-xs text-slate-700 cursor-pointer">
+                                    <input 
+                                      type="radio" 
+                                      name={`decision-${row.id}`} 
+                                      checked={row.decision === "system"}
+                                      onChange={() => handleDecisionChange(row.id, "system")}
+                                      className="accent-blue-600"
+                                    /> 採系統
+                                  </label>
+                                </div>
+                                <input 
+                                  placeholder="備註(選填)..."
+                                  className="border border-slate-300 bg-white text-slate-700 text-xs px-2 py-1 rounded outline-none w-full"
+                                  value={row.note || ""}
+                                  onChange={(e) => handleReconcileNote(row.id, e.target.value)}
+                                />
+                              </div>
                             ) : (
                               <span className="text-slate-400 text-xs">{row.note || "無須註記"}</span>
                             )}
                             {isMissingPrice && <span className="text-[10px] text-amber-600 block mt-1">匯出前需人工補價</span>}
                             {isMissingTime && <span className="text-[10px] text-amber-600 block mt-1">⚠ 缺時段，匯出前需人工補齊</span>}
-                            {row.status === 'D1' && <span className="text-[10px] text-red-600 block mt-1">不列入核銷明細</span>}
+                            {(row.status === 'D1' || row.status === 'no_schedule') && <span className="text-[10px] text-red-600 block mt-1">不列入核銷明細</span>}
                           </div>
                         </td>
                       </tr>
@@ -737,9 +796,9 @@ export default function InstitutionDashboard() {
             
             <div className="mt-6 flex justify-between items-center bg-slate-50 p-4 rounded-xl border">
               <div className="flex items-center gap-2">
-                {unhandledD1D2 > 0 ? (
+                {unhandledD1 > 0 ? (
                   <span className="text-red-600 font-bold text-sm bg-red-100 px-3 py-1 rounded-full flex items-center gap-1">
-                    <AlertTriangle className="w-4 h-4"/> 尚有 {unhandledD1D2} 筆未結案異常 (D1/D2)
+                    <AlertTriangle className="w-4 h-4"/> 尚有 {unhandledD1} 筆未處理異常 (D1)
                   </span>
                 ) : missingTimeCount > 0 ? (
                   <span className="text-amber-600 font-bold text-sm bg-amber-100 px-3 py-1 rounded-full flex items-center gap-1">
@@ -753,7 +812,7 @@ export default function InstitutionDashboard() {
               </div>
               <button 
                 onClick={() => setCurrentStep(4)} 
-                disabled={unhandledD1D2 > 0 || missingTimeCount > 0 || reconciledData.length === 0}
+                disabled={unhandledD1 > 0 || missingTimeCount > 0 || reconciledData.length === 0}
                 className="bg-slate-800 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-slate-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
                 前往月底核銷導出
               </button>

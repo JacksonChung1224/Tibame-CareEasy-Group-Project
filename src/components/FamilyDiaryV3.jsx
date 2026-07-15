@@ -47,32 +47,34 @@ const CONNECTED_CASE = {
   monthlyBudget:18580, usedAmount:11245,
 };
 
-const DATES = ["6/27","6/26","6/25","6/24","6/23","6/22","6/20","6/18"];
+const fmtMD = (d) => `${d.getMonth()+1}/${d.getDate()}`;
+const daysAgo = (n) => { const d=new Date(); d.setDate(d.getDate()-n); return d; };
+const LAST_14 = Array.from({length:14}, (_,i) => fmtMD(daysAgo(i)));
 
 // 修正原型不一致：原 AI_SIGNALS 引用 6/18 紀錄但 WORKER_LOGS 缺該筆，已補齊。
 const WORKER_LOGS = {
-  "6/27":{codes:["BA02","BA03","BA07"],hours:1.5,
+  [fmtMD(daysAgo(0))]:{codes:["BA02","BA03","BA07"],hours:1.5,
     vitals:{bp:"146/88",temp:"36.5",pulse:"74",resp:"18"},
     obs:"協助沐浴，狀況穩定。進食時偶有輕微嗆咳。",worker:"謙師傅"},
-  "6/22":{codes:["BA02","BA14"],hours:1.5,
+  [fmtMD(daysAgo(5))]:{codes:["BA02","BA14"],hours:1.5,
     vitals:{bp:"142/86",temp:"36.5",pulse:"78",resp:"18"},
     obs:"陪同就醫，步態需攙扶。",worker:"謙師傅"},
-  "6/20":{codes:["BA02","BA03","BA17d1"],hours:1.0,
+  [fmtMD(daysAgo(7))]:{codes:["BA02","BA03","BA17d1"],hours:1.0,
     vitals:{bp:"138/82",temp:"36.4",pulse:"74",resp:"18"},
     obs:"血糖 112 mg/dL，腰部皮膚輕微泛紅。",worker:"謙師傅"},
-  "6/18":{codes:["BA02","BA10"],hours:1.0,
+  [fmtMD(daysAgo(9))]:{codes:["BA02","BA10"],hours:1.0,
     vitals:{bp:"136/80",temp:"36.4",pulse:"72",resp:"18"},
     obs:"移位過程稍顯費力。",worker:"謙師傅"},
 };
 
 // P1-1：日誌新結構 { tags:[], text:"" }（舊制字串仍相容）
 const FAMILY_LOGS = {
-  "6/27":{ tags:[],                       text:"今天居服員來了，媽媽狀態還好。下午有點昏昏的。" },
-  "6/25":{ tags:["sleep_bad","walk_weak"],text:"夜裡不太好睡，一直叫我。白天走路有點晃。" },
-  "6/24":{ tags:["choke"],                text:"今天吃東西嗆到了，咳了蠻久。" },
-  "6/23":{ tags:["good_day"],             text:"精神比昨天好，有跟我說說話。" },
-  "6/22":{ tags:["walk_weak"],            text:"陪媽媽去看診，醫生說血壓偏高。回來路上走很慢，腿沒力。" },
-  "6/20":{ tags:["pain","choke"],         text:"腰說很酸。晚上嗆到一次。" },
+  [fmtMD(daysAgo(0))]:{ tags:[],                       text:"今天居服員來了，媽媽狀態還好。下午有點昏昏的。" },
+  [fmtMD(daysAgo(2))]:{ tags:["sleep_bad","walk_weak"],text:"夜裡不太好睡，一直叫我。白天走路有點晃。" },
+  [fmtMD(daysAgo(3))]:{ tags:["choke"],                text:"今天吃東西嗆到了，咳了蠻久。" },
+  [fmtMD(daysAgo(4))]:{ tags:["good_day"],             text:"精神比昨天好，有跟我說說話。" },
+  [fmtMD(daysAgo(5))]:{ tags:["walk_weak"],            text:"陪媽媽去看診，醫生說血壓偏高。回來路上走很慢，腿沒力。" },
+  [fmtMD(daysAgo(7))]:{ tags:["pain","choke"],         text:"腰說很酸。晚上嗆到一次。" },
 };
 
 // 舊制字串 entry → 新結構（與 signalEngine 內部一致的相容規則）
@@ -86,27 +88,42 @@ const entryHasContent = (e) => {
 
 // ── Sub components ───────────────────────────────────────────
 
-function DatePicker({dates, selected, workerLogs, familyLogs, onSelect}) {
+function DatePicker({dates, selected, workerLogs, familyLogs, onSelect, onCustomDate}) {
+  const todayStr = fmtMD(daysAgo(0));
   return (
-    <div className="bg-white rounded-2xl border border-stone-200 p-3 shadow-sm">
+    <div className="bg-white rounded-2xl border border-stone-200 p-3 shadow-sm overflow-x-auto">
       <div className="text-xs font-bold text-stone-400 mb-2">選擇日期</div>
-      <div className="flex gap-1.5 flex-wrap">
+      <div className="flex gap-1.5 flex-nowrap min-w-max pb-1">
         {dates.map(d => {
           const hasW = !!workerLogs[d];
           const hasF = entryHasContent(familyLogs[d]); // P1-1：tags 或 text 皆算有紀錄
+          const isTodayActual = d === todayStr;
+          const isCustom = !LAST_14.includes(d);
+
           return (
             <button key={d} onClick={()=>onSelect(d)}
               className={`flex flex-col items-center px-2.5 py-1.5 rounded-xl border-2 transition min-w-[44px] ${
-                selected===d ? "border-teal-500 bg-teal-50" : "border-stone-100 hover:border-stone-200 bg-white"
+                selected===d ? "border-teal-500 bg-teal-50" : 
+                isTodayActual ? "border-teal-200/50 bg-teal-50/30 hover:border-teal-300" : 
+                "border-stone-100 hover:border-stone-200 bg-white"
               }`}>
               <span className={`text-xs font-bold ${selected===d?"text-teal-700":"text-stone-600"}`}>{d}</span>
-              <div className="flex gap-0.5 mt-0.5">
+              {(isTodayActual || isCustom) && (
+                <span className="text-[10px] scale-90 text-teal-600 font-bold -mt-0.5">{isCustom ? "自選" : "今天"}</span>
+              )}
+              <div className={`flex gap-0.5 ${isTodayActual||isCustom ? "mt-0" : "mt-0.5"}`}>
                 <span className={`w-1.5 h-1.5 rounded-full ${hasW?"bg-teal-500":"bg-stone-200"}`}/>
                 <span className={`w-1.5 h-1.5 rounded-full ${hasF?"bg-rose-400":"bg-stone-200"}`}/>
               </div>
             </button>
           );
         })}
+        <label className="flex flex-col items-center justify-center px-2 py-1.5 rounded-xl border-2 border-stone-100 bg-stone-50 hover:bg-stone-100 transition cursor-pointer min-w-[44px]">
+          <span className="text-lg">📅</span>
+          <input type="date" className="hidden" onChange={(e) => {
+            if(e.target.value) onCustomDate(e.target.value);
+          }} />
+        </label>
       </div>
       <div className="flex gap-3 mt-2 text-xs text-stone-400">
         <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-teal-500"/>居服員</span>
@@ -370,8 +387,10 @@ export default function FamilyDiaryV3() {
 
   // P1-1：日誌資料進 state，chips 儲存後 AI 訊號即時重算（demo 亮點）
   const [familyLogs, setFamilyLogs] = useState(FAMILY_LOGS);
-  const [selectedDate, setSelectedDate] = useState("6/27");
-  const initial = normEntry(FAMILY_LOGS["6/27"]);
+  const todayStr = fmtMD(daysAgo(0));
+  const [selectedDate, setSelectedDate] = useState(todayStr);
+  const [customDates, setCustomDates] = useState([]);
+  const initial = normEntry(FAMILY_LOGS[todayStr]);
   const [draftTags, setDraftTags] = useState(initial.tags);
   const [draftText, setDraftText] = useState(initial.text);
   const [saved, setSaved] = useState(false);
@@ -412,6 +431,15 @@ export default function FamilyDiaryV3() {
     setDraftTags(e.tags);
     setDraftText(e.text);
     setSaved(false);
+  }
+
+  function handleCustomDate(val) {
+    const d = new Date(val);
+    const md = `${d.getMonth() + 1}/${d.getDate()}`;
+    if (!LAST_14.includes(md) && !customDates.includes(md)) {
+      setCustomDates(prev => [md, ...prev]);
+    }
+    handleDateSelect(md);
   }
 
   function toggleTag(id) {
@@ -526,10 +554,14 @@ export default function FamilyDiaryV3() {
           <>
             {!connected && <ConnectBanner onConnect={handleConnect}/>}
 
-            <DatePicker dates={DATES} selected={selectedDate}
+            <DatePicker 
+              dates={[...customDates, ...LAST_14]} 
+              selected={selectedDate} 
               workerLogs={connected ? WORKER_LOGS : {}}
               familyLogs={familyLogs}
-              onSelect={handleDateSelect} />
+              onSelect={handleDateSelect}
+              onCustomDate={handleCustomDate}
+            />
 
             {connected && WORKER_LOGS[selectedDate] ? (
               <WorkerCard log={WORKER_LOGS[selectedDate]} date={selectedDate} />
