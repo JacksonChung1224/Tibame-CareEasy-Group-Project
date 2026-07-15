@@ -100,18 +100,6 @@ export default function ResultTable() {
           </div>
         </div>
       </div>
-      <Link href="/diary" className="block mt-6 rounded-2xl border-2 border-rose-200 bg-rose-50 p-4 hover:border-rose-400 transition-colors">
-        <div className="flex items-center gap-3">
-          <span className="text-2xl">📓</span>
-          <div className="flex-1">
-            <div className="text-sm font-bold text-rose-900">下一步：開始記錄照護日誌</div>
-            <p className="text-xs text-rose-700/80 mt-0.5 leading-relaxed">
-              每天 10 秒記錄長輩狀況，AI 幫您留意惡化徵兆；連動居服機構後還能查看服務紀錄。
-            </p>
-          </div>
-          <span className="text-rose-400 text-lg">›</span>
-        </div>
-      </Link>
       <div className="text-sm text-muted-foreground text-center pt-2">資料來源：衛福部「長期照顧服務申請及給付辦法」</div>
     </div>
   );

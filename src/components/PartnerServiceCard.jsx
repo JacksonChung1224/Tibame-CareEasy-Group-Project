@@ -10,10 +10,12 @@
 //        不顯示「合作夥伴提供」字樣。
 // ════════════════════════════════════════════════════════════════
 
+import { useState } from "react";
 import { PARTNER, GOV_CHANNELS, PLATFORM_DISCLAIMER } from "@/utils/partnerData";
 import { trackPartnerClick } from "@/utils/trackPartnerClick";
 
 export default function PartnerServiceCard({ packageId, cmsLevel, identity }) {
+  const [copied, setCopied] = useState(false);
   const service = PARTNER.services[packageId];
   const hasService = service?.hasService;
 
@@ -69,23 +71,50 @@ export default function PartnerServiceCard({ packageId, cmsLevel, identity }) {
 
   // ── 企業沒提供 → 政府官方管道 ───────────────────────────
   const gov = GOV_CHANNELS[packageId];
-  if (!gov) return null;
+  if (!gov || gov.hasChannel === false) return null;
 
   const onGovClick = () => {
     trackPartnerClick({ packageId, channel: "gov", cmsLevel, identity });
-    if (gov.ctaValue) window.location.href = gov.ctaValue;
+    if (gov.ctaType === "phone") {
+      navigator.clipboard.writeText("1966");
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+      window.location.href = gov.ctaValue;
+    } else {
+      if (gov.ctaValue) window.location.href = gov.ctaValue;
+    }
   };
 
   return (
     <div className="mt-4 rounded-2xl bg-secondary/40 ring-1 ring-border p-5 space-y-2">
       <div className="text-sm font-bold text-muted-foreground">透過政府官方管道申請</div>
-      <button
-        onClick={onGovClick}
-        className="w-full h-12 rounded-xl font-bold text-foreground bg-card ring-1 ring-border hover:ring-foreground/40 transition-all active:scale-95 flex items-center justify-center gap-1.5"
-      >
-        {gov.label}
-        <span aria-hidden="true">→</span>
-      </button>
+      {gov.ctaType === "link" ? (
+        <a
+          href={gov.ctaValue}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => trackPartnerClick({ packageId, channel: "gov", cmsLevel, identity })}
+          className="w-full h-12 rounded-xl font-bold text-foreground bg-card ring-1 ring-border hover:ring-foreground/40 transition-all active:scale-95 flex items-center justify-center gap-1.5"
+        >
+          {gov.label}
+          <span aria-hidden="true">→</span>
+        </a>
+      ) : (
+        <>
+          <button
+            onClick={onGovClick}
+            className="w-full h-12 rounded-xl font-bold text-foreground bg-card ring-1 ring-border hover:ring-foreground/40 transition-all active:scale-95 flex items-center justify-center gap-1.5"
+          >
+            {copied ? "✓ 號碼已複製：1966" : gov.label}
+            <span aria-hidden="true">→</span>
+          </button>
+          {gov.ctaType === "phone" && (
+            <p className="text-xs text-muted-foreground text-center mt-2">
+              電腦版用戶請直接以電話撥打 1966
+            </p>
+          )}
+        </>
+      )}
     </div>
   );
 }

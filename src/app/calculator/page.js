@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import AssessmentQuiz from "@/components/AssessmentQuiz";
 import SubsidyCalculator from "@/components/SubsidyCalculator";
 import ResultTable from "@/components/ResultTable";
@@ -58,13 +59,15 @@ export default function Home() {
             <HomeIcon className="size-6" />
           </button>
         )}
-        <span className="flex size-11 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
-          <HeartHandshake className="size-6" aria-hidden="true" />
-        </span>
-        <div className="leading-tight">
-          <p className="text-lg font-bold text-foreground">照護一點通</p>
-          <p className="text-sm font-medium text-muted-foreground">Care Easy</p>
-        </div>
+        <Link href="/" className="flex items-center gap-3 group cursor-pointer">
+          <span className="flex size-11 items-center justify-center rounded-2xl bg-primary text-primary-foreground group-hover:scale-105 transition-transform">
+            <HeartHandshake className="size-6" aria-hidden="true" />
+          </span>
+          <div className="leading-tight">
+            <p className="text-lg font-bold text-foreground group-hover:text-primary transition-colors">照護一點通</p>
+            <p className="text-sm font-medium text-muted-foreground">Care Easy</p>
+          </div>
+        </Link>
       </header>
 
       {/* 步進器 (僅在評估流程顯示) */}
@@ -98,6 +101,11 @@ export default function Home() {
         
         {tab === "start" && (
           <div className="w-full flex flex-col items-center">
+            <div className="w-full text-left mb-4">
+              <Link href="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                ← 回照護一點通首頁
+              </Link>
+            </div>
             {/* 首圖區塊 */}
             <div className="relative w-full overflow-hidden rounded-3xl bg-secondary h-48 md:h-56 flex items-center justify-center">
               <Image
@@ -200,7 +208,13 @@ export default function Home() {
         
         {tab === "calc" && (
           <div className="w-full mt-4 text-left">
-            <SubsidyCalculator initLevel={calcLevel} />
+            <SubsidyCalculator 
+              initLevel={calcLevel} 
+              onRestart={() => {
+                setCalcLevel(null);
+                setTab("quiz");
+              }} 
+            />
           </div>
         )}
         

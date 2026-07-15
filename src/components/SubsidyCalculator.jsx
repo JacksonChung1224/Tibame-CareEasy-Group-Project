@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   CARE_SUBSIDY, RESPITE_SUBSIDY, TRANSPORT_BY_REGION, IDENTITY_LABELS,
   calcSubsidy, calcTransport, canUseTransport
@@ -41,13 +42,26 @@ function PackageBody({ detail }) {
   );
 }
 
-export default function SubsidyCalculator({ initLevel }) {
+export default function SubsidyCalculator({ initLevel, onRestart }) {
+  const router = useRouter();
+  const [showDiaryModal, setShowDiaryModal] = useState(false);
   const [level, setLevel] = useState(initLevel || 5);
   const [identity, setIdentity] = useState("general");
   const [region, setRegion] = useState(0);
   const [aidsType, setAidsType] = useState("traditional");
   const [hasForeign, setHasForeign] = useState(false);
   const [wantTransport, setWantTransport] = useState(false);
+
+  if (initLevel === null) {
+    return (
+      <div className="bg-card rounded-2xl ring-1 ring-border p-8 shadow-sm flex flex-col items-center text-center mt-4">
+        <div className="text-lg font-bold text-foreground mb-2">請先完成失能評估</div>
+        <button onClick={onRestart} className="mt-4 h-12 px-6 rounded-xl font-bold text-primary-foreground bg-primary hover:opacity-90 transition-opacity">
+          返回失能評估
+        </button>
+      </div>
+    );
+  }
 
   useEffect(() => {
     if (initLevel && initLevel >= 2) setLevel(initLevel);
@@ -75,13 +89,19 @@ export default function SubsidyCalculator({ initLevel }) {
       {/* ── 輸入區（維持原樣）────────────────────────────── */}
       <div className="bg-card rounded-2xl ring-1 ring-border p-5 shadow-sm space-y-5">
         <div>
-          <label className="text-sm font-bold text-muted-foreground block mb-2">長照需要等級</label>
-          <div className="flex gap-2 flex-wrap">
-            {[2, 3, 4, 5, 6, 7, 8].map(l => (
-              <button key={l} onClick={() => setLevel(l)}
-                className={`w-12 h-12 rounded-xl text-lg font-bold ring-1 transition-all active:scale-95 ${level === l ? "bg-primary text-primary-foreground ring-primary shadow-sm" : "bg-card text-foreground ring-border hover:ring-primary/50"}`}
-              >{l}</button>
-            ))}
+          <div className="flex justify-between items-center mb-2">
+            <label className="text-sm font-bold text-muted-foreground">長照需要等級</label>
+            <button onClick={onRestart} className="text-sm font-bold text-primary hover:underline">
+              重新評估
+            </button>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="bg-primary text-primary-foreground text-xl font-bold px-4 py-2 rounded-xl">
+              CMS {level} 級
+            </div>
+            <div className="text-sm text-muted-foreground font-medium">
+              依您的評估結果帶入
+            </div>
           </div>
         </div>
 
@@ -128,6 +148,41 @@ export default function SubsidyCalculator({ initLevel }) {
           <div className="text-3xl font-black text-foreground">{identity === "low" ? "免費" : `$${monthlySelf.toLocaleString()}`}</div>
         </div>
       </div>
+
+      {/* ── 照護日誌 CTA ──────────────────────────────────── */}
+      <div className="bg-rose-50 border-2 border-rose-200 rounded-2xl p-4 hover:border-rose-400 transition-colors cursor-pointer" onClick={() => setShowDiaryModal(true)}>
+        <div className="flex items-center gap-3">
+          <span className="text-2xl">📓</span>
+          <div className="flex-1">
+            <div className="text-sm font-bold text-rose-900">📓 試算之後，下一步是每天的照顧</div>
+            <p className="text-xs text-rose-700/80 mt-0.5 leading-relaxed">
+              照護日誌：每天 10 秒記錄長輩狀況，AI 幫您留意變化。
+            </p>
+          </div>
+          <span className="text-rose-400 text-lg">›</span>
+        </div>
+      </div>
+
+      {showDiaryModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl overflow-hidden">
+            <div className="p-6 space-y-4">
+              <h3 className="text-xl font-bold text-slate-800 border-b pb-3">照護日誌能幫您做什麼？</h3>
+              <ul className="space-y-3">
+                <li className="flex gap-3 text-sm text-slate-700"><span className="text-base shrink-0">⏱</span> <span>每天 10 秒完成 — 點選「嗆咳、睡不好」等快速標籤即可，不必打字</span></li>
+                <li className="flex gap-3 text-sm text-slate-700"><span className="text-base shrink-0">🔍</span> <span>AI 幫您留意 — 自動比對近 14 天紀錄，發現惡化徵兆主動提醒</span></li>
+                <li className="flex gap-3 text-sm text-slate-700"><span className="text-base shrink-0">🏥</span> <span>一鍵就醫摘要 — 看診前把觀察整理成醫師 30 秒能讀完的摘要</span></li>
+                <li className="flex gap-3 text-sm text-slate-700"><span className="text-base shrink-0">🏢</span> <span>連動居服機構 — 輸入機構邀請碼，直接查看居服員服務紀錄與額度</span></li>
+                <li className="flex gap-3 text-sm text-slate-700"><span className="text-base shrink-0">🔒</span> <span>隱私保障 — 您的日誌只有您看得到，機構無法查看</span></li>
+              </ul>
+              <div className="grid grid-cols-2 gap-3 pt-4 border-t">
+                <button onClick={() => setShowDiaryModal(false)} className="h-11 rounded-xl font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors">稍後再說</button>
+                <button onClick={() => router.push("/diary")} className="h-11 rounded-xl font-bold text-white bg-rose-600 hover:bg-rose-700 transition-colors">開始使用照護日誌</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── 四包錢明細（可點擊展開 + 導流）────────────────── */}
       <div className="space-y-4">

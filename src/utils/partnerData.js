@@ -57,22 +57,20 @@ export const PARTNER = {
 // ── 政府官方 fallback 管道 ────────────────────────────────────
 export const GOV_CHANNELS = {
   care: {
-    label: "撥打 1966 長照專線免費諮詢",
-    ctaType: "phone",
-    ctaValue: "tel:1966",
+    label: "前往合作廠商服務網頁",
+    ctaType: "link",
+    ctaValue: "https://ltc.jubo-care.com/longtermcarehomepage",
   },
   transport: {
-    label: "向各縣市「長照交通接送預約平台」申請",
-    ctaType: "phone",
-    ctaValue: "tel:1966",
+    hasChannel: false,
   },
   aids: {
-    label: "洽詢照管專員到府評估輔具需求",
-    ctaType: "phone",
-    ctaValue: "tel:1966",
+    label: "前往合作廠商服務網頁",
+    ctaType: "link",
+    ctaValue: "https://ltc.jubo-care.com/longtermcarehomepage",
   },
   respite: {
-    label: "撥打 1966 申請喘息服務",
+    label: "撥打 1966 申請喘息服務（市話/手機直撥）",
     ctaType: "phone",
     ctaValue: "tel:1966",
   },

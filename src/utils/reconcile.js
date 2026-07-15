@@ -1,117 +1,118 @@
+import { BA_MAP } from "./careData.js";
+
 export function reconcile(csvRows, ocrRows) {
   let rows = [];
   let usedCsv = new Set();
   let usedOcr = new Set();
 
-  // ── 第一輪：精確鍵配對（caseId + date + code）──
+  function buildRow(status, csv, ocr, note = "") {
+    const base = status === "D1" ? csv : ocr;
+    
+    const qty = status === "D1" ? csv.qty : ocr.qty;
+    const cat = csv ? csv.category : 1; 
+    const price = status === "D1" ? csv.price : ocr.price;
+    const code = base.code;
+    
+    let finalPrice = price;
+    let subtotal = null;
+    if (finalPrice === null || finalPrice === undefined) {
+      finalPrice = BA_MAP[code]?.price || null;
+    }
+    if (finalPrice !== null && qty !== null && qty !== undefined) {
+      subtotal = finalPrice * qty;
+    }
+    
+    let priceWarning = false;
+    if (csv && csv.price !== null && csv.price !== undefined) {
+      if (BA_MAP[csv.code] && csv.price !== BA_MAP[csv.code].price) {
+        priceWarning = true;
+      }
+    }
+
+    return {
+      id: `${status.toLowerCase()}-${base.id || Math.random().toString(36).substr(2, 9)}`,
+      dateROC: base.dateROC,
+      caseNatId: base.caseNatId,
+      workerNatId: csv ? csv.workerNatId : "待查",
+      code: code,
+      qty: qty,
+      price: price,
+      category: cat,
+      subtotal: subtotal,
+      priceWarning: priceWarning,
+      hoursDerived: base.hoursDerived,
+      csvQty: csv ? csv.qty : null,
+      csvCode: csv ? csv.code : null,
+      status: status,
+      source: status === "D1" ? "csv" : (status === "D2" ? "ocr_unmatched" : "ocr_confirmed"),
+      note: note,
+      startH: base.startH,
+      startM: base.startM,
+      endH: base.endH,
+      endM: base.endM
+    };
+  }
+
   for (const csv of csvRows) {
     const match = ocrRows.find(o => 
       !usedOcr.has(o.id) &&
-      o.caseId === csv.caseId &&
-      o.date === csv.date &&
+      o.caseNatId === csv.caseNatId &&
+      o.dateROC === csv.dateROC &&
       o.code === csv.code
     );
 
     if (match) {
       usedCsv.add(csv.id);
       usedOcr.add(match.id);
-      if (parseFloat(csv.hours) === parseFloat(match.hours)) {
-        rows.push({
-          id: `ok-${match.id}`,
-          date: csv.date,
-          caseId: csv.caseId,
-          worker: csv.worker,
-          code: match.code,
-          hours: match.hours,
-          status: "ok",
-          source: "ocr_confirmed",
-          note: ""
-        });
+      
+      let isD3 = false;
+      let notes = [];
+      
+      if (csv.qty !== match.qty) {
+        isD3 = true;
+        notes.push(`排班數量: ${csv.qty}`);
+      }
+      
+      if (csv.hoursDerived !== null && match.hoursDerived !== null) {
+        if (Math.abs(csv.hoursDerived - match.hoursDerived) > 0.25) {
+          isD3 = true;
+          notes.push(`排班時數差 > 0.25h`);
+        }
+      }
+
+      if (!isD3) {
+        rows.push(buildRow("ok", csv, match, ""));
       } else {
-        rows.push({
-          id: `d3-${match.id}`,
-          date: csv.date,
-          caseId: csv.caseId,
-          worker: csv.worker,
-          code: match.code,
-          hours: match.hours,
-          csvHours: csv.hours,
-          status: "D3",
-          source: "ocr_confirmed",
-          note: `原時數: ${csv.hours}h`
-        });
+        rows.push(buildRow("D3", csv, match, notes.join(", ")));
       }
     }
   }
 
-  // ── 第二輪：同日碼不符配對（caseId + date，且雙邊剩餘各恰好一筆才配）──
-  // 找出所有獨特的 (caseId, date) 組合
-  const combinations = new Set([...csvRows.map(c => `${c.caseId}|${c.date}`), ...ocrRows.map(o => `${o.caseId}|${o.date}`)]);
+  const combinations = new Set([...csvRows.map(c => `${c.caseNatId}|${c.dateROC}`), ...ocrRows.map(o => `${o.caseNatId}|${o.dateROC}`)]);
 
   for (const combo of combinations) {
-    const [caseId, date] = combo.split("|");
-    const leftCsv = csvRows.filter(c => c.caseId === caseId && c.date === date && !usedCsv.has(c.id));
-    const leftOcr = ocrRows.filter(o => o.caseId === caseId && o.date === date && !usedOcr.has(o.id));
+    const [caseNatId, dateROC] = combo.split("|");
+    const leftCsv = csvRows.filter(c => c.caseNatId === caseNatId && c.dateROC === dateROC && !usedCsv.has(c.id));
+    const leftOcr = ocrRows.filter(o => o.caseNatId === caseNatId && o.dateROC === dateROC && !usedOcr.has(o.id));
 
     if (leftCsv.length === 1 && leftOcr.length === 1) {
       usedCsv.add(leftCsv[0].id);
       usedOcr.add(leftOcr[0].id);
-      rows.push({
-        id: `d4-${leftOcr[0].id}`,
-        date: date,
-        caseId: caseId,
-        worker: leftCsv[0].worker,
-        code: leftOcr[0].code,
-        hours: leftOcr[0].hours,
-        csvCode: leftCsv[0].code,
-        status: "D4",
-        source: "ocr_confirmed",
-        note: `原排班: ${leftCsv[0].code}`
-      });
+      rows.push(buildRow("D4", leftCsv[0], leftOcr[0], `原排班: ${leftCsv[0].code}`));
     }
   }
 
-  // ── 收尾 ──
   for (const csv of csvRows) {
     if (!usedCsv.has(csv.id)) {
-      rows.push({
-        id: `d1-${csv.id}`,
-        date: csv.date,
-        caseId: csv.caseId,
-        worker: csv.worker,
-        code: csv.code,
-        hours: csv.hours,
-        status: "D1",
-        source: "csv",
-        note: ""
-      });
+      rows.push(buildRow("D1", csv, null, ""));
     }
   }
 
   for (const ocr of ocrRows) {
     if (!usedOcr.has(ocr.id)) {
-      rows.push({
-        id: `d2-${ocr.id}`,
-        date: ocr.date,
-        caseId: ocr.caseId,
-        worker: "待查",
-        code: ocr.code,
-        hours: ocr.hours,
-        status: "D2",
-        source: "ocr_confirmed",
-        note: "",
-        d2Confirmed: false
-      });
+      rows.push(buildRow("D2", null, ocr, ""));
     }
   }
 
-  const summary = {
-    ok: rows.filter(r => r.status === 'ok').length,
-    d1: rows.filter(r => r.status === 'D1').length,
-    d2: rows.filter(r => r.status === 'D2').length,
-    d3: rows.filter(r => r.status === 'D3').length,
-    d4: rows.filter(r => r.status === 'D4').length,
-  };
-
-  return { rows, summary };
+  return rows;
 }

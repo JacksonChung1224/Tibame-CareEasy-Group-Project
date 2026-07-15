@@ -14,6 +14,7 @@
  */
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { computeSignals, shouldSuggestReassessment } from "@/utils/signalEngine";
 import { BA_MAP, CARE_SUBSIDY as CMS_BUDGET, IDENTITY_RATES } from "@/utils/careData";
 
@@ -38,8 +39,6 @@ const DIARY_TAGS = [
 const SOLO_CASE = {
   id:"c1", nameLabel:"媽媽",
   institution:null, cmsLevel:null, welfare:null,
-  // P1-3：來自試算平台的估算結果
-  estimatedCmsLevel:4, estimateSource:"self_assessment",
 };
 const CONNECTED_CASE = {
   id:"c1", nameLabel:"王奶奶",
@@ -360,36 +359,7 @@ function QuotaPanel({caseData}) {
   );
 }
 
-// ── P1-3：Solo 模式 · 預估額度（僅顯示核定額度列）─────────────
-function QuotaEstimatePanel({level, onRecalc}) {
-  const base = CMS_BUDGET[level];
-  return (
-    <div className="space-y-3">
-      <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-800 leading-relaxed">
-        此為試算平台的估算結果，實際額度須經各縣市長期照顧管理中心評估核定。金額為最高給付上限。
-      </div>
-      <div className="bg-white rounded-2xl border border-stone-200 p-4 shadow-sm">
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="text-xs text-stone-400">估算等級</div>
-            <div className="text-lg font-black text-stone-800 mt-0.5">CMS {level} 級</div>
-          </div>
-          <div className="text-right">
-            <div className="text-xs text-stone-400">照顧及專業服務 · 每月最高</div>
-            <div className="text-xl font-black text-teal-700 mt-0.5">{base?.toLocaleString()} 元</div>
-          </div>
-        </div>
-      </div>
-      <button onClick={onRecalc}
-        className="w-full py-2.5 rounded-xl bg-teal-600 text-white text-sm font-bold hover:bg-teal-700 transition">
-        重新試算
-      </button>
-      <p className="text-xs text-stone-400 text-center leading-relaxed">
-        連動居服機構後，可查看即時使用明細與剩餘額度。
-      </p>
-    </div>
-  );
-}
+
 
 // ══ Main ═════════════════════════════════════════════════════
 export default function FamilyDiaryV3() {
@@ -457,7 +427,6 @@ export default function FamilyDiaryV3() {
   const TABS_SOLO = [
     {id:"diary",   icon:"📔", label:"照護日誌"},
     {id:"signals", icon:"🔍", label:"AI 分析"},
-    {id:"quota",   icon:"💰", label:"預估額度"}, // P1-3
   ];
   const TABS_CONNECTED = [
     {id:"diary",   icon:"📔", label:"日誌"},
@@ -501,7 +470,7 @@ export default function FamilyDiaryV3() {
 
       {/* Header */}
       <div className={`text-white px-4 pt-8 pb-5 ${connected ? "bg-teal-700" : "bg-stone-700"}`}>
-        <div className="text-xs font-mono opacity-60 mb-1">照護一點通 · 家屬端</div>
+        <Link href="/" className="text-xs font-mono opacity-60 mb-1 hover:opacity-100 transition-opacity inline-block">照護一點通 · 家屬端</Link>
         <div className="flex items-start justify-between">
           <div>
             <h1 className="text-xl font-black">{caseData.nameLabel}</h1>
@@ -720,54 +689,46 @@ export default function FamilyDiaryV3() {
           </>
         )}
 
-        {/* ── 額度 Tab：Connected 實際額度 / Solo 預估額度（P1-3）── */}
-        {validTab === "quota" && (
-          connected ? (
-            <>
-              <div className="bg-white rounded-2xl border border-stone-200 p-4 shadow-sm space-y-4">
-                <div className="text-sm font-bold text-stone-800">本月補助額度（6月）</div>
-                <QuotaPanel caseData={CONNECTED_CASE} />
-              </div>
-
-              <div className="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden">
-                <div className="bg-stone-700 text-white px-4 py-2.5 text-sm font-bold">本月服務明細</div>
-                <div className="divide-y divide-stone-100">
-                  {Object.entries(WORKER_LOGS).map(([date,log])=>{
-                    const cost = log.codes.reduce((s,c)=>s+(BA_MAP[c]?.price||0),0);
-                    return (
-                      <div key={date} className="px-4 py-3">
-                        <div className="flex justify-between mb-1.5">
-                          <span className="text-xs font-mono text-stone-500">{date} · {log.worker}</span>
-                          <span className="text-sm font-bold text-stone-700">{cost} 元</span>
-                        </div>
-                        <div className="flex flex-wrap gap-1">
-                          {log.codes.map(c=>(
-                            <span key={c} className="text-xs bg-teal-100 text-teal-700 font-mono px-1.5 py-0.5 rounded">{c}</span>
-                          ))}
-                          <span className="text-xs bg-stone-100 text-stone-500 px-1.5 py-0.5 rounded">{log.hours}h</span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-                <div className="px-4 py-3 bg-stone-50 flex justify-between text-sm font-bold border-t border-stone-100">
-                  <span>合計</span>
-                  <span>{Object.values(WORKER_LOGS).reduce((s,l)=>s+l.codes.reduce((ss,c)=>ss+(BA_MAP[c]?.price||0),0),0).toLocaleString()} 元</span>
-                </div>
-              </div>
-
-              <div className="bg-teal-50 border border-teal-200 rounded-xl p-3 text-xs text-teal-700 leading-relaxed">
-                費用依衛福部附表四（民國 114 年 6 月 19 日修正版）計算。
-                實際核銷金額以機構向衛福部申報為準。
-              </div>
-            </>
-          ) : (
+        {/* ── 額度 Tab：Connected 實際額度 ── */}
+        {validTab === "quota" && connected && (
+          <>
             <div className="bg-white rounded-2xl border border-stone-200 p-4 shadow-sm space-y-4">
-              <div className="text-sm font-bold text-stone-800">預估額度</div>
-              <QuotaEstimatePanel level={SOLO_CASE.estimatedCmsLevel}
-                onRecalc={()=>router.push("/calculator")} />
+              <div className="text-sm font-bold text-stone-800">本月補助額度（6月）</div>
+              <QuotaPanel caseData={CONNECTED_CASE} />
             </div>
-          )
+
+            <div className="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden">
+              <div className="bg-stone-700 text-white px-4 py-2.5 text-sm font-bold">本月服務明細</div>
+              <div className="divide-y divide-stone-100">
+                {Object.entries(WORKER_LOGS).map(([date,log])=>{
+                  const cost = log.codes.reduce((s,c)=>s+(BA_MAP[c]?.price||0),0);
+                  return (
+                    <div key={date} className="px-4 py-3">
+                      <div className="flex justify-between mb-1.5">
+                        <span className="text-xs font-mono text-stone-500">{date} · {log.worker}</span>
+                        <span className="text-sm font-bold text-stone-700">{cost} 元</span>
+                      </div>
+                      <div className="flex flex-wrap gap-1">
+                        {log.codes.map(c=>(
+                          <span key={c} className="text-xs bg-teal-100 text-teal-700 font-mono px-1.5 py-0.5 rounded">{c}</span>
+                        ))}
+                        <span className="text-xs bg-stone-100 text-stone-500 px-1.5 py-0.5 rounded">{log.hours}h</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="px-4 py-3 bg-stone-50 flex justify-between text-sm font-bold border-t border-stone-100">
+                <span>合計</span>
+                <span>{Object.values(WORKER_LOGS).reduce((s,l)=>s+l.codes.reduce((ss,c)=>ss+(BA_MAP[c]?.price||0),0),0).toLocaleString()} 元</span>
+              </div>
+            </div>
+
+            <div className="bg-teal-50 border border-teal-200 rounded-xl p-3 text-xs text-teal-700 leading-relaxed">
+              費用依衛福部附表四（民國 114 年 6 月 19 日修正版）計算。
+              實際核銷金額以機構向衛福部申報為準。
+            </div>
+          </>
         )}
       </div>
     </div>
