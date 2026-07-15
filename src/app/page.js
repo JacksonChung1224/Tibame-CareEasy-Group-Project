@@ -12,7 +12,7 @@ export default function LandingPage() {
           <div className="inline-flex items-center justify-center p-4 bg-teal-600 rounded-2xl mb-6 shadow-sm relative">
             <HeartHandshake className="w-12 h-12 text-white" />
             <div className="absolute -top-3 -right-6 bg-rose-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-md animate-bounce">
-              v3.0
+              v3.1
             </div>
           </div>
           
