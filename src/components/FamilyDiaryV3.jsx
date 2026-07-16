@@ -621,7 +621,7 @@ export default function FamilyDiaryV3() {
         {/* ── 居服紀錄 Tab（Connected only）── */}
         {validTab === "records" && connected && (
           <>
-            <DatePicker dates={DATES} selected={selectedDate}
+            <DatePicker dates={[...customDates, ...LAST_14]} selected={selectedDate}
               workerLogs={WORKER_LOGS} familyLogs={familyLogs}
               onSelect={handleDateSelect} />
             {WORKER_LOGS[selectedDate] ? (
