@@ -52,7 +52,13 @@ export default function AssessmentQuiz({ hasApplied, actualLevel, onResult }) {
     try {
       const calculated_cms_level = lvlInfo.min; 
       const taiwanTimeStr = new Date().toLocaleString("sv-SE", { timeZone: "Asia/Taipei" }) + "+08:00";
-      const finalAnswers = { ...answers, tw_time: taiwanTimeStr };
+      const finalAnswers = { 
+        ...answers, 
+        tw_time: taiwanTimeStr,
+        cms_range: lvlInfo.isRange,
+        cms_min: lvlInfo.min,
+        cms_max: lvlInfo.max
+      };
 
       const response = await fetch('/api/submit', {
         method: 'POST',
@@ -65,7 +71,7 @@ export default function AssessmentQuiz({ hasApplied, actualLevel, onResult }) {
           actual_cms_level: hasApplied ? actualLevel : null,
           answers: finalAnswers,
           is_dementia_path: isDementia,
-          created_at: taiwanTimeStr
+          created_at: new Date().toISOString()
         })
       });
 

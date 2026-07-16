@@ -65,7 +65,7 @@ export default function AdminPage() {
         "建立時間(台灣)": twTime,
         "是否申請過CMS": row.has_applied_cms ? "是" : "否",
         "實際核定級數": row.actual_cms_level || "無",
-        "系統推估級數": row.calculated_cms_level || "無",
+        "系統推估級數": ans.cms_range ? `${ans.cms_min}-${ans.cms_max}` : (row.calculated_cms_level || "無"),
         "是否走失智路徑": row.is_dementia_path ? "是" : "否",
         
         // 攤平 Answers 的核心欄位
