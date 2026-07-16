@@ -62,13 +62,25 @@ function runTests() {
   // D3 resolving system
   d3.decision = "system";
   const resolvedD3 = resolveRow(d3);
-  assertEqual(resolvedD3[4], 1, "D3 採系統 → 解析值 qty = 排班(1)");
+  assertEqual(resolvedD3.include, true, "D3 include is true");
+  assertEqual(resolvedD3.values[4], 1, "D3 採系統 → 解析值 qty = 排班(1)");
 
   const ok2 = res.find(r => r.code === "BA17e" && r.status === "ok");
   assertEqual(!!ok2, true, "Find ok for BA17e");
 
   const ns1 = res.find(r => r.status === "no_schedule" && r.code === "BA05");
   assertEqual(!!ns1, true, "Find no_schedule for BA05");
+
+  // no_schedule resolving system (default)
+  ns1.decision = "system";
+  const resolvedNsSys = resolveRow(ns1);
+  assertEqual(resolvedNsSys.include, false, "no_schedule 採系統（預設）→ include=false");
+  
+  // no_schedule resolving paper
+  ns1.decision = "paper";
+  const resolvedNsPap = resolveRow(ns1);
+  assertEqual(resolvedNsPap.include, true, "no_schedule 採紙本 → include=true");
+  assertEqual(resolvedNsPap.values[2], "BA05", "no_schedule 採紙本 → 解析值 code = 紙本(BA05)");
 
   // H5 Cases validation
   const d4 = res.find(r => r.status === "D4");
@@ -79,12 +91,25 @@ function runTests() {
   // D4 resolving paper
   d4.decision = "paper";
   const resolvedD4 = resolveRow(d4);
-  assertEqual(resolvedD4[2], "BA03", "D4 採紙本 → 解析值 code = 紙本(BA03)");
+  assertEqual(resolvedD4.include, true, "D4 include is true");
+  assertEqual(resolvedD4.values[2], "BA03", "D4 採紙本 → 解析值 code = 紙本(BA03)");
 
   const b123_d1 = res.filter(r => r.status === "D1" && r.caseNatId === "B123");
   const b123_ns = res.filter(r => r.status === "no_schedule" && r.caseNatId === "B123");
   assertEqual(b123_d1.length, 2, "2:1 mismatch yields 2 D1s");
   assertEqual(b123_ns.length, 1, "2:1 mismatch yields 1 no_schedule");
+
+  // D1 resolving system
+  const d1Case = b123_d1[0];
+  d1Case.decision = "system";
+  const resolvedD1Sys = resolveRow(d1Case);
+  assertEqual(resolvedD1Sys.include, true, "D1 採系統 → include=true");
+  assertEqual(resolvedD1Sys.values[2], "BA01", "D1 採系統 → 解析值 = 排班");
+
+  // D1 resolving paper
+  d1Case.decision = "paper";
+  const resolvedD1Pap = resolveRow(d1Case);
+  assertEqual(resolvedD1Pap.include, false, "D1 採紙本 → include=false");
 
   const c123_ok = res.find(r => r.status === "ok" && r.caseNatId === "C123");
   assertEqual(!!c123_ok, true, "Find C123 ok");

@@ -55,7 +55,7 @@ const LAST_14 = Array.from({length:14}, (_,i) => fmtMD(daysAgo(i)));
 const WORKER_LOGS = {
   [fmtMD(daysAgo(0))]:{codes:["BA02","BA03","BA07"],hours:1.5,
     vitals:{bp:"146/88",temp:"36.5",pulse:"74",resp:"18"},
-    obs:"協助沐浴，狀況穩定。進食時偶有輕微嗆咳。",worker:"謙師傅"},
+    obs:"案主今日早上吃早餐時不慎跌倒，左膝蓋稍微擦傷。",worker:"謙師傅"},
   [fmtMD(daysAgo(5))]:{codes:["BA02","BA14"],hours:1.5,
     vitals:{bp:"142/86",temp:"36.5",pulse:"78",resp:"18"},
     obs:"陪同就醫，步態需攙扶。",worker:"謙師傅"},

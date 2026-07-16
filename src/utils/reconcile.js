@@ -47,7 +47,7 @@ export function reconcile(csvRows, ocrRows) {
       csvStartM: csv ? csv.startM : null,
       csvEndH: csv ? csv.endH : null,
       csvEndM: csv ? csv.endM : null,
-      decision: "paper",
+      decision: status === "no_schedule" ? "system" : "paper",
       status: status,
       source: status === "D1" ? "csv" : (status === "no_schedule" ? "ocr_unmatched" : "ocr_confirmed"),
       note: note,
@@ -123,11 +123,14 @@ export function reconcile(csvRows, ocrRows) {
 }
 
 export function resolveRow(row) {
+  let include = true;
+  let values = [];
+
   if (row.decision === "system") {
     const qty = row.csvQty !== null ? row.csvQty : row.qty;
     const price = row.csvPrice !== null ? row.csvPrice : (BA_MAP[row.csvCode || row.code]?.price || 0);
     const code = row.csvCode || row.code;
-    return [
+    values = [
       row.caseNatId || "",
       row.dateROC || "",
       code,
@@ -141,7 +144,7 @@ export function resolveRow(row) {
       row.csvEndM ?? "",
     ];
   } else {
-    return [
+    values = [
       row.caseNatId || "",
       row.dateROC || "",
       row.code || "",
@@ -155,4 +158,13 @@ export function resolveRow(row) {
       row.endM ?? "",
     ];
   }
+
+  if (row.status === "D1" && row.decision === "paper") {
+    include = false;
+  }
+  if (row.status === "no_schedule" && row.decision === "system") {
+    include = false;
+  }
+
+  return { include, values };
 }

@@ -26,6 +26,15 @@ export default function InstitutionDashboard() {
   const [toastMsg, setToastMsg] = useState("");
   const [confirmModal, setConfirmModal] = useState({ show: false, caseId: null, caseName: "" });
   const [ocrPreview, setOcrPreview] = useState(null);
+  
+  const [careNotes, setCareNotes] = useState([
+    { id:"n1", caseNatId:"A141408XXX", noteDate:"5/4",
+      text:"案主今日早上吃早餐時不慎跌倒，左膝蓋稍微擦傷。", confidence:0.92, confirmed:false },
+    { id:"n2", caseNatId:"A141408XXX", noteDate:"5/5",
+      text:"家屬早上帶案主運動時不慎跌倒，左肩、左手背、左膝上方均有輕微擦傷。", confidence:0.78, confirmed:false },
+    { id:"n3", caseNatId:"A141408XXX", noteDate:"5/18",
+      text:"個案右耳道有分泌物流出，會用手抓癢耳朵，右耳有異味。", confidence:0.66, confirmed:false },
+  ]);
 
   // P0-2: Invite Family logic
   const [showInviteModal, setShowInviteModal] = useState(false);
@@ -51,7 +60,8 @@ export default function InstitutionDashboard() {
         ? { ...x, lastSync: new Date().toLocaleDateString('zh-TW', {month: 'numeric', day: 'numeric'}) } 
         : x
     ));
-    showToast(`已將 ${c.syncedCount} 筆督導確認之服務紀錄同步至家屬端`);
+    const confirmedNotesCount = careNotes.filter(n => n.confirmed && n.caseNatId === c.caseId).length;
+    showToast(`已同步 ${c.syncedCount} 筆服務紀錄與 ${confirmedNotesCount} 則照護觀察至家屬端`);
   };
 
   const handleGenerateInvite = (c) => {
@@ -176,20 +186,31 @@ export default function InstitutionDashboard() {
     setReconciledData(prev => prev.map(row => row.id === id ? { ...row, decision: val } : row));
   };
 
+  const handleCareNoteChange = (id, field, val) => {
+    setCareNotes(prev => prev.map(n => n.id === id ? { ...n, [field]: val, confidence: 1 } : n));
+  };
+  const handleCareNoteConfirm = (id) => {
+    setCareNotes(prev => prev.map(n => n.id === id ? { ...n, confirmed: true } : n));
+  };
+  const saveCareNotes = () => {
+    const confirmedCount = careNotes.filter(n => n.confirmed).length;
+    showToast(`已存入 ${confirmedCount} 則照護觀察`);
+  };
 
-  const unhandledD1 = reconciledData.filter(r => r.status === 'D1' && !r.note).length;
+
+  const unhandledD1 = reconciledData.filter(r => r.status === 'D1' && r.decision === 'paper' && !r.note).length;
   const missingTimeCount = reconciledData.filter(r => r.status !== 'D1' && r.status !== 'no_schedule' && (r.startH === null || r.startM === null || r.endH === null || r.endM === null)).length;
 
   const exportExcel = () => {
-    // Sheet 1: 核銷明細 (ok, D3, D4)
-    const validData = reconciledData.filter(r => r.status === 'ok' || r.status === 'D3' || r.status === 'D4');
-    
+    // Sheet 1: 核銷明細 (resolved.include === true)
     const sheet1AOA = [OFFICIAL_HEADERS];
-    validData.forEach(row => {
+    reconciledData.forEach(row => {
       const resolved = resolveRow(row);
-      if (resolved[5] === null || resolved[5] === undefined) return; // price check
-      if (resolved[6] === "待查") return; // workerNatId check
-      sheet1AOA.push(resolved);
+      if (resolved.include) {
+        if (resolved.values[5] === null || resolved.values[5] === undefined) return;
+        if (resolved.values[6] === "待查") return;
+        sheet1AOA.push(resolved.values);
+      }
     });
 
     // Sheet 2: 異常附表
@@ -209,10 +230,7 @@ export default function InstitutionDashboard() {
           extNote += (extNote ? "，" : "") + "單價採衛福部附表預設值";
         }
         
-        let decisionStr = "";
-        if (row.status === 'D3' || row.status === 'D4') {
-          decisionStr = row.decision === "system" ? "採系統" : "採紙本";
-        }
+        let decisionStr = row.decision === "system" ? "採系統" : "採紙本";
 
         sheet2AOA.push([
           row.dateROC,
@@ -507,12 +525,28 @@ export default function InstitutionDashboard() {
                                     </button>
                                   </div>
                                 )}
-                                <div className="flex items-center gap-3">
-                                  <button onClick={() => handlePushRecords({...c, syncedCount: reconciledData.filter(r => r.status === 'ok' || r.status === 'D3' || r.status === 'D4').length || 4})} className="text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-lg transition shadow-sm">
-                                    推送至家屬端
-                                  </button>
-                                  <span className="text-xs text-slate-500">督導於核銷流程確認的紙本實績，即為家屬端「居服紀錄」的資料來源——一筆紀錄，三種價值。</span>
-                                </div>
+                                  <h4 className="text-sm font-bold text-slate-700 mb-3 mt-4">📝 照護觀察（居服員手寫紀錄）</h4>
+                                  {careNotes.filter(n => n.confirmed && n.caseNatId === "A141408XXX").length > 0 ? (
+                                    <div className="flex flex-col gap-2 mb-4 w-2/3">
+                                      {careNotes.filter(n => n.confirmed && n.caseNatId === "A141408XXX").map(note => (
+                                        <div key={note.id} className="bg-white border rounded-lg shadow-sm p-3 text-xs flex flex-col gap-1">
+                                          <span className="font-bold text-slate-600">{note.noteDate}</span>
+                                          <span className="text-slate-700 leading-relaxed">{note.text}</span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  ) : (
+                                    <div className="bg-white border rounded-lg shadow-sm p-4 text-xs w-2/3 mb-4 text-slate-500 font-bold">
+                                      尚無照護觀察——可於核銷流程的 OCR 步驟辨識紙本手寫紀錄
+                                    </div>
+                                  )}
+
+                                  <div className="flex items-center gap-3">
+                                    <button onClick={() => handlePushRecords({...c, syncedCount: reconciledData.filter(r => r.status === 'ok' || r.status === 'D3' || r.status === 'D4').length || 4})} className="text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-lg transition shadow-sm">
+                                      推送至家屬端
+                                    </button>
+                                    <span className="text-xs text-slate-500">督導確認的紙本實績與手寫觀察，即為家屬端「居服紀錄」的資料來源——一筆紀錄，三種價值。</span>
+                                  </div>
                               </div>
                             </td>
                           </tr>
@@ -671,6 +705,50 @@ export default function InstitutionDashboard() {
                 </table>
               </div>
             </div>
+
+            {ocrData.length > 0 && (
+              <div className="mt-8 border-t pt-6">
+                <div className="flex items-center space-x-2 text-blue-600 mb-4">
+                  <span className="text-lg">📝</span>
+                  <h3 className="font-bold">個案特殊狀況（手寫辨識）</h3>
+                </div>
+                <div className="grid grid-cols-1 gap-4 mb-4">
+                  {careNotes.map((note) => {
+                    const isLowConf = note.confidence < 0.85 && !note.confirmed;
+                    return (
+                      <div key={note.id} className={`p-4 border rounded-xl flex flex-col md:flex-row gap-4 items-start ${isLowConf ? 'bg-yellow-50 border-yellow-200' : 'bg-slate-50 border-slate-200'}`}>
+                        <div className="w-full md:w-32 shrink-0 flex flex-col gap-2">
+                           <span className="text-xs font-bold text-slate-500">個案代號</span>
+                           <input value={note.caseNatId} onChange={e => handleCareNoteChange(note.id, 'caseNatId', e.target.value)} className="w-full p-2 text-sm bg-white border rounded" />
+                        </div>
+                        <div className="w-full md:w-32 shrink-0 flex flex-col gap-2">
+                           <span className="text-xs font-bold text-slate-500">日期</span>
+                           <input value={note.noteDate} onChange={e => handleCareNoteChange(note.id, 'noteDate', e.target.value)} className="w-full p-2 text-sm bg-white border rounded" />
+                        </div>
+                        <div className="flex-1 flex flex-col gap-2 w-full">
+                           <span className="text-xs font-bold text-slate-500">觀察內容</span>
+                           <textarea value={note.text} onChange={e => handleCareNoteChange(note.id, 'text', e.target.value)} className="w-full p-2 text-sm bg-white border rounded resize-none" rows="2" />
+                        </div>
+                        <div className="shrink-0 self-center">
+                           {!note.confirmed ? (
+                             <button onClick={() => handleCareNoteConfirm(note.id)} className="bg-white border border-blue-200 text-blue-600 hover:bg-blue-50 px-4 py-2 rounded font-bold text-sm transition shadow-sm">✓ 確認</button>
+                           ) : (
+                             <span className="text-emerald-600 font-bold text-sm px-4 py-2 flex items-center gap-1"><CheckCircle className="w-4 h-4"/> 已確認</span>
+                           )}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-slate-500">此區內容供家屬照護參考，不列入核銷申報。</span>
+                  <button onClick={saveCareNotes} className="bg-blue-50 text-blue-700 hover:bg-blue-100 px-6 py-2.5 rounded-xl font-bold transition shadow-sm border border-blue-200">
+                    確認並存入照護紀錄
+                  </button>
+                </div>
+              </div>
+            )}
+            
             
             {ocrData.length > 0 && (
               <div className="mt-6 flex justify-end items-center gap-4">
@@ -743,14 +821,9 @@ export default function InstitutionDashboard() {
                         </td>
                         <td className="p-3">
                           <div className="flex flex-col gap-1">
-                            {row.status === 'D1' ? (
-                              <input 
-                                placeholder="請填寫未執行原因..."
-                                className="border border-red-300 bg-red-50 text-red-900 text-xs px-2 py-1.5 rounded outline-none focus:ring-1 focus:ring-red-500 w-full"
-                                value={row.note}
-                                onChange={(e) => handleReconcileNote(row.id, e.target.value)}
-                              />
-                            ) : row.status === 'D3' || row.status === 'D4' ? (
+                            {row.status === 'ok' ? (
+                              <span className="text-slate-400 text-xs">{row.note || "無須註記"}</span>
+                            ) : (
                               <div className="flex flex-col gap-2">
                                 <div className="flex items-center gap-3">
                                   <label className="flex items-center gap-1 text-xs text-slate-700 cursor-pointer">
@@ -773,18 +846,22 @@ export default function InstitutionDashboard() {
                                   </label>
                                 </div>
                                 <input 
-                                  placeholder="備註(選填)..."
-                                  className="border border-slate-300 bg-white text-slate-700 text-xs px-2 py-1 rounded outline-none w-full"
+                                  placeholder={row.status === 'D1' && row.decision === 'paper' ? "請填寫未執行原因(必填)..." : "備註(選填)..."}
+                                  className={`border bg-white text-slate-700 text-xs px-2 py-1 rounded outline-none w-full ${row.status === 'D1' && row.decision === 'paper' && !row.note ? 'border-red-300 ring-1 ring-red-300 bg-red-50' : 'border-slate-300'}`}
                                   value={row.note || ""}
                                   onChange={(e) => handleReconcileNote(row.id, e.target.value)}
                                 />
                               </div>
-                            ) : (
-                              <span className="text-slate-400 text-xs">{row.note || "無須註記"}</span>
                             )}
                             {isMissingPrice && <span className="text-[10px] text-amber-600 block mt-1">匯出前需人工補價</span>}
                             {isMissingTime && <span className="text-[10px] text-amber-600 block mt-1">⚠ 缺時段，匯出前需人工補齊</span>}
-                            {(row.status === 'D1' || row.status === 'no_schedule') && <span className="text-[10px] text-red-600 block mt-1">不列入核銷明細</span>}
+                            {row.status === 'ok' ? null : (() => {
+                              const resolved = resolveRow(row);
+                              if (!resolved.include) {
+                                return <span className="text-[10px] text-red-600 block mt-1">不列入核銷明細</span>;
+                              }
+                              return null;
+                            })()}
                           </div>
                         </td>
                       </tr>
