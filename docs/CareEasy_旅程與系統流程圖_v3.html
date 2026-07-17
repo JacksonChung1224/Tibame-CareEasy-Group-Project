@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>照護一點通｜使用者旅程 × 系統流程圖 v3</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@700;900&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Sans+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f1ea; --card:#fffdf8; --ink:#26231d; --muted:#6b6560;
+  --pine:#1b4d48; --pine3:#d6eae6;
+  --inst:#1b4d48; --inst2:#e5f0ee;
+  --fam:#8c3f58; --fam2:#f5e4ea;
+  --calc:#2a4fa0; --calc2:#e4ebf8;
+  --ai:#a0541e; --ai2:#faeadc;
+  --vendor:#5c7a3f; --vendor2:#e8efdd;
+  --line:#ddd6c8; --lh:1px solid var(--line);
+  --r:14px; --r2:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:"Noto Sans TC",sans-serif;-webkit-font-smoothing:antialiased;padding-bottom:80px}
+.serif{font-family:"Noto Serif TC",serif}
+.mono{font-family:"Noto Sans Mono",monospace}
+
+.pg-header{background:var(--pine);color:#fff;padding:38px 24px 30px;text-align:center}
+.pg-header .eye{font-family:"Noto Sans Mono",monospace;font-size:11px;letter-spacing:.22em;opacity:.6;text-transform:uppercase;margin-bottom:10px}
+.pg-header h1{font-family:"Noto Serif TC",serif;font-size:clamp(22px,4vw,34px);font-weight:900;line-height:1.25}
+.pg-header p{font-size:13px;opacity:.65;margin-top:8px}
+
+.wrap{max-width:1060px;margin:0 auto;padding:0 16px}
+.sec{margin:34px 0 0}
+.sec-title{font-family:"Noto Serif TC",serif;font-weight:700;font-size:19px;color:var(--pine);padding:0 0 4px;display:flex;align-items:center;gap:10px}
+.sec-title::after{content:"";flex:1;height:1px;background:var(--line)}
+.sec-sub{font-size:12.5px;color:var(--muted);margin:2px 0 14px;line-height:1.7}
+
+.legend{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:16px 20px 12px;background:var(--card);border-bottom:var(--lh)}
+.leg{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--muted);background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:4px 12px}
+.ld{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+
+/* ── 旅程時間軸 ── */
+.journey{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+.journey.j5{grid-template-columns:repeat(5,1fr)}
+@media(max-width:860px){.journey,.journey.j5{grid-template-columns:1fr 1fr}}
+.jstage{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px 11px;display:flex;flex-direction:column;gap:7px;position:relative}
+.jstage::after{content:"→";position:absolute;right:-11px;top:16px;color:var(--muted);font-size:13px;z-index:2}
+.jstage:last-child::after{content:""}
+@media(max-width:860px){.jstage::after{content:""}}
+.jnum{font-family:"Noto Sans Mono",monospace;font-size:10px;font-weight:700;letter-spacing:.08em;padding:2px 8px;border-radius:5px;align-self:flex-start}
+.jt{font-family:"Noto Serif TC",serif;font-weight:700;font-size:13.5px;line-height:1.35}
+.jrow{font-size:11px;line-height:1.55;color:var(--muted)}
+.jrow b{display:block;font-family:"Noto Sans Mono",monospace;font-size:9.5px;letter-spacing:.06em;color:var(--ink);opacity:.55;margin-bottom:1px}
+.jmood{margin-top:auto;font-size:10.5px;padding:4px 8px;border-radius:8px;line-height:1.4}
+.m-lo{background:#f7e3e0;color:#8a3b2e}
+.m-mid{background:#f4ecd8;color:#7a5c1e}
+.m-hi{background:var(--pine3);color:var(--pine)}
+
+.j-fam .jnum{background:var(--fam);color:#fff}
+.j-fam .jt{color:var(--fam)}
+.j-inst .jnum{background:var(--inst);color:#fff}
+.j-inst .jt{color:var(--inst)}
+
+/* ── 流程節點 ── */
+.node{border-radius:var(--r);padding:12px 15px;font-size:13px;line-height:1.55;border:2px solid;background:var(--card)}
+.node .nh{font-family:"Noto Serif TC",serif;font-weight:700;font-size:14px;margin-bottom:4px}
+.node .ns{font-size:11.5px;color:var(--muted);line-height:1.55}
+.node .tag{font-family:"Noto Sans Mono",monospace;font-size:10px;padding:2px 8px;border-radius:5px;display:inline-block;margin-bottom:6px;letter-spacing:.05em;font-weight:700;color:#fff}
+.fi{border-radius:var(--r2);padding:9px 12px;font-size:12px;line-height:1.55}
+.fi b{display:block;font-size:10.5px;font-family:"Noto Sans Mono",monospace;margin-bottom:2px;letter-spacing:.04em}
+.fi-inst{background:var(--inst2);border:1px solid #b5d5cf}.fi-inst b{color:var(--inst)}
+.fi-fam{background:var(--fam2);border:1px solid #ddb0bf}.fi-fam b{color:var(--fam)}
+.fi-calc{background:var(--calc2);border:1px solid #b0c3e8}.fi-calc b{color:var(--calc)}
+.fi-ai{background:var(--ai2);border:1px solid #d9a888}.fi-ai b{color:var(--ai)}
+.fi-vendor{background:var(--vendor2);border:1px solid #b8ca9a}.fi-vendor b{color:var(--vendor)}
+.arr{display:flex;flex-direction:column;align-items:center;padding:2px 0}
+.arr span{font-size:12px}
+.a-calc{color:var(--calc)}.a-fam{color:var(--fam)}.a-inst{color:var(--inst)}.a-vendor{color:var(--vendor)}.a-ai{color:var(--ai)}
+.lane3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+@media(max-width:860px){.lane3{grid-template-columns:1fr}}
+
+.pill{display:inline-block;font-family:"Noto Sans Mono",monospace;font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:5px;letter-spacing:.05em;margin-left:4px}
+.p-new{background:#d64545;color:#fff}
+.p-lock{background:#6b6560;color:#fff}
+
+/* ── 一筆紀錄三種價值 ── */
+.core{background:var(--card);border:2px solid var(--pine);border-radius:18px;padding:22px 18px}
+.core-src{max-width:340px;margin:0 auto;text-align:center;background:#fff;border:2px solid var(--ink);border-radius:14px;padding:12px 14px}
+.core-src .serif{font-size:15px;font-weight:900}
+.core-src .ns{font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.55}
+.fork{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:6px}
+@media(max-width:860px){.fork{grid-template-columns:1fr}}
+.fork-line{display:flex;justify-content:center;padding:8px 0 2px}
+.fork-line svg{width:min(620px,92%);height:44px;display:block}
+@media(max-width:860px){.fork-line{display:none}}
+.vcard{border-radius:12px;border:1.5px solid;padding:12px 13px;font-size:12px;line-height:1.6;background:#fff}
+.vcard .vh{font-family:"Noto Serif TC",serif;font-weight:700;font-size:13.5px;margin-bottom:3px}
+.vcard .vn{font-family:"Noto Sans Mono",monospace;font-size:9.5px;letter-spacing:.1em;opacity:.6;margin-bottom:5px;display:block}
+.v1{border-color:var(--inst)}.v1 .vh{color:var(--inst)}
+.v2{border-color:var(--fam)}.v2 .vh{color:var(--fam)}
+.v3{border-color:var(--ai)}.v3 .vh{color:var(--ai)}
+.privacy{margin-top:14px;background:#faf7f0;border:1px dashed var(--muted);border-radius:12px;padding:11px 14px;font-size:12px;line-height:1.7;color:var(--ink)}
+
+footer{padding:30px 20px 0;font-size:11.5px;color:var(--muted);text-align:center;border-top:var(--lh);line-height:1.9;max-width:1060px;margin:36px auto 0}
+@media print{body{background:#fff}.pg-header{background:var(--pine)!important;-webkit-print-color-adjust:exact}}
+</style>
+</head>
+<body>
+
+<div class="pg-header">
+  <div class="eye">CareEasy · User Journey × System Flow · v3</div>
+  <h1 class="serif">使用者旅程 × 系統流程圖</h1>
+  <p>對應上線版本（含核銷官方格式、督導裁決、個案連動管理、滾動日誌）｜care-easy.vercel.app</p>
+</div>
+
+<div style="background:var(--card);border-bottom:var(--lh)">
+  <div class="legend">
+    <div class="leg"><div class="ld" style="background:var(--calc)"></div>試算平台</div>
+    <div class="leg"><div class="ld" style="background:var(--fam)"></div>家屬端</div>
+    <div class="leg"><div class="ld" style="background:var(--inst)"></div>機構端</div>
+    <div class="leg"><div class="ld" style="background:var(--ai)"></div>AI 訊號引擎</div>
+    <div class="leg"><div class="ld" style="background:var(--vendor)"></div>合作廠商</div>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- ═══ 一、家屬旅程 ═══ -->
+<div class="sec">
+  <div class="sec-title">一、家屬旅程 — 從出院焦慮到掌握照顧節奏</div>
+  <div class="sec-sub">主角：剛接手照顧責任的家庭照顧者。上排為情境與行動，下排為平台觸點與獲得，底部色塊為情緒轉折。</div>
+
+  <div class="journey">
+    <div class="jstage j-fam">
+      <span class="jnum">STAGE 1</span>
+      <div class="jt">出院返家</div>
+      <div class="jrow"><b>情境</b>長輩出院，7–14 天內要安排好照顧</div>
+      <div class="jrow"><b>痛點</b>不知道能領多少補助、該找什麼服務</div>
+      <div class="jmood m-lo">😰 焦慮・資訊超載</div>
+    </div>
+    <div class="jstage j-fam">
+      <span class="jnum">STAGE 2</span>
+      <div class="jt">試算補助</div>
+      <div class="jrow"><b>行動</b>免登入完成失智／非失智雙軌評估</div>
+      <div class="jrow"><b>獲得</b>CMS 等級推估＋四包錢每月最高額度</div>
+      <div class="jmood m-mid">🙂 有了方向感</div>
+    </div>
+    <div class="jstage j-fam">
+      <span class="jnum">STAGE 3</span>
+      <div class="jt">找到服務</div>
+      <div class="jrow"><b>行動</b>展開四包錢細項，導流合作廠商／撥 1966</div>
+      <div class="jrow"><b>觸點</b>照顧服務・輔具 → 廠商網頁；喘息 → 1966</div>
+      <div class="jmood m-mid">🙂 知道找誰</div>
+    </div>
+    <div class="jstage j-fam">
+      <span class="jnum">STAGE 4</span>
+      <div class="jt">開案與連動</div>
+      <div class="jrow"><b>行動</b>與機構簽約；輸入督導提供的邀請碼</div>
+      <div class="jrow"><b>獲得</b>日誌由個人模式升級為機構連動模式</div>
+      <div class="jmood m-hi">😌 有了後盾</div>
+    </div>
+    <div class="jstage j-fam">
+      <span class="jnum">STAGE 5</span>
+      <div class="jt">日常照顧</div>
+      <div class="jrow"><b>行動</b>每天 10 秒點選標籤寫日誌（14 天滾動）</div>
+      <div class="jrow"><b>獲得</b>直接查看督導確認過的居服員服務紀錄</div>
+      <div class="jmood m-hi">😌 不用再打電話問</div>
+    </div>
+    <div class="jstage j-fam">
+      <span class="jnum">STAGE 6</span>
+      <div class="jt">訊號與行動</div>
+      <div class="jrow"><b>觸發</b>AI 交叉比對：家屬＋居服員兩端一致退步</div>
+      <div class="jrow"><b>行動</b>就醫摘要給醫師／與照專討論提前複評</div>
+      <div class="jmood m-mid">🧭 早一步行動</div>
+    </div>
+    <div class="jstage j-fam">
+      <span class="jnum">STAGE 7</span>
+      <div class="jt">回到試算</div>
+      <div class="jrow"><b>行動</b>「先估新等級」回到試算平台</div>
+      <div class="jrow"><b>獲得</b>重評後額度更新，照顧計畫跟著調整</div>
+      <div class="jmood m-hi">🔁 飛輪閉合</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 二、督導旅程 ═══ -->
+<div class="sec">
+  <div class="sec-title">二、督導旅程 — 從紙本山到一鍵申報</div>
+  <div class="sec-sub">主角：居服機構督導。月底核銷五步，外加貫穿整月的個案連動管理。</div>
+
+  <div class="journey j5">
+    <div class="jstage j-inst">
+      <span class="jnum">STAGE 1</span>
+      <div class="jt">匯入排班</div>
+      <div class="jrow"><b>行動</b>上傳衛福部標準排班檔（xlsx/xls/csv）</div>
+      <div class="jrow"><b>系統</b>表頭自動偵測、逐列驗證、異常列列出</div>
+      <div class="jmood m-mid">📥 免繕打</div>
+    </div>
+    <div class="jstage j-inst">
+      <span class="jnum">STAGE 2</span>
+      <div class="jt">OCR 輔助確認</div>
+      <div class="jrow"><b>行動</b>上傳紙本照片 → 辨識（示意）→ 逐欄確認</div>
+      <div class="jrow"><b>系統</b>低信心欄位標黃，未確認不得匯入</div>
+      <div class="jmood m-mid">🔍 人工把關</div>
+    </div>
+    <div class="jstage j-inst">
+      <span class="jnum">STAGE 3</span>
+      <div class="jt">對帳裁決</div>
+      <div class="jrow"><b>系統</b>兩輪配對：一致／D1／D3／D4／無對應排班</div>
+      <div class="jrow"><b>行動</b>差異列逐筆裁決：採紙本（預設）或採系統</div>
+      <div class="jmood m-hi">⚖️ 快速裁決</div>
+    </div>
+    <div class="jstage j-inst">
+      <span class="jnum">STAGE 4</span>
+      <div class="jt">一鍵申報</div>
+      <div class="jrow"><b>獲得</b>衛福部官方 11 欄核銷明細＋異常附表</div>
+      <div class="jrow"><b>守則</b>D1 疑似未執行永不進入核銷明細</div>
+      <div class="jmood m-hi">📤 直接可交</div>
+    </div>
+    <div class="jstage j-inst">
+      <span class="jnum">STAGE 5</span>
+      <div class="jt">個案連動管理</div>
+      <div class="jrow"><b>行動</b>產生邀請碼 → 家屬連動 → 推送已確認紀錄</div>
+      <div class="jrow"><b>獲得</b>家屬主動掌握狀況，溝通電話變少</div>
+      <div class="jmood m-hi">👪 一對多管理</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 三、系統流程 ═══ -->
+<div class="sec">
+  <div class="sec-title">三、系統流程 — 首頁三入口 × 三條主路徑</div>
+  <div class="sec-sub">對應線上版實際功能。🆕 為近期新增，🔒 為守衛／鎖定機制。</div>
+
+  <div style="display:flex;justify-content:center;margin-bottom:14px">
+    <div class="node" style="border-color:var(--pine);width:min(360px,100%);text-align:center">
+      <div class="nh" style="color:var(--pine);font-size:17px">照護一點通 · 首頁</div>
+      <div class="ns">三入口：試算補助（免登入）｜我是家屬｜我是機構<br>各端品牌區可隨時返回首頁</div>
+    </div>
+  </div>
+
+  <div class="lane3">
+
+    <!-- 試算平台 -->
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div class="node" style="border-color:var(--calc);text-align:center">
+        <span class="tag" style="background:var(--calc)">路徑 A · 試算平台</span>
+        <div class="nh" style="color:var(--calc)">長照補助試算</div>
+        <div class="ns">免登入 · 步進器守衛 🔒（未完成評估不可跳步）</div>
+      </div>
+      <div class="arr a-calc"><span>↓</span></div>
+      <div class="fi fi-calc"><b>STEP 1 · 失能評估</b>失智（CDR）／非失智（Barthel 加權）雙軌問卷</div>
+      <div class="arr a-calc"><span>↓ 推估結果寫入真值資料庫</span></div>
+      <div class="fi fi-calc"><b>STEP 2 · 補助試算</b>CMS 等級鎖定顯示 <span class="pill p-lock">LOCK</span>（依評估帶入，改變需重新評估）<br>四包錢每月「最高」額度與細項</div>
+      <div class="arr a-fam"><span>↓</span></div>
+      <div class="fi fi-fam"><b>📓 照護日誌入口 <span class="pill p-new">NEW</span></b>四包錢明細上方 CTA → 功能說明彈窗 → 前往日誌</div>
+      <div class="arr a-vendor"><span>↓</span></div>
+      <div class="fi fi-vendor"><b>服務管道</b>照顧服務・輔具 → 合作廠商網頁（導流追蹤）<br>喘息 → 撥打／複製 1966｜交通 → 無外部管道</div>
+      <div class="arr a-calc"><span>↓</span></div>
+      <div class="fi fi-calc"><b>STEP 3 · 總覽表</b>四包錢彙整＋免責聲明（最高／須經評估核定）</div>
+    </div>
+
+    <!-- 家屬端 -->
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div class="node" style="border-color:var(--fam);text-align:center">
+        <span class="tag" style="background:var(--fam)">路徑 B · 家屬端</span>
+        <div class="nh" style="color:var(--fam)">照護日誌</div>
+        <div class="ns">帳號登入 · 個人模式 ⇄ 機構連動模式</div>
+      </div>
+      <div class="arr a-fam"><span>↓</span></div>
+      <div class="fi fi-fam"><b>個人模式（2 分頁）</b>📔 日誌｜🔍 AI 分析（單軌）</div>
+      <div class="arr a-fam"><span>↓ 輸入機構邀請碼</span></div>
+      <div class="fi fi-fam"><b>連動模式（4 分頁）</b>📔 日誌｜🧑‍⚕️ 居服紀錄｜🔍 AI 分析（雙軌）｜💰 額度<br>可解除連動，日誌資料保留</div>
+      <div class="arr a-fam"><span>↓</span></div>
+      <div class="fi fi-fam"><b>📔 每日紀錄 <span class="pill p-new">14天滾動</span></b>快速標籤（嗆咳／睡不好…）＋選填文字＋📅 任意日期補記</div>
+      <div class="arr a-ai"><span>↓ 純函式規則引擎 R1–R4</span></div>
+      <div class="fi fi-ai"><b>🔍 AI 照護訊號</b>家屬 × 居服員交叉比對；兩端一致＝紅色高可信<br>每則訊號附原始依據（可展開查證）</div>
+      <div class="arr a-ai"><span>↓ 一致訊號 ≥ 2</span></div>
+      <div class="fi fi-ai"><b>🚨 建議與照專討論提前複評</b>就醫摘要｜聯繫 1966｜用試算平台先估新等級 → 回路徑 A（飛輪）</div>
+    </div>
+
+    <!-- 機構端 -->
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div class="node" style="border-color:var(--inst);text-align:center">
+        <span class="tag" style="background:var(--inst)">路徑 C · 機構端</span>
+        <div class="nh" style="color:var(--inst)">機構管理台</div>
+        <div class="ns">督導登入 · 雙檢視：月底核銷｜個案連動管理</div>
+      </div>
+      <div class="arr a-inst"><span>↓ 檢視一：月底核銷</span></div>
+      <div class="fi fi-inst"><b>1 排班匯入 <span class="pill p-new">真實上傳</span></b>衛福部標準格式，表頭偵測＋逐列驗證</div>
+      <div class="arr a-inst"><span>↓</span></div>
+      <div class="fi fi-inst"><b>2 OCR 結果確認 <span class="pill p-new">照片上傳</span></b>紙本照片預覽 → 模擬辨識 → 低信心欄強制人工確認</div>
+      <div class="arr a-inst"><span>↓ 兩輪配對（個案＋日期＋碼）</span></div>
+      <div class="fi fi-inst"><b>3 對帳比對室</b>🟢一致｜🔴D1 疑似未執行｜🟡D3 數量差異｜🟡D4 項目差異｜⚪無對應排班<br>D3/D4 逐筆裁決：採紙本（預設）／採系統 <span class="pill p-new">NEW</span></div>
+      <div class="arr a-inst"><span>↓ D1 註記完成才可匯出</span></div>
+      <div class="fi fi-inst"><b>4 匯出申報</b>Sheet1 官方 11 欄核銷明細（D1 永不列入）＋ Sheet2 異常附表</div>
+      <div class="arr a-inst"><span>↓ 檢視二：個案連動</span></div>
+      <div class="fi fi-inst"><b>👪 個案連動管理 <span class="pill p-new">NEW</span></b>一對多生命週期：未邀請→邀請碼→已連動→解除<br>展開「本月已確認服務紀錄」→ 推送至家屬端</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ 四、核心資料流 ═══ -->
+<div class="sec">
+  <div class="sec-title">四、核心資料流 — 一筆紀錄，三種價值</div>
+  <div class="sec-sub">全平台的樞紐機制：督導在核銷流程中的「確認」動作，同時完成三條價值鏈的品質把關。</div>
+
+  <div class="core">
+    <div class="core-src">
+      <div class="serif">📋 居服員紙本服務紀錄</div>
+      <div class="ns">法定必填，不增加任何人的工作量<br>↓ 步驟 2 OCR 輔助＋督導逐欄確認</div>
+    </div>
+
+    <div class="fork-line">
+      <svg viewBox="0 0 620 44" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M310 2 V14" stroke="#26231d" stroke-width="2"/>
+        <path d="M310 14 C 310 26, 105 22, 105 42" stroke="#1b4d48" stroke-width="2"/>
+        <path d="M310 14 V42" stroke="#8c3f58" stroke-width="2"/>
+        <path d="M310 14 C 310 26, 515 22, 515 42" stroke="#a0541e" stroke-width="2"/>
+      </svg>
+    </div>
+
+    <div class="fork">
+      <div class="vcard v1">
+        <span class="vn">VALUE 1 · 機構</span>
+        <div class="vh">核銷憑證</div>
+        兩輪配對比對排班 → 督導裁決 → 匯出衛福部官方 11 欄申報檔。疑似未執行（D1）在架構上就進不了核銷明細。
+      </div>
+      <div class="vcard v2">
+        <span class="vn">VALUE 2 · 家屬</span>
+        <div class="vh">照護透明度</div>
+        已確認紀錄經連動同步至家屬端「居服紀錄」分頁——今天做了什麼服務、多久、什麼項目，不用再打電話問督導。
+      </div>
+      <div class="vcard v3">
+        <span class="vn">VALUE 3 · AI</span>
+        <div class="vh">交叉驗證資料源</div>
+        與家屬日誌雙軌比對：兩端同時觀察到的退化才標紅色高可信訊號，引導家屬與照管專員討論是否提前複評。
+      </div>
+    </div>
+
+    <div class="privacy">
+      🔒 <b>隱私鐵律（單向不對稱）</b>：服務紀錄由機構授權家屬檢視（邀請碼制、可解除）；家屬的照護日誌永遠不提供給機構——這是家屬敢誠實記錄的前提。所有 AI 輸出為觀察彙整、非醫療診斷；所有金額標示「最高」且須經各縣市長期照顧管理中心評估核定。
+    </div>
+  </div>
+</div>
+
+</div><!-- /wrap -->
+
+<footer>
+  使用者旅程 × 系統流程圖 v3｜照護一點通 CareEasy｜取代 flow-v2<br>
+  更新內容：官方核銷格式匯入匯出、督導採紙本/採系統裁決、個案連動管理、OCR 照片上傳、
+  日誌 14 天滾動日期、等級鎖定與步進守衛、日誌入口說明彈窗<br>
+  建議存放路徑：docs/CareEasy_旅程與系統流程圖_v3.html
+</footer>
+
+</body>
+</html>

@@ -179,6 +179,9 @@ export default function SubsidyCalculator({ initLevel, onRestart }) {
                 <button onClick={() => setShowDiaryModal(false)} className="h-11 rounded-xl font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors">稍後再說</button>
                 <button onClick={() => router.push("/diary")} className="h-11 rounded-xl font-bold text-white bg-rose-600 hover:bg-rose-700 transition-colors">開始使用照護日誌</button>
               </div>
+              <div className="text-center mt-3">
+                <a href="/plans" target="_blank" rel="noopener noreferrer" className="text-xs text-rose-600 hover:underline">查看方案說明 →</a>
+              </div>
             </div>
           </div>
         </div>

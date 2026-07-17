@@ -219,6 +219,55 @@ function DiaryEntry({date, tags, text, onToggleTag, onTextChange, onSave, saved}
   );
 }
 
+// ── F1-Lite：示意註冊卡 ─────────────────────────────
+function RegistrationBanner({onRegister}) {
+  const [email, setEmail] = useState("");
+  const [err, setErr] = useState("");
+
+  const submit = () => {
+    const e = email.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) {
+      setErr("Email 格式錯誤，請確認後再試一次");
+      return;
+    }
+    setErr("");
+    onRegister(e);
+  };
+
+  return (
+    <div className="bg-white border-2 border-primary/20 rounded-2xl p-4 shadow-sm mb-4">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex gap-3 items-start w-full">
+          <span className="text-xl shrink-0">👋</span>
+          <div className="flex-1 w-full">
+            <div className="text-sm font-bold text-foreground">建立帳號，開始記錄</div>
+            <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
+              紀錄可永久保存、隨時查看，還能收到 AI 照護建議。
+            </p>
+            <div className="mt-3 space-y-2">
+              <div className="flex gap-2 w-full">
+                <input value={email}
+                  onChange={e=>{setEmail(e.target.value); setErr("");}}
+                  onKeyDown={e=>e.key==="Enter"&&submit()}
+                  placeholder="請輸入您的 Email"
+                  className="flex-1 min-w-0 border border-stone-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary transition-colors"/>
+                <button onClick={submit}
+                  className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 transition shrink-0 whitespace-nowrap">
+                  開始使用
+                </button>
+              </div>
+              {err && <p className="text-xs text-destructive">{err}</p>}
+            </div>
+            <div className="mt-3 text-xs text-muted-foreground">
+              <Link href="/plans" className="text-primary hover:underline">查看方案說明</Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── P0-2：Solo 模式 · 邀請碼連動 ─────────────────────────────
 function ConnectBanner({onConnect}) {
   const [visible, setVisible] = useState(true);
@@ -381,6 +430,10 @@ function QuotaPanel({caseData}) {
 // ══ Main ═════════════════════════════════════════════════════
 export default function FamilyDiaryV3() {
   const router = useRouter();
+  // F1-Lite: 註冊狀態 (dev 切換器預設為 true 以方便展示)
+  const [registered, setRegistered] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
+
   // P0-2：連動狀態（dev 切換器與邀請碼流程共用同一 state）
   const [connected, setConnected] = useState(false);
   const caseData = connected ? CONNECTED_CASE : SOLO_CASE;
@@ -486,7 +539,7 @@ export default function FamilyDiaryV3() {
         <span className="text-xs text-stone-400">示範模式切換（dev）</span>
         <div className="flex bg-stone-700 rounded-lg p-0.5 gap-0.5">
           {[["solo","Solo（無機構）",false],["connected","Connected（有機構）",true]].map(([k,label,val])=>(
-            <button key={k} onClick={()=>{ setConnected(val); setActiveTab("diary"); }}
+            <button key={k} onClick={()=>{ setConnected(val); setRegistered(true); setUserEmail("jackson@example.com"); setActiveTab("diary"); }}
               className={`px-3 py-1 rounded-md text-xs font-bold transition ${
                 connected===val ? "bg-white text-stone-800" : "text-stone-400 hover:text-white"
               }`}>
@@ -501,7 +554,12 @@ export default function FamilyDiaryV3() {
         <Link href="/" className="text-xs font-mono opacity-60 mb-1 hover:opacity-100 transition-opacity inline-block">照護一點通 · 家屬端</Link>
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-xl font-black">{caseData.nameLabel}</h1>
+            <h1 className="text-xl font-black">
+              {caseData.nameLabel}
+              {registered && userEmail && (
+                <span className="ml-2 text-sm font-normal text-white/80">({userEmail.split('@')[0]})</span>
+              )}
+            </h1>
             {connected ? (
               <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
                 <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">{caseData.institution}</span>
@@ -552,6 +610,13 @@ export default function FamilyDiaryV3() {
         {/* ── 日誌 Tab ── */}
         {validTab === "diary" && (
           <>
+            {!connected && !registered && (
+              <RegistrationBanner onRegister={(email) => {
+                setRegistered(true);
+                setUserEmail(email);
+                flashToast("歡迎使用照護日誌");
+              }} />
+            )}
             {!connected && <ConnectBanner onConnect={handleConnect}/>}
 
             <DatePicker 
