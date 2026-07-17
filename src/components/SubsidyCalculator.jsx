@@ -27,16 +27,16 @@ function PackageBody({ detail }) {
         ))}
       </ul>
       {detail.highlights?.length > 0 && (
-        <div className="mt-3 rounded-xl bg-primary/5 ring-1 ring-primary/15 p-3 space-y-1.5">
+        <div className="mt-3 rounded-xl bg-brand-teal-dark/5 ring-1 ring-brand-teal-dark/15 p-3 space-y-1.5">
           {detail.highlights.map((h, i) => (
-            <p key={i} className="text-sm text-primary leading-relaxed flex gap-1.5">
+            <p key={i} className="text-sm text-brand-teal-dark leading-relaxed flex gap-1.5">
               <span aria-hidden="true">✦</span><span>{h}</span>
             </p>
           ))}
         </div>
       )}
       {detail.source && (
-        <p className="mt-2 text-xs text-muted-foreground leading-relaxed">{detail.source}</p>
+        <p className="mt-2 text-xs text-ui-muted leading-relaxed">{detail.source}</p>
       )}
     </>
   );
@@ -54,9 +54,9 @@ export default function SubsidyCalculator({ initLevel, onRestart }) {
 
   if (initLevel === null) {
     return (
-      <div className="bg-card rounded-2xl ring-1 ring-border p-8 shadow-sm flex flex-col items-center text-center mt-4">
-        <div className="text-lg font-bold text-foreground mb-2">請先完成失能評估</div>
-        <button onClick={onRestart} className="mt-4 h-12 px-6 rounded-xl font-bold text-primary-foreground bg-primary hover:opacity-90 transition-opacity">
+      <div className="bg-white rounded-2xl ring-1 ring-ui-line p-8 shadow-sm flex flex-col items-center text-center mt-4">
+        <div className="text-lg font-bold text-ui-brown mb-2">請先完成失能評估</div>
+        <button onClick={onRestart} className="mt-4 h-[56px] px-6 rounded-xl font-black text-white bg-brand-teal-dark hover:opacity-90 transition-opacity">
           返回失能評估
         </button>
       </div>
@@ -87,50 +87,50 @@ export default function SubsidyCalculator({ initLevel, onRestart }) {
   return (
     <div className="space-y-6">
       {/* ── 輸入區（維持原樣）────────────────────────────── */}
-      <div className="bg-card rounded-2xl ring-1 ring-border p-5 shadow-sm space-y-5">
+      <div className="bg-white rounded-2xl ring-1 ring-ui-line p-5 shadow-sm space-y-5">
         <div>
           <div className="flex justify-between items-center mb-2">
-            <label className="text-sm font-bold text-muted-foreground">長照需要等級</label>
-            <button onClick={onRestart} className="text-sm font-bold text-primary hover:underline">
+            <label className="text-sm font-bold text-ui-muted">長照需要等級</label>
+            <button onClick={onRestart} className="text-sm font-bold text-brand-teal-dark hover:underline">
               重新評估
             </button>
           </div>
           <div className="flex items-center gap-3">
-            <div className="bg-primary text-primary-foreground text-xl font-bold px-4 py-2 rounded-xl">
+            <div className="bg-brand-teal-dark text-white text-xl font-bold px-4 py-2 rounded-xl">
               CMS {level} 級
             </div>
-            <div className="text-sm text-muted-foreground font-medium">
+            <div className="text-sm text-ui-muted font-medium">
               依您的評估結果帶入
             </div>
           </div>
         </div>
 
         <div>
-          <label className="text-sm font-bold text-muted-foreground block mb-2">身分別</label>
+          <label className="text-sm font-bold text-ui-muted block mb-2">身分別</label>
           <div className="flex gap-2 flex-wrap sm:flex-nowrap">
             {Object.entries(IDENTITY_LABELS).map(([k, v]) => (
               <button key={k} onClick={() => setIdentity(k)}
-                className={`flex-1 py-3 px-2 rounded-xl text-sm font-bold ring-1 transition-all active:scale-95 ${identity === k ? "bg-foreground text-background ring-foreground shadow-sm" : "bg-card text-foreground ring-border hover:ring-foreground/50"}`}
+                className={`flex-1 py-3 px-2 rounded-xl text-sm font-bold ring-1 transition-all active:scale-95 ${identity === k ? "bg-ui-ink text-white ring-ui-ink shadow-sm" : "bg-white text-ui-ink ring-ui-line hover:ring-ui-ink/50"}`}
               >{v}</button>
             ))}
           </div>
-          <div className="text-xs text-muted-foreground mt-2">實際身分類別以照管中心核定為準</div>
+          <div className="text-xs text-ui-muted mt-2">實際身分類別以照管中心核定為準</div>
         </div>
 
         <div>
-          <label className="text-sm font-bold text-muted-foreground block mb-2">是否聘僱外籍看護工？</label>
+          <label className="text-sm font-bold text-ui-muted block mb-2">是否聘僱外籍看護工？</label>
           <button onClick={() => setHasForeign(v => !v)}
-            className={`w-full text-left px-4 py-3 rounded-xl ring-1 transition-all active:scale-95 min-h-[56px] ${hasForeign ? "ring-2 ring-accent bg-accent/12 text-accent shadow-sm" : "ring-border bg-card text-foreground hover:ring-accent/50"}`}
+            className={`w-full text-left px-4 py-3 rounded-xl ring-1 transition-all active:scale-95 min-h-[56px] ${hasForeign ? "ring-2 ring-brand-teal-dark bg-ui-teal-soft text-brand-teal-dark shadow-sm" : "ring-ui-line bg-white text-ui-ink hover:ring-brand-teal-dark/50"}`}
           >
             <span className="font-bold text-base">{hasForeign ? "✓ 有聘僱外籍看護" : "沒有聘僱外籍看護"}</span>
-            {hasForeign && <span className="block mt-1 text-sm leading-relaxed text-accent/80">長照 3.0 起，本包額度以 30% 計算，可用於日間照顧中心、家庭托顧或專業服務。<br/>外看請假返國或空窗期間，出具證明可暫依一般額度使用服務。</span>}
+            {hasForeign && <span className="block mt-1 text-sm leading-relaxed text-brand-teal-dark/80">長照 3.0 起，本包額度以 30% 計算，可用於日間照顧中心、家庭托顧或專業服務。<br/>外看請假返國或空窗期間，出具證明可暫依一般額度使用服務。</span>}
           </button>
         </div>
 
         <div>
-          <label className="text-sm font-bold text-muted-foreground block mb-2">居住地區（影響交通額度）</label>
+          <label className="text-sm font-bold text-ui-muted block mb-2">居住地區（影響交通額度）</label>
           <select value={region} onChange={e => setRegion(Number(e.target.value))}
-            className="w-full ring-1 ring-border rounded-xl px-4 h-14 text-base font-medium text-foreground bg-card focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+            className="w-full ring-1 ring-ui-line rounded-xl px-4 h-14 text-base font-medium text-ui-ink bg-white focus:outline-none focus:ring-2 focus:ring-brand-teal-dark transition-all"
           >
             {TRANSPORT_BY_REGION.map((r, i) => <option key={i} value={i}>{r.label}</option>)}
           </select>
@@ -139,13 +139,13 @@ export default function SubsidyCalculator({ initLevel, onRestart }) {
 
       {/* ── 每月補助摘要（維持原樣）──────────────────────── */}
       <div className="grid grid-cols-2 gap-3">
-        <div className="bg-primary text-primary-foreground rounded-2xl p-5 shadow-sm flex flex-col justify-center items-center text-center">
+        <div className="bg-brand-teal-dark text-white rounded-[18px] p-5 shadow-card flex flex-col justify-center items-center text-center">
           <div className="text-sm opacity-90 mb-1 font-medium">每月政府補助{inclTransport ? " (含交通)" : ""}</div>
           <div className="text-3xl font-black">${monthlyGov.toLocaleString()}</div>
         </div>
-        <div className="bg-secondary rounded-2xl p-5 shadow-sm flex flex-col justify-center items-center text-center">
-          <div className="text-sm text-muted-foreground mb-1 font-medium">每月自付額</div>
-          <div className="text-3xl font-black text-foreground">{identity === "low" ? "免費" : `$${monthlySelf.toLocaleString()}`}</div>
+        <div className="bg-ui-paper border border-ui-line rounded-[18px] p-5 shadow-card flex flex-col justify-center items-center text-center">
+          <div className="text-sm text-ui-muted mb-1 font-medium">每月自付額</div>
+          <div className="text-3xl font-black text-ui-ink">{identity === "low" ? "免費" : `$${monthlySelf.toLocaleString()}`}</div>
         </div>
       </div>
 
@@ -189,8 +189,8 @@ export default function SubsidyCalculator({ initLevel, onRestart }) {
 
       {/* ── 四包錢明細（可點擊展開 + 導流）────────────────── */}
       <div className="space-y-4">
-        <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-widest pl-1 border-b border-border pb-2">四包錢明細</h3>
-        <p className="text-sm text-muted-foreground pl-1 -mt-2 leading-relaxed">點擊每一包可展開服務內容與申請方式。</p>
+        <h3 className="text-sm font-bold text-ui-muted uppercase tracking-widest pl-1 border-b border-ui-line pb-2">四包錢明細</h3>
+        <p className="text-sm text-ui-muted pl-1 -mt-2 leading-relaxed">點擊每一包可展開服務內容與申請方式。</p>
 
         {/* ① 照顧及專業服務 */}
         <ExpandablePackage
@@ -210,17 +210,17 @@ export default function SubsidyCalculator({ initLevel, onRestart }) {
           govSuffix="/月"
         >
           {!transportOk ? (
-            <p className="text-sm text-muted-foreground leading-relaxed mb-1">第 2 級以上才可申請交通接送補助。</p>
+            <p className="text-sm text-ui-muted leading-relaxed mb-1">第 2 級以上才可申請交通接送補助。</p>
           ) : (
             <>
               {inclTransport ? (
                 <>
                   <MoneyRow label="本月額度" total={transportData.total} gov={transportData.gov} self={transportData.self} identity={identity} />
-                  <button onClick={() => setWantTransport(false)} className="mt-2 text-sm text-foreground font-bold hover:underline">取消接送需求</button>
+                  <button onClick={() => setWantTransport(false)} className="mt-2 text-sm text-ui-ink font-bold hover:underline">取消接送需求</button>
                 </>
               ) : (
                 <button onClick={() => setWantTransport(true)}
-                  className="w-full h-12 mb-1 rounded-xl font-bold ring-1 ring-accent text-accent bg-card hover:bg-accent/12 transition-colors active:scale-95"
+                  className="w-full h-[56px] mb-1 rounded-xl font-bold ring-1 ring-brand-teal-dark text-brand-teal-dark bg-white hover:bg-ui-teal-soft transition-colors active:scale-95"
                 >新增接送需求（納入每月補助）</button>
               )}
             </>
@@ -237,22 +237,22 @@ export default function SubsidyCalculator({ initLevel, onRestart }) {
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <button onClick={() => setAidsType("traditional")}
-              className={`text-left px-4 py-3 rounded-xl ring-1 transition-all active:scale-95 min-h-[56px] ${aidsType === "traditional" ? "ring-2 ring-primary bg-primary/5 shadow-sm" : "ring-border bg-card hover:ring-primary/50"}`}
+              className={`text-left px-4 py-3 rounded-xl ring-1 transition-all active:scale-95 min-h-[56px] ${aidsType === "traditional" ? "ring-2 ring-brand-teal-dark bg-brand-teal-dark/5 shadow-sm" : "ring-ui-line bg-white hover:ring-brand-teal-dark/50"}`}
             >
-              <div className={`text-base font-bold ${aidsType === "traditional" ? "text-primary" : "text-foreground"}`}>傳統輔具</div>
-              <div className="text-sm text-muted-foreground mt-1 leading-relaxed">47 項輔具與無障礙改善（可購買）</div>
+              <div className={`text-base font-bold ${aidsType === "traditional" ? "text-brand-teal-dark" : "text-ui-ink"}`}>傳統輔具</div>
+              <div className="text-sm text-ui-muted mt-1 leading-relaxed">47 項輔具與無障礙改善（可購買）</div>
             </button>
             <button onClick={() => setAidsType("smart")}
-              className={`text-left px-4 py-3 rounded-xl ring-1 transition-all active:scale-95 min-h-[56px] ${aidsType === "smart" ? "ring-2 ring-primary bg-primary/5 shadow-sm" : "ring-border bg-card hover:ring-primary/50"}`}
+              className={`text-left px-4 py-3 rounded-xl ring-1 transition-all active:scale-95 min-h-[56px] ${aidsType === "smart" ? "ring-2 ring-brand-teal-dark bg-brand-teal-dark/5 shadow-sm" : "ring-ui-line bg-white hover:ring-brand-teal-dark/50"}`}
             >
-              <div className={`text-base font-bold ${aidsType === "smart" ? "text-primary" : "text-foreground"}`}>智慧組合包</div>
-              <div className="text-sm text-muted-foreground mt-1 leading-relaxed">全租賃・防走失/跌倒感測組合</div>
+              <div className={`text-base font-bold ${aidsType === "smart" ? "text-brand-teal-dark" : "text-ui-ink"}`}>智慧組合包</div>
+              <div className="text-sm text-ui-muted mt-1 leading-relaxed">全租賃・防走失/跌倒感測組合</div>
             </button>
           </div>
           <div className="grid grid-cols-3 gap-2 text-center mt-3">
-            <div className="bg-secondary/50 rounded-xl p-3"><div className="text-xs text-muted-foreground mb-1 font-medium">補助上限</div><div className="text-base font-bold text-foreground">${aidsData.total.toLocaleString()}</div></div>
-            <div className="bg-primary/10 rounded-xl p-3"><div className="text-xs text-primary mb-1 font-medium">政府補助</div><div className="text-base font-bold text-primary">${aidsData.gov.toLocaleString()}</div></div>
-            <div className="bg-secondary rounded-xl p-3"><div className="text-xs text-muted-foreground mb-1 font-medium">自付額</div><div className="text-base font-bold text-foreground">{identity === "low" ? "免費" : `$${aidsData.self.toLocaleString()}`}</div></div>
+            <div className="bg-ui-cream-deep/50 rounded-xl p-3"><div className="text-xs text-ui-muted mb-1 font-medium">補助上限</div><div className="text-base font-bold text-ui-ink">${aidsData.total.toLocaleString()}</div></div>
+            <div className="bg-brand-teal-dark/10 rounded-xl p-3"><div className="text-xs text-brand-teal-dark mb-1 font-medium">政府補助</div><div className="text-base font-bold text-brand-teal-dark">${aidsData.gov.toLocaleString()}</div></div>
+            <div className="bg-ui-cream-deep rounded-xl p-3"><div className="text-xs text-ui-muted mb-1 font-medium">自付額</div><div className="text-base font-bold text-ui-ink">{identity === "low" ? "免費" : `$${aidsData.self.toLocaleString()}`}</div></div>
           </div>
           <div className="mt-3"><PackageBody detail={PACKAGE_DETAILS.aids} /></div>
           <PartnerServiceCard packageId="aids" {...ctx} />
@@ -271,11 +271,11 @@ export default function SubsidyCalculator({ initLevel, onRestart }) {
       </div>
 
       {/* ── 平台合規聲明 ────────────────────────────────── */}
-      <div className="mt-4 rounded-2xl bg-secondary/40 ring-1 ring-border p-5 space-y-3">
-        <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-widest">關於本平台與試算結果</h4>
-        <p className="text-xs text-muted-foreground leading-relaxed">{PLATFORM_DISCLAIMER.platformNature}</p>
-        <p className="text-xs text-muted-foreground leading-relaxed">{PLATFORM_DISCLAIMER.calcNature}</p>
-        <p className="text-xs text-muted-foreground leading-relaxed">{PLATFORM_DISCLAIMER.privacyNotice}</p>
+      <div className="mt-4 rounded-2xl bg-ui-cream-deep ring-1 ring-ui-line p-5 space-y-3">
+        <h4 className="text-xs font-bold text-ui-muted uppercase tracking-widest">關於本平台與試算結果</h4>
+        <p className="text-xs text-ui-muted leading-relaxed">{PLATFORM_DISCLAIMER.platformNature}</p>
+        <p className="text-xs text-ui-muted leading-relaxed">{PLATFORM_DISCLAIMER.calcNature}</p>
+        <p className="text-xs text-ui-muted leading-relaxed">{PLATFORM_DISCLAIMER.privacyNotice}</p>
       </div>
     </div>
   );

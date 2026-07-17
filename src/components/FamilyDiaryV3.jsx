@@ -12,7 +12,8 @@
  *    WELFARE_RATE / CMS_BUDGET / BA_MAP / 外看 30% / 提前重評文案
  * ⚠️ 本檔常數與 careData.js 重複，屬原型暫態；P0-3 完成後應收斂至單一來源。
  */
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { UiIcon } from "@/components/CareEasyIcon";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { computeSignals, shouldSuggestReassessment } from "@/utils/signalEngine";
@@ -113,7 +114,7 @@ function DatePicker({dates, selected, workerLogs, familyLogs, onSelect, onCustom
               )}
               <div className={`flex gap-0.5 ${isTodayActual||isCustom ? "mt-0" : "mt-0.5"}`}>
                 <span className={`w-1.5 h-1.5 rounded-full ${hasW?"bg-teal-500":"bg-stone-200"}`}/>
-                <span className={`w-1.5 h-1.5 rounded-full ${hasF?"bg-rose-400":"bg-stone-200"}`}/>
+                <span className={`w-1.5 h-1.5 rounded-full ${hasF?"bg-brand-coral":"bg-stone-200"}`}/>
               </div>
             </button>
           );
@@ -127,7 +128,7 @@ function DatePicker({dates, selected, workerLogs, familyLogs, onSelect, onCustom
       </div>
       <div className="flex gap-3 mt-2 text-xs text-stone-400">
         <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-teal-500"/>居服員</span>
-        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-rose-400"/>家屬日誌</span>
+        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-brand-coral"/>家屬日誌</span>
       </div>
     </div>
   );
@@ -180,7 +181,7 @@ function TagChips({selected, onToggle}) {
         return (
           <button key={t.id} onClick={()=>onToggle(t.id)}
             className={`text-xs font-bold px-3 py-1.5 rounded-full border-2 transition ${
-              on ? "bg-rose-100 border-rose-400 text-rose-700"
+              on ? "bg-[#ffe9df] border-brand-coral text-brand-coral"
                  : "bg-white border-stone-200 text-stone-500 hover:border-stone-300"
             }`}>
             {on ? "✓ " : ""}{t.label}
@@ -193,10 +194,10 @@ function TagChips({selected, onToggle}) {
 
 function DiaryEntry({date, tags, text, onToggleTag, onTextChange, onSave, saved}) {
   return (
-    <div className="bg-white rounded-2xl border border-rose-200 p-4 shadow-sm space-y-3">
+    <div className="bg-white rounded-2xl border border-brand-coral/30 p-4 shadow-sm space-y-3">
       <div className="flex items-center justify-between">
         <div>
-          <div className="text-xs font-mono text-rose-500">{date} · 家屬觀察</div>
+          <div className="text-xs font-mono text-brand-coral">{date} · 家屬觀察</div>
           <div className="text-sm font-bold text-stone-800 mt-0.5">今天的記錄</div>
         </div>
         <span className="text-xs text-stone-400 bg-stone-50 px-2 py-1 rounded-lg">🔒 機構看不到</span>
@@ -208,10 +209,10 @@ function DiaryEntry({date, tags, text, onToggleTag, onTextChange, onSave, saved}
       </div>
       <textarea value={text} onChange={e=>onTextChange(e.target.value)} rows={4}
         placeholder="想多寫一點也可以（選填）——吃飯、走路、睡覺、情緒、有沒有跟平常不一樣的地方..."
-        className="w-full border border-stone-200 rounded-xl px-3 py-2.5 text-sm leading-relaxed focus:outline-none focus:border-rose-300 resize-none"/>
+        className="w-full border border-stone-200 rounded-xl px-3 py-2.5 text-sm leading-relaxed focus:outline-none focus:border-brand-coral resize-none"/>
       <button onClick={onSave}
         className={`w-full py-2.5 rounded-xl text-sm font-bold transition ${
-          saved ? "bg-emerald-100 text-emerald-700" : "bg-rose-600 text-white hover:bg-rose-700"
+          saved ? "bg-emerald-100 text-emerald-700" : "bg-brand-coral text-white hover:opacity-90"
         }`}>
         {saved ? "✓ 已儲存" : "儲存今日觀察"}
       </button>
@@ -448,6 +449,21 @@ export default function FamilyDiaryV3() {
   const [draftText, setDraftText] = useState(initial.text);
   const [saved, setSaved] = useState(false);
 
+  // F3 字體大小切換
+  const [fontSize, setFontSize] = useState("medium");
+  useEffect(() => {
+    const savedSize = localStorage.getItem("careeasy_fontsize");
+    if (savedSize) {
+      setFontSize(savedSize);
+      document.documentElement.setAttribute("data-fontsize", savedSize);
+    }
+  }, []);
+  const handleFontSize = (size) => {
+    setFontSize(size);
+    localStorage.setItem("careeasy_fontsize", size);
+    document.documentElement.setAttribute("data-fontsize", size);
+  };
+
   const [activeTab, setActiveTab] = useState("diary");
   const [expandSignal, setExpandSignal] = useState(null);
   const [showMedical, setShowMedical] = useState(false);
@@ -506,21 +522,21 @@ export default function FamilyDiaryV3() {
   }
 
   const TABS_SOLO = [
-    {id:"diary",   icon:"📔", label:"照護日誌"},
+    {id:"diary",   icon:<UiIcon name="diary" className="w-[1em] h-[1em] inline-block -mt-0.5" />, label:"照護日誌"},
     {id:"signals", icon:"🔍", label:"AI 分析"},
   ];
   const TABS_CONNECTED = [
-    {id:"diary",   icon:"📔", label:"日誌"},
-    {id:"records", icon:"🧑‍⚕️", label:"居服紀錄"},
+    {id:"diary",   icon:<UiIcon name="diary" className="w-[1em] h-[1em] inline-block -mt-0.5" />, label:"日誌"},
+    {id:"records", icon:<UiIcon name="services" className="w-[1em] h-[1em] inline-block -mt-0.5" />, label:"居服紀錄"},
     {id:"signals", icon:"🔍", label:"AI 分析"},
-    {id:"quota",   icon:"💰", label:"額度"},
+    {id:"quota",   icon:<UiIcon name="wallet" className="w-[1em] h-[1em] inline-block -mt-0.5" />, label:"額度"},
   ];
   const TABS = connected ? TABS_CONNECTED : TABS_SOLO;
   const validTab = TABS.find(t=>t.id===activeTab) ? activeTab : "diary";
 
   const signalColors = {
-    red:{bg:"bg-red-50",border:"border-red-200",badge:"bg-red-100 text-red-700",dot:"bg-red-500"},
-    amber:{bg:"bg-amber-50",border:"border-amber-200",badge:"bg-amber-100 text-amber-700",dot:"bg-amber-500"},
+    red:{bg:"bg-[#ffe9df]",border:"border-[#f4cec3]",badge:"bg-red-100 text-red-700",dot:"bg-red-500"},
+    amber:{bg:"bg-ui-orange-soft",border:"border-amber-200",badge:"bg-amber-100 text-amber-700",dot:"bg-amber-500"},
   };
 
   return (
@@ -550,8 +566,23 @@ export default function FamilyDiaryV3() {
       </div>
 
       {/* Header */}
-      <div className={`text-white px-4 pt-8 pb-5 ${connected ? "bg-teal-700" : "bg-stone-700"}`}>
-        <Link href="/" className="text-xs font-mono opacity-60 mb-1 hover:opacity-100 transition-opacity inline-block">照護一點通 · 家屬端</Link>
+      <div className={`text-white px-4 pt-8 pb-5 ${connected ? "bg-brand-teal-dark" : "bg-ui-brown"}`}>
+        <div className="flex items-center justify-between mb-4">
+          <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+            <img src="/careeasy-logo-mark.png" alt="Logo" className="h-10 object-contain" />
+            <span className="font-bold tracking-wider text-sm">照護一點通 · 家屬端</span>
+          </Link>
+          <div className="flex bg-black/20 rounded-lg p-0.5">
+            {[["small","小"],["medium","中"],["large","大"]].map(([val, label])=>(
+              <button key={val} onClick={()=>handleFontSize(val)}
+                className={`px-2 py-1 rounded-md text-xs font-bold transition ${
+                  fontSize===val ? "bg-white text-stone-800" : "text-white/70 hover:text-white"
+                }`}>
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
         <div className="flex items-start justify-between">
           <div>
             <h1 className="text-xl font-black">

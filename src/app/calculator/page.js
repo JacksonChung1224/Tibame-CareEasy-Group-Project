@@ -50,46 +50,44 @@ export default function Home() {
   };
 
   return (
-    <main className="flex min-h-svh flex-col bg-background text-foreground relative">
+    <main className="flex min-h-screen flex-col bg-ui-cream text-ui-ink relative">
       
       {/* 頂部品牌列 & Home 按鈕 */}
-      <header className="mx-auto flex w-full max-w-md items-center gap-3 px-6 pt-7 relative z-10">
+      <header className="mx-auto flex w-full max-w-md items-center gap-2 px-6 pt-7 relative z-10">
         {tab !== "start" && (
-          <button onClick={goHome} className="mr-2 flex items-center justify-center p-2 rounded-full bg-card shadow-sm ring-1 ring-border text-muted-foreground hover:text-primary transition-colors active:scale-95">
+          <button onClick={goHome} className="mr-2 flex items-center justify-center p-2 rounded-full bg-ui-paper shadow-sm ring-1 ring-ui-line text-ui-muted hover:text-brand-teal-dark transition-colors active:scale-95">
             <HomeIcon className="size-6" />
           </button>
         )}
-        <Link href="/" className="flex items-center gap-3 group cursor-pointer">
-          <span className="flex size-11 items-center justify-center rounded-2xl bg-primary text-primary-foreground group-hover:scale-105 transition-transform">
-            <HeartHandshake className="size-6" aria-hidden="true" />
-          </span>
-          <div className="leading-tight">
-            <p className="text-lg font-bold text-foreground group-hover:text-primary transition-colors">照護一點通</p>
-            <p className="text-sm font-medium text-muted-foreground">Care Easy</p>
-          </div>
+        <Link href="/" className="flex items-center gap-2 group cursor-pointer hover:opacity-80 transition-opacity">
+          <img src="/careeasy-logo-mark.png" alt="Logo" className="h-10 object-contain" />
+          <span className="font-bold tracking-wider text-sm text-ui-brown">照護一點通</span>
         </Link>
       </header>
 
       {/* 步進器 (僅在評估流程顯示) */}
       {(tab === "quiz" || tab === "calc" || tab === "table") && (
         <div className="mx-auto w-full max-w-md mt-6 px-6">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between relative">
+            <div className="absolute top-4 left-0 w-full h-[1px] border-t border-dashed border-ui-line -z-10"></div>
             {STEPS.map((s, i) => {
+              const isCompleted = (s.id === "quiz" && calcLevel !== null && tab !== "quiz") || (s.id === "calc" && tab === "table");
+              const isCurrent = tab === s.id;
+              const isActive = isCurrent || isCompleted;
               const stepEnabled = s.id === "quiz" ? true : calcLevel !== null;
               return (
-              <div key={s.id} className="flex items-center flex-1">
+              <div key={s.id} className="flex items-center flex-1 last:flex-none">
                 <button 
                   onClick={() => stepEnabled && setTab(s.id)}
                   disabled={!stepEnabled}
                   title={stepEnabled ? "" : "請先完成失能評估"}
-                  className={`flex flex-col items-center flex-1 transition-opacity ${tab === s.id ? "opacity-100" : "opacity-40"} ${stepEnabled ? "hover:opacity-70" : "cursor-not-allowed"}`}
+                  className={`flex flex-col items-center w-full transition-opacity ${isActive ? "opacity-100" : "opacity-60"} ${stepEnabled ? "hover:opacity-80" : "cursor-not-allowed"}`}
                 >
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold mb-1 ${tab === s.id ? "bg-accent text-accent-foreground shadow-sm" : "bg-border text-muted-foreground"}`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold mb-1 mx-auto ${isActive ? "bg-brand-teal-dark text-white shadow-sm" : "bg-stone-200 text-stone-400"}`}>
                     {i + 1}
                   </div>
-                  <span className={`text-xs font-bold ${tab === s.id ? "text-accent" : "text-muted-foreground"}`}>{s.label.split(" ")[1]}</span>
+                  <span className={`text-xs font-bold ${isActive ? "text-brand-teal-dark" : "text-stone-400"}`}>{s.label.split(" ")[1]}</span>
                 </button>
-                {i < STEPS.length - 1 && <ChevronRight className="size-4 text-border mx-1 flex-shrink-0" />}
               </div>
             )})}
           </div>
@@ -118,18 +116,18 @@ export default function Home() {
               />
             </div>
 
-            <span className="mt-8 inline-flex items-center gap-2 rounded-full bg-accent/12 px-4 py-2 text-base font-semibold text-accent">
+            <span className="mt-8 inline-flex items-center gap-2 rounded-full bg-ui-teal-soft px-4 py-2 text-base font-semibold text-brand-teal-dark border border-brand-teal-dark/20">
               <ShieldCheck className="size-5" aria-hidden="true" />
               長照家庭補助試算平台
             </span>
 
-            <h1 className="mt-5 text-pretty text-3xl font-bold leading-snug text-foreground sm:text-4xl">
+            <h1 className="mt-5 text-pretty text-3xl font-bold leading-snug text-ui-brown sm:text-4xl">
               一步步帶您算出
               <br />
               可以申請的長照補助
             </h1>
 
-            <p className="mt-4 text-pretty text-lg leading-relaxed text-muted-foreground">
+            <p className="mt-4 text-pretty text-lg leading-relaxed text-ui-muted">
               只要回答幾個簡單問題，照護一點通就幫您整理出家人可能符合的政府補助項目與金額，不用再到處查資料。
             </p>
 
@@ -138,12 +136,12 @@ export default function Home() {
               {trustPoints.map((point) => (
                 <li
                   key={point}
-                  className="flex items-start gap-3 rounded-2xl bg-card px-4 py-3.5 shadow-sm ring-1 ring-border"
+                  className="flex items-start gap-3 rounded-2xl bg-ui-paper px-4 py-3.5 shadow-sm ring-1 ring-ui-line"
                 >
-                  <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-accent text-accent-foreground">
+                  <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-ui-teal-soft text-brand-teal-dark border border-brand-teal-dark/20">
                     <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
                   </span>
-                  <span className="text-base leading-relaxed text-foreground">
+                  <span className="text-base leading-relaxed text-ui-ink">
                     {point}
                   </span>
                 </li>
@@ -152,42 +150,42 @@ export default function Home() {
 
             <div className="mt-10 w-full space-y-4">
               <div className="text-center mb-4">
-                <span className="inline-block bg-primary text-primary-foreground text-sm font-bold px-3 py-1 rounded-full mb-2">開始試算</span>
-                <p className="text-lg font-bold text-foreground">請問您是否已申請過長照補助 (CMS)？</p>
+                <span className="inline-block bg-brand-teal-dark text-white text-sm font-bold px-3 py-1 rounded-full mb-2">開始試算</span>
+                <p className="text-lg font-bold text-ui-brown">請問您是否已申請過長照補助 (CMS)？</p>
               </div>
 
               <button 
                 onClick={() => startQuiz(true)} 
-                className="group flex w-full items-center justify-between rounded-2xl bg-primary/10 text-foreground ring-2 ring-primary/30 h-16 px-6 text-xl font-bold shadow-sm transition-all hover:bg-primary/20 active:scale-95"
+                className="group flex w-full items-center justify-between rounded-2xl bg-white text-ui-ink ring-2 ring-ui-line h-[56px] px-6 text-lg font-black shadow-sm transition-all hover:ring-brand-teal-dark active:scale-95"
               >
                 <span>有申請過 CMS</span>
-                <ArrowRight className="size-6 text-primary transition-transform group-hover:translate-x-1" aria-hidden="true" />
+                <ArrowRight className="size-6 text-brand-teal-dark transition-transform group-hover:translate-x-1" aria-hidden="true" />
               </button>
               
               <button 
                 onClick={() => startQuiz(false)} 
-                className="group flex w-full items-center justify-between rounded-2xl bg-primary/10 text-foreground ring-2 ring-primary/30 h-16 px-6 text-xl font-bold shadow-sm transition-all hover:bg-primary/20 active:scale-95"
+                className="group flex w-full items-center justify-between rounded-2xl bg-brand-teal-dark text-white ring-2 ring-brand-teal-dark h-[56px] px-6 text-lg font-black shadow-sm transition-all hover:opacity-90 active:scale-95"
               >
                 <span>沒有申請過</span>
-                <ArrowRight className="size-6 text-primary transition-transform group-hover:translate-x-1" aria-hidden="true" />
+                <ArrowRight className="size-6 text-white transition-transform group-hover:translate-x-1" aria-hidden="true" />
               </button>
             </div>
             
-            <p className="mt-6 text-sm leading-relaxed text-muted-foreground">
+            <p className="mt-6 text-sm leading-relaxed text-ui-muted">
               完全免費，不需要登入帳號。試算結果僅供參考，實際補助以各地長期照顧管理中心審核為準。
             </p>
           </div>
         )}
 
         {tab === "ask_level" && (
-          <div className="w-full bg-card rounded-2xl ring-1 ring-border p-6 shadow-sm text-center mt-4">
-            <h3 className="text-xl font-bold text-foreground mb-6">請問您核定的長照需要等級是？</h3>
+          <div className="w-full bg-ui-paper rounded-2xl ring-1 ring-ui-line p-6 shadow-sm text-center mt-4">
+            <h3 className="text-xl font-bold text-ui-brown mb-6">請問您核定的長照需要等級是？</h3>
             <div className="flex flex-wrap justify-center gap-3">
               {[2,3,4,5,6,7,8].map(l => (
                 <button 
                   key={l} 
                   onClick={() => handleLevelSelect(l)} 
-                  className="flex size-14 items-center justify-center rounded-2xl text-xl font-bold ring-1 ring-border bg-card text-foreground hover:bg-accent/12 hover:text-accent hover:ring-accent transition-colors active:scale-95"
+                  className="flex size-14 items-center justify-center rounded-2xl text-xl font-bold ring-1 ring-ui-line bg-white text-ui-ink hover:bg-ui-teal-soft hover:text-brand-teal-dark hover:ring-brand-teal-dark transition-colors active:scale-95"
                 >
                   {l}
                 </button>

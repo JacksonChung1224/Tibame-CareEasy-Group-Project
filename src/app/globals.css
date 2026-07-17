@@ -1,35 +1,80 @@
 @import "tailwindcss";
 
-:root {
-  --background: #FBF7F2;
-  --foreground: #3A2E26;
-  --primary: #D97740;
-  --primary-foreground: #FFFFFF;
-  --secondary: #F3E4D6;
-  --accent: #3F7A6D;
-  --accent-foreground: #FFFFFF;
-  --card: #FFFFFF;
-  --muted-foreground: #7A6A5E;
-  --border: #EADDD0;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-card: var(--card);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-border: var(--border);
+@theme {
+  --color-brand-teal: #20afa9;
+  --color-brand-teal-dark: #087f7d;
+  --color-brand-coral: #ef6a52;
+  --color-brand-orange: #f0522d;
+  --color-brand-amber: #efa72f;
+  --color-brand-leaf: #79b85a;
+  --color-ui-brown: #4b3024;
+  --color-ui-ink: #332b27;
+  --color-ui-muted: #746861;
+  --color-ui-cream: #fff9f0;
+  --color-ui-cream-deep: #f5e8d5;
+  --color-ui-paper: #fffdf9;
+  --color-ui-line: #eadbc9;
+  --color-ui-teal-soft: #edf7f5;
+  --color-ui-orange-soft: #fff1e7;
   --font-sans: "Noto Sans TC", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --shadow-card: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
 }
 
 body {
-  background-color: var(--background);
-  color: var(--foreground);
+  background-color: var(--color-ui-cream);
+  color: var(--color-ui-ink);
   font-family: var(--font-sans);
+  font-size: 17px;
+  font-weight: 500;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
 }
 
+/* data-fontsize styles */
+html[data-fontsize="small"] body {
+  font-size: 15px;
+}
+html[data-fontsize="medium"] body {
+  font-size: 17px;
+}
+html[data-fontsize="large"] body {
+  font-size: 19px;
+}
+
+/* focus-visible style */
+*:focus-visible {
+  outline: 2px solid var(--color-brand-teal-dark);
+  outline-offset: 2px;
+}
+
+/* CareEasyIcon styles */
+.ui-icon {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+}
+.ui-icon svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.nav-icon {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--color-brand-teal-dark);
+  background: linear-gradient(145deg, #f3faf8, #e5f2ef);
+}
+.nav-icon svg { width: 35px; height: 35px; }
+
+.feature-icon {
+  width: 72px;
+  height: 72px;
+  padding: 13px;
+  border-radius: 50%;
+}
+.feature-icon.teal  { color: var(--color-brand-teal-dark); background: #dff3f1; }
+.feature-icon.amber { color: #dc791e; background: #fff0d7; }
+.feature-icon.coral { color: #d95743; background: #ffe9df; }

@@ -115,22 +115,22 @@ export default function AssessmentQuiz({ hasApplied, actualLevel, onResult }) {
   if (stage === "dementia_check") {
     return (
       <div className="space-y-4">
-        <div className="bg-card rounded-2xl ring-1 ring-border p-5 shadow-sm">
-          <h3 className="text-xl font-bold text-foreground mb-1">第一步：確認失智症診斷</h3>
-          <p className="text-base text-muted-foreground mb-4">長輩是否已有醫師開立的失智症診斷？</p>
+        <div className="bg-white rounded-2xl ring-1 ring-ui-line p-5 shadow-sm">
+          <h3 className="text-xl font-bold text-ui-ink mb-1">第一步：確認失智症診斷</h3>
+          <p className="text-base text-ui-muted mb-4">長輩是否已有醫師開立的失智症診斷？</p>
           <div className="space-y-3">
-            <button onClick={() => { setIsDementia(true); setStage("quiz"); setStep(0); }} className="w-full text-left px-5 py-4 rounded-2xl ring-1 ring-border bg-card text-foreground hover:ring-accent hover:bg-accent/12 transition-all flex gap-3 active:scale-95">
+            <button onClick={() => { setIsDementia(true); setStage("quiz"); setStep(0); }} className="w-full text-left px-5 py-4 rounded-2xl ring-1 ring-ui-line bg-white text-ui-ink hover:ring-brand-teal-dark hover:bg-ui-teal-soft transition-all flex gap-3 active:scale-95">
               <span className="text-2xl">🧠</span>
               <div>
                 <div className="font-bold text-lg">是，已有醫師確診失智症</div>
-                <div className="text-sm text-muted-foreground mt-0.5">長照 3.0 起不限年齡均可申請</div>
+                <div className="text-sm text-ui-muted mt-0.5">長照 3.0 起不限年齡均可申請</div>
               </div>
             </button>
-            <button onClick={() => setStage("qual_check")} className="w-full text-left px-5 py-4 rounded-2xl ring-1 ring-border bg-card text-foreground hover:ring-accent hover:bg-accent/12 transition-all flex gap-3 active:scale-95">
+            <button onClick={() => setStage("qual_check")} className="w-full text-left px-5 py-4 rounded-2xl ring-1 ring-ui-line bg-white text-ui-ink hover:ring-brand-teal-dark hover:bg-ui-teal-soft transition-all flex gap-3 active:scale-95">
               <span className="text-2xl">📋</span>
               <div>
                 <div className="font-bold text-lg">否，沒有失智症診斷</div>
-                <div className="text-sm text-muted-foreground mt-0.5">將進行身體功能評估 (ADL / IADL)</div>
+                <div className="text-sm text-ui-muted mt-0.5">將進行身體功能評估 (ADL / IADL)</div>
               </div>
             </button>
           </div>
@@ -142,32 +142,32 @@ export default function AssessmentQuiz({ hasApplied, actualLevel, onResult }) {
   if (stage === "qual_check") {
     return (
       <div className="space-y-4">
-        <div className="bg-card rounded-2xl ring-1 ring-border p-5 shadow-sm">
-          <h3 className="text-xl font-bold text-foreground mb-1">第二步：申請資格確認</h3>
-          <p className="text-base text-muted-foreground mb-4">請確認長輩符合以下至少一項資格：</p>
+        <div className="bg-white rounded-2xl ring-1 ring-ui-line p-5 shadow-sm">
+          <h3 className="text-xl font-bold text-ui-ink mb-1">第二步：申請資格確認</h3>
+          <p className="text-base text-ui-muted mb-4">請確認長輩符合以下至少一項資格：</p>
           <div className="space-y-3">
             {ELIGIBILITY_OPTIONS.map(opt => (
               <button key={opt.id} onClick={() => { 
                 setAnswers(prev => ({ ...prev, identity: opt.id }));
                 setIsDementia(false); setStage("quiz"); setStep(0); 
-              }} className="w-full text-left px-5 py-4 rounded-2xl ring-1 ring-border bg-card text-foreground hover:ring-accent hover:bg-accent/12 transition-all flex gap-3 items-center active:scale-95">
+              }} className="w-full text-left px-5 py-4 rounded-2xl ring-1 ring-ui-line bg-white text-ui-ink hover:ring-brand-teal-dark hover:bg-ui-teal-soft transition-all flex gap-3 items-center active:scale-95">
                 <span className="text-2xl">{opt.icon}</span>
                 <span className="font-bold text-lg">{opt.label}</span>
               </button>
             ))}
-            <button onClick={() => setStage("pac_info")} className="w-full text-left px-5 py-4 rounded-2xl ring-1 ring-border bg-card text-foreground hover:ring-accent hover:bg-accent/12 transition-all flex gap-3 items-center active:scale-95">
+            <button onClick={() => setStage("pac_info")} className="w-full text-left px-5 py-4 rounded-2xl ring-1 ring-ui-line bg-white text-ui-ink hover:ring-brand-teal-dark hover:bg-ui-teal-soft transition-all flex gap-3 items-center active:scale-95">
               <span className="text-2xl">🏥</span>
               <div>
                 <div className="font-bold text-lg">長輩目前正在住院復健中 (PAC)</div>
-                <div className="text-sm text-muted-foreground mt-0.5">不限年齡・適用腦中風、骨折等</div>
+                <div className="text-sm text-ui-muted mt-0.5">不限年齡・適用腦中風、骨折等</div>
               </div>
             </button>
-            <button onClick={() => setStage("not_eligible")} className="w-full text-left px-5 py-4 rounded-2xl border-2 border-dashed border-border text-muted-foreground hover:bg-secondary transition-all flex gap-3 items-center active:scale-95">
+            <button onClick={() => setStage("not_eligible")} className="w-full text-left px-5 py-4 rounded-2xl border-2 border-dashed border-ui-line text-ui-muted hover:bg-ui-cream-deep transition-all flex gap-3 items-center active:scale-95">
               <span className="text-2xl">❓</span>
               <span className="font-bold text-lg">以上皆不符合</span>
             </button>
           </div>
-          <button onClick={() => setStage("dementia_check")} className="mt-4 text-sm text-muted-foreground hover:text-foreground underline font-medium">返回上一步</button>
+          <button onClick={() => setStage("dementia_check")} className="mt-4 text-sm text-ui-muted hover:text-ui-ink underline font-medium">返回上一步</button>
         </div>
       </div>
     );
@@ -176,10 +176,10 @@ export default function AssessmentQuiz({ hasApplied, actualLevel, onResult }) {
   if (stage === "pac_info") {
     return (
       <div className="space-y-4">
-        <div className="bg-card rounded-2xl ring-1 ring-border p-6 shadow-sm space-y-4">
-          <h3 className="text-xl font-bold text-foreground">健保 PAC 急性後期照護</h3>
-          <p className="text-base text-muted-foreground leading-relaxed">若長輩因急性疾病正在住院進行健保 PAC 急性後期復健，出院前請主動聯繫醫院的「出院準備服務小組」。</p>
-          <button onClick={() => setStage("qual_check")} className="w-full h-14 rounded-2xl bg-secondary text-foreground font-bold text-lg hover:bg-border transition-colors">返回</button>
+        <div className="bg-white rounded-2xl ring-1 ring-ui-line p-6 shadow-sm space-y-4">
+          <h3 className="text-xl font-bold text-ui-ink">健保 PAC 急性後期照護</h3>
+          <p className="text-base text-ui-muted leading-relaxed">若長輩因急性疾病正在住院進行健保 PAC 急性後期復健，出院前請主動聯繫醫院的「出院準備服務小組」。</p>
+          <button onClick={() => setStage("qual_check")} className="w-full h-[56px] rounded-2xl bg-ui-cream-deep text-ui-ink font-bold text-lg hover:bg-ui-line transition-colors">返回</button>
         </div>
       </div>
     );
@@ -188,10 +188,10 @@ export default function AssessmentQuiz({ hasApplied, actualLevel, onResult }) {
   if (stage === "not_eligible") {
     return (
       <div className="space-y-4">
-        <div className="bg-card rounded-2xl ring-1 ring-border p-6 shadow-sm space-y-4">
-          <h3 className="text-xl font-bold text-foreground">目前不在長照給付對象範圍</h3>
-          <p className="text-base text-muted-foreground leading-relaxed">長照補助的對象為：65歲以上長者、55歲以上原住民、領有身心障礙證明者、經醫師確診之失智症者。</p>
-          <button onClick={() => setStage("qual_check")} className="w-full h-14 rounded-2xl bg-secondary text-foreground font-bold text-lg hover:bg-border transition-colors">返回</button>
+        <div className="bg-white rounded-2xl ring-1 ring-ui-line p-6 shadow-sm space-y-4">
+          <h3 className="text-xl font-bold text-ui-ink">目前不在長照給付對象範圍</h3>
+          <p className="text-base text-ui-muted leading-relaxed">長照補助的對象為：65歲以上長者、55歲以上原住民、領有身心障礙證明者、經醫師確診之失智症者。</p>
+          <button onClick={() => setStage("qual_check")} className="w-full h-[56px] rounded-2xl bg-ui-cream-deep text-ui-ink font-bold text-lg hover:bg-ui-line transition-colors">返回</button>
         </div>
       </div>
     );
@@ -204,34 +204,34 @@ export default function AssessmentQuiz({ hasApplied, actualLevel, onResult }) {
     if (min === 1) {
       return (
         <div className="space-y-6 text-center py-4">
-          <div className="bg-card rounded-2xl ring-1 ring-border px-6 py-8 shadow-sm space-y-3">
-            <span className="text-foreground text-xl font-bold block">評估結果：未達失能門檻</span>
-            <p className="text-base text-muted-foreground leading-relaxed">長輩目前日常生活自理能力良好。長照服務僅提供給等級2以上之失能者。</p>
+          <div className="bg-white rounded-2xl ring-1 ring-ui-line px-6 py-8 shadow-sm space-y-3">
+            <span className="text-ui-ink text-xl font-bold block">評估結果：未達失能門檻</span>
+            <p className="text-base text-ui-muted leading-relaxed">長輩目前日常生活自理能力良好。長照服務僅提供給等級2以上之失能者。</p>
           </div>
-          <button onClick={resetAll} className="h-14 px-6 rounded-2xl bg-primary text-primary-foreground font-bold text-lg w-full shadow-md active:scale-95">重新評估</button>
+          <button onClick={resetAll} className="h-[56px] px-6 rounded-2xl bg-brand-teal-dark text-white font-black text-lg w-full shadow-md active:scale-95">重新評估</button>
         </div>
       );
     }
     return (
       <div className="space-y-6 text-center py-4">
         <div>
-          <p className="text-muted-foreground text-base mb-3 font-medium">評估結果（僅供參考，正式評估請洽 1966）</p>
-          <div className="inline-flex flex-col items-center bg-card rounded-3xl p-8 shadow-sm ring-2 ring-primary/20">
-            <span className="text-muted-foreground text-base font-bold">長照需要等級（推估）</span>
-            <span className="text-7xl font-black leading-none my-3 text-primary">
+          <p className="text-ui-muted text-base mb-3 font-medium">評估結果（僅供參考，正式評估請洽 1966）</p>
+          <div className="inline-flex flex-col items-center bg-white rounded-3xl p-8 shadow-sm ring-2 ring-brand-teal-dark/20">
+            <span className="text-ui-muted text-base font-bold">長照需要等級（推估）</span>
+            <span className="text-7xl font-black leading-none my-3 text-brand-teal-dark">
               {isRange ? `${min}–${max}` : min}
             </span>
-            <span className="text-lg font-bold text-primary">
+            <span className="text-lg font-bold text-brand-teal-dark">
               {isRange ? `${labels[min]}～${labels[max]}` : labels[min]}
             </span>
           </div>
         </div>
-        <p className="text-sm text-muted-foreground max-w-sm mx-auto leading-relaxed">
+        <p className="text-sm text-ui-muted max-w-sm mx-auto leading-relaxed">
           {isDementia ? "本結果依 CDR 失智嚴重度與行為症狀雙軌評估。" : "本結果依巴氏量表加權計分與行為症狀推估。"}
         </p>
         <div className="flex gap-3 justify-center mt-2">
-          <button onClick={resetAll} className="flex-1 h-14 rounded-2xl ring-1 ring-border bg-card text-foreground font-bold text-lg hover:bg-secondary transition-colors active:scale-95">重新評估</button>
-          <button onClick={() => onResult(min)} className="flex-1 h-14 rounded-2xl bg-primary text-primary-foreground font-bold text-lg shadow-md hover:opacity-90 transition-opacity active:scale-95">帶入補助試算 →</button>
+          <button onClick={resetAll} className="flex-1 h-[56px] rounded-2xl ring-1 ring-ui-line bg-white text-ui-ink font-bold text-lg hover:bg-ui-cream-deep transition-colors active:scale-95">重新評估</button>
+          <button onClick={() => onResult(min)} className="flex-1 h-[56px] rounded-2xl bg-brand-teal-dark text-white font-black text-lg shadow-md hover:opacity-90 transition-opacity active:scale-95">帶入補助試算 →</button>
         </div>
       </div>
     );
@@ -249,14 +249,14 @@ export default function AssessmentQuiz({ hasApplied, actualLevel, onResult }) {
           <span>問題 {step + 1} / {total}</span>
           <span>{q.label}</span>
         </div>
-        <div className="h-2.5 bg-secondary rounded-full overflow-hidden">
-          <div className="h-full bg-accent rounded-full transition-all duration-500" style={{ width: `${progress}%` }} />
+        <div className="h-2.5 bg-ui-cream-deep rounded-full overflow-hidden">
+          <div className="h-full bg-brand-teal-dark rounded-full transition-all duration-500" style={{ width: `${progress}%` }} />
         </div>
       </div>
 
-      <div className="bg-card rounded-2xl ring-1 ring-border p-6 shadow-sm">
-        <h3 className="text-xl font-bold text-foreground mb-2 leading-snug">{q.label}</h3>
-        <p className="text-base text-muted-foreground mb-6 leading-relaxed">{q.desc}</p>
+      <div className="bg-white rounded-2xl ring-1 ring-ui-line p-6 shadow-sm">
+        <h3 className="text-xl font-bold text-ui-ink mb-2 leading-snug">{q.label}</h3>
+        <p className="text-base text-ui-muted mb-6 leading-relaxed">{q.desc}</p>
 
         {q.type === "single" && (
           <div className="space-y-3">
@@ -264,10 +264,10 @@ export default function AssessmentQuiz({ hasApplied, actualLevel, onResult }) {
               const sel = answers[q.id] === opt.value;
               return (
                 <button key={i} onClick={() => setAnswers(prev => ({ ...prev, [q.id]: opt.value }))}
-                  className={`w-full text-left px-5 py-4 rounded-2xl transition-all active:scale-95 ${sel ? "ring-2 ring-accent bg-accent/12 shadow-sm" : "ring-1 ring-border hover:ring-accent/50 bg-card"}`}
+                  className={`w-full text-left px-5 py-4 rounded-2xl transition-all active:scale-95 ${sel ? "ring-2 ring-brand-teal-dark bg-ui-teal-soft shadow-sm" : "ring-1 ring-ui-line hover:ring-brand-teal-dark/50 bg-white"}`}
                 >
-                  <div className={`text-lg font-bold leading-snug ${sel ? "text-accent" : "text-foreground"}`}>{opt.label}</div>
-                  {opt.sub && <div className={`text-sm mt-1.5 leading-relaxed ${sel ? "text-accent/80" : "text-muted-foreground"}`}>{opt.sub}</div>}
+                  <div className={`text-lg font-bold leading-snug ${sel ? "text-brand-teal-dark" : "text-ui-ink"}`}>{opt.label}</div>
+                  {opt.sub && <div className={`text-sm mt-1.5 leading-relaxed ${sel ? "text-brand-teal-dark/80" : "text-ui-muted"}`}>{opt.sub}</div>}
                 </button>
               );
             })}
@@ -281,7 +281,7 @@ export default function AssessmentQuiz({ hasApplied, actualLevel, onResult }) {
                 const checked = (answers[q.id] || []).includes(item);
                 return (
                   <button key={idx} onClick={() => toggleCheck(q.id, item)}
-                    className={`text-left text-base px-4 py-3.5 rounded-2xl transition-all active:scale-95 min-h-[56px] ${checked ? "bg-accent/12 ring-2 ring-accent text-accent font-bold shadow-sm" : "ring-1 ring-border bg-card text-foreground hover:ring-accent/50"}`}
+                    className={`text-left text-base px-4 py-3.5 rounded-2xl transition-all active:scale-95 min-h-[56px] ${checked ? "bg-ui-teal-soft ring-2 ring-brand-teal-dark text-brand-teal-dark font-bold shadow-sm" : "ring-1 ring-ui-line bg-white text-ui-ink hover:ring-brand-teal-dark/50"}`}
                   >
                     <span className="inline-block w-6 font-bold">{checked ? "✓ " : ""}</span>{item}
                   </button>
@@ -290,7 +290,7 @@ export default function AssessmentQuiz({ hasApplied, actualLevel, onResult }) {
             </div>
             <button onClick={() => toggleCheck(q.id, "__none__")}
               className={`w-full text-base px-4 py-3.5 rounded-2xl transition-all active:scale-95 mt-2 min-h-[56px] ${
-                (answers[q.id] || []).includes("__none__") ? "bg-secondary ring-2 ring-muted-foreground text-foreground font-bold shadow-sm" : "ring-1 border-dashed ring-border bg-card text-muted-foreground hover:ring-muted-foreground/50"
+                (answers[q.id] || []).includes("__none__") ? "bg-ui-cream-deep ring-2 ring-ui-muted text-ui-ink font-bold shadow-sm" : "ring-1 border-dashed ring-ui-line bg-white text-ui-muted hover:ring-ui-muted/50"
               }`}
             >
               <span className="inline-block w-6 font-bold">{(answers[q.id] || []).includes("__none__") ? "✓ " : ""}</span>以上皆無
@@ -300,9 +300,9 @@ export default function AssessmentQuiz({ hasApplied, actualLevel, onResult }) {
       </div>
 
       {step === total - 1 && (
-        <div className="bg-card rounded-2xl ring-1 ring-border p-6 shadow-sm">
-          <h3 className="text-lg font-bold text-foreground mb-3">📋 資料使用說明</h3>
-          <div className="bg-secondary/50 rounded-xl p-4 text-sm text-muted-foreground leading-relaxed space-y-2 mb-4">
+        <div className="bg-white rounded-2xl ring-1 ring-ui-line p-6 shadow-sm">
+          <h3 className="text-lg font-bold text-ui-ink mb-3">📋 資料使用說明</h3>
+          <div className="bg-ui-cream-deep rounded-xl p-4 text-sm text-ui-muted leading-relaxed space-y-2 mb-4">
             <p>・蒐集目的：產生您的補助試算結果，並用於改善推估準確度。</p>
             <p>・使用資料：您在本問卷填寫的評估選項（不含姓名、身分證等個人識別資料）。</p>
             <p>・保存方式：以匿名方式保存於本平台資料庫；您可隨時來信要求停止使用。</p>
@@ -318,13 +318,13 @@ export default function AssessmentQuiz({ hasApplied, actualLevel, onResult }) {
                   setAgreed(e.target.checked);
                   if (e.target.checked) setShowAgreeError(false);
                 }} 
-                className="w-6 h-6 rounded-md border-2 border-muted-foreground text-primary focus:ring-primary focus:ring-offset-0 transition-colors cursor-pointer"
+                className="w-6 h-6 rounded-md border-2 border-ui-muted text-brand-teal-dark focus:ring-brand-teal-dark focus:ring-offset-0 transition-colors cursor-pointer"
               />
             </div>
             <div className="pt-2.5">
-              <span className="text-base font-bold text-foreground group-hover:text-primary transition-colors">我已閱讀並同意上述資料使用說明</span>
+              <span className="text-base font-bold text-ui-ink group-hover:text-brand-teal-dark transition-colors">我已閱讀並同意上述資料使用說明</span>
               {showAgreeError && !agreed && (
-                <p className="text-sm text-destructive mt-1 font-bold">請先閱讀並勾選同意，才能查看結果</p>
+                <p className="text-sm text-brand-coral mt-1 font-bold">請先閱讀並勾選同意，才能查看結果</p>
               )}
             </div>
           </label>
@@ -332,15 +332,15 @@ export default function AssessmentQuiz({ hasApplied, actualLevel, onResult }) {
       )}
 
       <div className="flex gap-3">
-        <button onClick={prev} disabled={submitting} className="px-6 h-14 rounded-2xl ring-1 ring-border bg-card text-base font-bold text-foreground hover:bg-secondary transition-colors active:scale-95 disabled:opacity-50">
+        <button onClick={prev} disabled={submitting} className="px-6 h-[56px] rounded-2xl ring-1 ring-ui-line bg-white text-base font-bold text-ui-ink hover:bg-ui-cream-deep transition-colors active:scale-95 disabled:opacity-50">
           ← {step === 0 ? "上一步" : "上一題"}
         </button>
         <div className="relative flex-1">
           <button onClick={next} disabled={!isAnswered() || submitting || (step === total - 1 && !agreed)}
-            className={`w-full h-14 rounded-2xl font-bold text-lg transition-all active:scale-95 ${
+            className={`w-full h-[56px] rounded-2xl font-black text-lg transition-all active:scale-95 ${
               isAnswered() && !submitting && (step < total - 1 || agreed)
-                ? "bg-primary text-primary-foreground hover:opacity-90 shadow-md" 
-                : "bg-secondary text-muted-foreground cursor-not-allowed"
+                ? "bg-brand-teal-dark text-white hover:opacity-90 shadow-md" 
+                : "bg-ui-cream-deep text-ui-muted cursor-not-allowed"
             }`}
           >
             {submitting ? "處理中..." : (step < total - 1 ? "下一題 →" : "查看評估結果")}

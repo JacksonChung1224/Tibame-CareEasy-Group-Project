@@ -297,7 +297,7 @@ export default function InstitutionDashboard() {
               <button onClick={() => setShowInviteModal(false)} className="px-5 py-2 text-sm font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg transition-colors shadow-sm">
                 關閉
               </button>
-              <button onClick={handleCopy} className="px-5 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors shadow-sm">
+              <button onClick={handleCopy} className="px-5 py-2 text-sm font-semibold text-white bg-brand-teal-dark hover:opacity-90 rounded-lg transition-colors shadow-sm">
                 {copied ? "✓ 已複製" : "複製邀請碼"}
               </button>
             </div>
@@ -331,10 +331,10 @@ export default function InstitutionDashboard() {
         </div>
       )}
 
-      <header className="bg-slate-900 text-white py-4 px-6 shadow-md z-10">
+      <header className="bg-ui-paper text-ui-brown py-4 px-6 border-b border-ui-line z-10 relative">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <Link href="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity cursor-pointer">
-            <div className="bg-blue-600 p-2.5 rounded-xl shadow-inner">
+            <div className="bg-ui-teal-soft text-brand-teal-dark p-2.5 rounded-xl shadow-inner border border-brand-teal-dark/10">
               <CloudUpload className="w-6 h-6" />
             </div>
             <div>
@@ -348,15 +348,15 @@ export default function InstitutionDashboard() {
 
       <nav className="bg-white border-b shadow-sm sticky top-0 z-20">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="flex border-b mb-1">
+          <div className="flex border-b border-ui-line mb-1">
             <button 
               onClick={() => setView("billing")}
-              className={`py-4 px-6 font-bold text-base transition-colors border-b-4 ${view === "billing" ? "border-blue-600 text-blue-700" : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"}`}>
+              className={`py-4 px-6 font-bold text-base transition-colors border-b-[3px] ${view === "billing" ? "border-brand-orange bg-ui-orange-soft text-brand-orange" : "border-transparent text-ui-muted hover:text-ui-ink hover:bg-ui-cream-deep"}`}>
               📤 月底核銷作業
             </button>
             <button 
               onClick={() => setView("cases")}
-              className={`py-4 px-6 font-bold text-base transition-colors border-b-4 ${view === "cases" ? "border-blue-600 text-blue-700" : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"}`}>
+              className={`py-4 px-6 font-bold text-base transition-colors border-b-[3px] ${view === "cases" ? "border-brand-orange bg-ui-orange-soft text-brand-orange" : "border-transparent text-ui-muted hover:text-ui-ink hover:bg-ui-cream-deep"}`}>
               👪 個案連動管理
             </button>
           </div>
@@ -369,10 +369,10 @@ export default function InstitutionDashboard() {
                 { id: 4, label: "月底核銷導出 (XLSX)" },
               ].map(step => (
                 <li key={step.id} 
-                    className={`cursor-pointer pb-4 pt-2 ${currentStep === step.id ? 'text-blue-600 border-b-2 border-blue-600 font-bold' : 'text-slate-500'}`}
+                    className={`cursor-pointer pb-4 pt-2 ${currentStep === step.id ? 'text-brand-orange border-b-2 border-brand-orange font-bold' : 'text-ui-muted'}`}
                     onClick={() => setCurrentStep(step.id)}>
                   <span className="flex items-center space-x-2">
-                    <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${currentStep === step.id ? 'bg-blue-100' : 'bg-slate-100'}`}>
+                    <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${currentStep === step.id ? 'bg-[#ffe9df] text-brand-orange' : 'bg-slate-100'}`}>
                       {step.id}
                     </span>
                     <span>{step.label}</span>
@@ -427,14 +427,14 @@ export default function InstitutionDashboard() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm border-collapse">
                   <thead>
-                    <tr className="bg-slate-50 text-slate-600 border-b border-slate-200">
+                    <tr className="bg-ui-cream-deep text-ui-brown border-b border-ui-line">
                       <th className="p-4 font-bold">個案</th>
                       <th className="p-4 font-bold">連動狀態</th>
                       <th className="p-4 font-bold">服務紀錄同步</th>
                       <th className="p-4 font-bold">操作</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100">
+                  <tbody className="divide-y divide-ui-line">
                     {cases.map(c => (
                       <React.Fragment key={c.caseId}>
                         <tr className="hover:bg-slate-50 transition-colors">
@@ -487,7 +487,7 @@ export default function InstitutionDashboard() {
                                 {reconciledData.filter(r => r.status === 'ok' || r.status === 'D3' || r.status === 'D4').length > 0 ? (
                                   <div className="bg-white border rounded-lg shadow-sm overflow-hidden text-xs w-2/3 mb-3">
                                     <table className="w-full text-left border-collapse">
-                                      <thead className="bg-slate-50">
+                                      <thead className="bg-ui-cream-deep text-ui-brown">
                                         <tr>
                                           <th className="p-2 border-b">日期</th>
                                           <th className="p-2 border-b">BA碼</th>
@@ -495,9 +495,9 @@ export default function InstitutionDashboard() {
                                           <th className="p-2 border-b">時數</th>
                                         </tr>
                                       </thead>
-                                      <tbody>
+                                      <tbody className="divide-y divide-ui-line bg-white">
                                         {reconciledData.filter(r => r.status === 'ok' || r.status === 'D3' || r.status === 'D4').map(r => (
-                                          <tr key={r.id} className="border-b last:border-0">
+                                          <tr key={r.id}>
                                             <td className="p-2">{r.dateROC}</td>
                                             <td className="p-2">{r.code}</td>
                                             <td className="p-2">{r.qty}</td>
@@ -520,7 +520,7 @@ export default function InstitutionDashboard() {
                                         ];
                                         setReconciledData(mockConfirm);
                                       }}
-                                      className="bg-blue-50 text-blue-700 hover:bg-blue-100 px-3 py-1.5 rounded font-bold transition border border-blue-200">
+                                      className="bg-brand-orange text-white hover:bg-orange-600 px-3 py-1.5 rounded font-bold transition">
                                       載入示範紀錄
                                     </button>
                                   </div>
@@ -542,7 +542,7 @@ export default function InstitutionDashboard() {
                                   )}
 
                                   <div className="flex items-center gap-3">
-                                    <button onClick={() => handlePushRecords({...c, syncedCount: reconciledData.filter(r => r.status === 'ok' || r.status === 'D3' || r.status === 'D4').length || 4})} className="text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-lg transition shadow-sm">
+                                    <button onClick={() => handlePushRecords({...c, syncedCount: reconciledData.filter(r => r.status === 'ok' || r.status === 'D3' || r.status === 'D4').length || 4})} className="text-xs font-bold bg-brand-teal-dark text-white hover:opacity-90 px-4 py-2 rounded-lg transition shadow-sm">
                                       推送至家屬端
                                     </button>
                                     <span className="text-xs text-slate-500">督導確認的紙本實績與手寫觀察，即為家屬端「居服紀錄」的資料來源——一筆紀錄，三種價值。</span>
@@ -574,7 +574,7 @@ export default function InstitutionDashboard() {
                 </div>
                 <div className="bg-blue-50/50 rounded-xl p-5 border border-blue-100/80 shadow-sm">
                   <p className="text-xs text-slate-600 mb-4 leading-relaxed">載入包含 A141408XXX 等案之模擬排班表，用以觸發 D1~D4 異常狀態。</p>
-                  <button onClick={loadMockData} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-4 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2">
+                  <button onClick={loadMockData} className="w-full bg-brand-teal-dark hover:opacity-90 text-white font-semibold py-2.5 px-4 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2">
                     <ClipboardPaste className="w-4 h-4" /> 載入衛福部範本模擬資料
                   </button>
                 </div>
@@ -621,7 +621,7 @@ export default function InstitutionDashboard() {
                 </div>
                 {importedData.length > 0 && (
                   <div className="p-4 bg-white border-t flex justify-end">
-                    <button onClick={() => setCurrentStep(2)} className="bg-slate-800 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-slate-700 transition">
+                    <button onClick={() => setCurrentStep(2)} className="bg-brand-orange text-white px-6 py-2.5 rounded-xl font-bold hover:bg-orange-600 transition">
                       前往 OCR 結果確認
                     </button>
                   </div>
@@ -659,7 +659,7 @@ export default function InstitutionDashboard() {
                   </div>
                 )}
                 
-                <label className="mt-4 z-10 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold shadow-sm transition-all flex items-center gap-2">
+                <label className="mt-4 z-10 cursor-pointer bg-brand-teal-dark hover:opacity-90 text-white px-5 py-2.5 rounded-xl font-bold shadow-sm transition-all flex items-center gap-2">
                   <Camera className="w-4 h-4" /> 上傳紙本照片
                   <input type="file" accept="image/*" capture="environment" className="hidden" onChange={handleOcrUpload} />
                 </label>
@@ -667,7 +667,7 @@ export default function InstitutionDashboard() {
 
               <div className="overflow-x-auto border rounded-xl flex flex-col h-[400px]">
                 <table className="w-full text-left text-sm border-collapse">
-                  <thead className="sticky top-0 bg-slate-50 text-slate-600 shadow-sm z-10">
+                  <thead className="sticky top-0 bg-ui-cream-deep text-ui-brown shadow-sm z-10">
                     <tr>
                       <th className="p-3 font-bold border-b">日期</th>
                       <th className="p-3 font-bold border-b">個案代號</th>
@@ -680,8 +680,8 @@ export default function InstitutionDashboard() {
                       <th className="p-3 font-bold border-b w-16">結束分</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {ocrData.map((row) => (
+                  <tbody className="divide-y divide-ui-line">
+                    {ocrData.map((row, idx) => (
                       <tr key={row.id}>
                         {['dateROC', 'caseNatId', 'code', 'qty', 'hoursDerived', 'startH', 'startM', 'endH', 'endM'].map(field => {
                           const isLowConfidence = row.confidence[field] < 0.85;
@@ -753,7 +753,7 @@ export default function InstitutionDashboard() {
             {ocrData.length > 0 && (
               <div className="mt-6 flex justify-end items-center gap-4">
                 <span className="text-sm text-slate-500 font-bold flex items-center gap-1"><CheckCircle className="w-4 h-4 text-emerald-500"/> 確認後的紀錄將同步顯示於已連動家屬的照護日誌</span>
-                <button onClick={confirmOcrImport} className="bg-slate-800 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-slate-700 transition">
+                <button onClick={confirmOcrImport} className="bg-brand-orange text-white px-6 py-2.5 rounded-xl font-bold hover:bg-orange-600 transition">
                   確認匯入，進入對帳室
                 </button>
               </div>
@@ -772,8 +772,8 @@ export default function InstitutionDashboard() {
             
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm border-collapse">
-                <thead>
-                  <tr className="bg-slate-50 text-slate-600 border-b border-slate-200">
+                <thead className="bg-ui-cream-deep text-ui-brown border-b border-ui-line">
+                  <tr>
                     <th className="p-3 font-bold">日期</th>
                     <th className="p-3 font-bold">個案代號</th>
                     <th className="p-3 font-bold">BA碼</th>
@@ -784,7 +784,7 @@ export default function InstitutionDashboard() {
                     <th className="p-3 font-bold">督導處理註記</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-ui-line">
                   {reconciledData.map((row) => {
                     const isMissingPrice = row.price === null && row.status !== 'D1';
                     const isMissingTime = row.status !== 'D1' && (row.startH === null || row.startM === null || row.endH === null || row.endM === null);

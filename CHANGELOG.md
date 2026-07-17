@@ -26,6 +26,12 @@
 
 ## [Unreleased]
 
+### Changed
+- 🎨 **全站設計系統升級 v3.1 (任務卡 U10-U13)**：
+  - **試算流程重構**：將 `AssessmentQuiz.jsx`, `SubsidyCalculator.jsx`, `ResultTable.jsx` 的 UI 元件升級至對標 `docs/CareEasy_UIUX_Design_System_v1.0.md` 規範。
+  - **顏色與狀態層級**：以 `bg-white`, `ring-ui-line` 取代原本的 `bg-card`, `ring-border`，並將主色替換為 `brand-teal-dark`。
+  - **細節修飾**：將重點區塊（如政府補助、四包錢）的背景升級為更柔和的 UI Tokens (`bg-ui-cream-deep`, `bg-ui-teal-soft`)，並調整圓角與陰影讓整體更符合高質感長照產品定位。
+
 ### Added
 - ✨ **方案說明頁與示意註冊 (任務卡 F1-Lite)**：
   - 建立 `/plans` 靜態頁，說明免費版（目前方案）與進階版（即將推出）特色。
