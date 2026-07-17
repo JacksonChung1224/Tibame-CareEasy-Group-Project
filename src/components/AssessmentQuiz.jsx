@@ -14,6 +14,8 @@ export default function AssessmentQuiz({ hasApplied, actualLevel, onResult }) {
   const [done, setDone] = useState(false);
   const [result, setResult] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [agreed, setAgreed] = useState(false);
+  const [showAgreeError, setShowAgreeError] = useState(false);
 
   const questions = isDementia 
     ? [...DEMENTIA_QUESTIONS, ...ADL_QUESTIONS] 
@@ -23,6 +25,7 @@ export default function AssessmentQuiz({ hasApplied, actualLevel, onResult }) {
   const resetAll = () => {
     setStage("dementia_check"); setStep(0); setAnswers({});
     setDone(false); setResult(null); setIsDementia(false);
+    setAgreed(false); setShowAgreeError(false);
   };
 
   const toggleCheck = (id, val) => {
@@ -296,15 +299,56 @@ export default function AssessmentQuiz({ hasApplied, actualLevel, onResult }) {
         )}
       </div>
 
+      {step === total - 1 && (
+        <div className="bg-card rounded-2xl ring-1 ring-border p-6 shadow-sm">
+          <h3 className="text-lg font-bold text-foreground mb-3">📋 資料使用說明</h3>
+          <div className="bg-secondary/50 rounded-xl p-4 text-sm text-muted-foreground leading-relaxed space-y-2 mb-4">
+            <p>・蒐集目的：產生您的補助試算結果，並用於改善推估準確度。</p>
+            <p>・使用資料：您在本問卷填寫的評估選項（不含姓名、身分證等個人識別資料）。</p>
+            <p>・保存方式：以匿名方式保存於本平台資料庫；您可隨時來信要求停止使用。</p>
+            <p>・提供第三方：不會提供任何第三方。</p>
+            <p>・本試算為示範性參考，不是政府正式核定，也不是醫療診斷；<br/>　實際資格與額度須由各縣市長期照顧管理中心評估核定。</p>
+          </div>
+          <label className="flex items-start gap-3 cursor-pointer group">
+            <div className="relative flex items-center justify-center w-11 h-11 shrink-0">
+              <input 
+                type="checkbox" 
+                checked={agreed} 
+                onChange={(e) => {
+                  setAgreed(e.target.checked);
+                  if (e.target.checked) setShowAgreeError(false);
+                }} 
+                className="w-6 h-6 rounded-md border-2 border-muted-foreground text-primary focus:ring-primary focus:ring-offset-0 transition-colors cursor-pointer"
+              />
+            </div>
+            <div className="pt-2.5">
+              <span className="text-base font-bold text-foreground group-hover:text-primary transition-colors">我已閱讀並同意上述資料使用說明</span>
+              {showAgreeError && !agreed && (
+                <p className="text-sm text-destructive mt-1 font-bold">請先閱讀並勾選同意，才能查看結果</p>
+              )}
+            </div>
+          </label>
+        </div>
+      )}
+
       <div className="flex gap-3">
         <button onClick={prev} disabled={submitting} className="px-6 h-14 rounded-2xl ring-1 ring-border bg-card text-base font-bold text-foreground hover:bg-secondary transition-colors active:scale-95 disabled:opacity-50">
           ← {step === 0 ? "上一步" : "上一題"}
         </button>
-        <button onClick={next} disabled={!isAnswered() || submitting}
-          className={`flex-1 h-14 rounded-2xl font-bold text-lg shadow-md transition-all active:scale-95 ${isAnswered() && !submitting ? "bg-primary text-primary-foreground hover:opacity-90" : "bg-secondary text-muted-foreground cursor-not-allowed"}`}
-        >
-          {submitting ? "處理中..." : (step < questions.length - 1 ? "下一題 →" : "查看評估結果")}
-        </button>
+        <div className="relative flex-1">
+          <button onClick={next} disabled={!isAnswered() || submitting || (step === total - 1 && !agreed)}
+            className={`w-full h-14 rounded-2xl font-bold text-lg transition-all active:scale-95 ${
+              isAnswered() && !submitting && (step < total - 1 || agreed)
+                ? "bg-primary text-primary-foreground hover:opacity-90 shadow-md" 
+                : "bg-secondary text-muted-foreground cursor-not-allowed"
+            }`}
+          >
+            {submitting ? "處理中..." : (step < total - 1 ? "下一題 →" : "查看評估結果")}
+          </button>
+          {step === total - 1 && !agreed && isAnswered() && (
+            <div className="absolute inset-0 z-10" onClick={() => setShowAgreeError(true)} />
+          )}
+        </div>
       </div>
     </div>
   );
