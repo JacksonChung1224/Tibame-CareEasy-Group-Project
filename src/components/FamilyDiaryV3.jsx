@@ -452,6 +452,8 @@ export default function FamilyDiaryV3() {
   const [activeTab, setActiveTab] = useState("diary");
   const [expandSignal, setExpandSignal] = useState(null);
   const [showMedical, setShowMedical] = useState(false);
+  const [isGeneratingAi, setIsGeneratingAi] = useState(false);
+  const [aiSummary, setAiSummary] = useState(null);
   const [toast, setToast] = useState("");
   const [showDisconnect, setShowDisconnect] = useState(false);
 
@@ -460,6 +462,31 @@ export default function FamilyDiaryV3() {
   const suggestReassess = connected && shouldSuggestReassessment(signals);
   const concordantDims = signals.filter(s=>s.conf==="concordant").map(s=>s.dim);
   const singleDims = signals.filter(s=>s.conf==="single_source").map(s=>s.dim);
+
+  async function generateAiSummary() {
+    setShowMedical(true);
+    if (aiSummary) return; // already generated
+    setIsGeneratingAi(true);
+    try {
+      const res = await fetch('/api/summary', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          signals,
+          recentLogs: familyLogs,
+          workerObs: connected ? Object.values(WORKER_LOGS).map(l => l.obs).filter(Boolean) : []
+        })
+      });
+      const data = await res.json();
+      if (data.source === "ai" && data.summary) {
+        setAiSummary(data.summary);
+      }
+    } catch (e) {
+      console.warn("AI generation error, falling back", e);
+    } finally {
+      setIsGeneratingAi(false);
+    }
+  }
 
   function flashToast(msg) {
     setToast(msg);
@@ -654,35 +681,52 @@ export default function FamilyDiaryV3() {
               <p className="text-stone-400 text-xs leading-relaxed">
                 AI 把最近日誌{connected?"和居服員紀錄":""}整合成就醫摘要，直接給醫師看。
               </p>
-              <button onClick={()=>setShowMedical(!showMedical)}
+              <button onClick={() => { if (!showMedical) generateAiSummary(); else setShowMedical(false); }}
                 className="w-full py-2.5 rounded-xl bg-teal-500 text-white text-sm font-bold hover:bg-teal-400 transition">
                 產生就醫摘要 →
               </button>
               {showMedical && (
                 <div className="bg-white rounded-xl p-4 space-y-3">
-                  <div className="text-xs font-mono text-stone-400">AI 就醫摘要 · 近 14 天</div>
-                  <div className="space-y-2 text-xs text-stone-600">
-                    {signals.length === 0 ? (
-                      <div className="text-stone-400">近 14 天無明顯異常訊號。</div>
-                    ) : (
-                      <>
-                        {concordantDims.length > 0 && (
-                          <div><b className="text-red-600">需優先確認：</b>{concordantDims.join("、")}（兩端一致）</div>
-                        )}
-                        {singleDims.length > 0 && (
-                          <div><b className="text-amber-600">請醫師留意：</b>{singleDims.join("、")}</div>
-                        )}
-                      </>
-                    )}
-                    {!connected && (
-                      <div className="text-stone-400 text-xs mt-1">
-                        連動居服機構後，摘要可加入居服員的生命徵象數據。
+                  {isGeneratingAi ? (
+                    <div className="text-sm text-stone-500 flex items-center gap-2">
+                      <span className="w-4 h-4 border-2 border-teal-500 border-t-transparent rounded-full animate-spin"></span>
+                      AI 整理中…
+                    </div>
+                  ) : (
+                    <>
+                      <div className="text-xs font-mono text-stone-400">
+                        {aiSummary ? "AI 就醫摘要 · 近 14 天" : "就醫摘要 · 近 14 天"}
                       </div>
-                    )}
-                  </div>
-                  <button className="w-full py-2 rounded-lg border border-stone-200 text-stone-600 text-xs font-bold hover:bg-stone-50">
-                    匯出 PDF
-                  </button>
+                      <div className="space-y-2 text-xs text-stone-600">
+                        {aiSummary ? (
+                          <>
+                            <div className="whitespace-pre-wrap">{aiSummary}</div>
+                            <div className="text-teal-600 font-bold mt-2">由 AI 依觀察紀錄彙整</div>
+                          </>
+                        ) : signals.length === 0 ? (
+                          <div className="text-stone-400">近 14 天無明顯異常訊號。</div>
+                        ) : (
+                          <>
+                            {concordantDims.length > 0 && (
+                              <div><b className="text-red-600">需優先確認：</b>{concordantDims.join("、")}（兩端一致）</div>
+                            )}
+                            {singleDims.length > 0 && (
+                              <div><b className="text-amber-600">請醫師留意：</b>{singleDims.join("、")}</div>
+                            )}
+                            <div className="text-teal-600 font-bold mt-2">本分析為 AI 觀察彙整，非醫療診斷。</div>
+                          </>
+                        )}
+                        {!connected && (
+                          <div className="text-stone-400 text-xs mt-1">
+                            連動居服機構後，摘要可加入居服員的生命徵象數據。
+                          </div>
+                        )}
+                      </div>
+                      <button className="w-full py-2 rounded-lg border border-stone-200 text-stone-600 text-xs font-bold hover:bg-stone-50">
+                        匯出 PDF
+                      </button>
+                    </>
+                  )}
                 </div>
               )}
             </div>
