@@ -5,6 +5,7 @@ import {
   estimateLevelDementia, estimateLevelNormal 
 } from "@/utils/careData";
 import { supabase } from "@/lib/supabaseClient";
+import { PrivacyModal } from "@/components/LegalModals";
 
 export default function AssessmentQuiz({ hasApplied, actualLevel, onResult }) {
   const [stage, setStage] = useState("dementia_check"); // dementia_check | qual_check | pac_info | not_eligible | quiz
@@ -16,6 +17,7 @@ export default function AssessmentQuiz({ hasApplied, actualLevel, onResult }) {
   const [submitting, setSubmitting] = useState(false);
   const [agreed, setAgreed] = useState(false);
   const [showAgreeError, setShowAgreeError] = useState(false);
+  const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
 
   const questions = isDementia 
     ? [...DEMENTIA_QUESTIONS, ...ADL_QUESTIONS] 
@@ -322,7 +324,9 @@ export default function AssessmentQuiz({ hasApplied, actualLevel, onResult }) {
               />
             </div>
             <div className="pt-2.5">
-              <span className="text-base font-bold text-ui-ink group-hover:text-brand-teal-dark transition-colors">我已閱讀並同意上述資料使用說明</span>
+              <span className="text-base font-bold text-ui-ink group-hover:text-brand-teal-dark transition-colors">
+                我已閱讀並同意上述<button onClick={(e) => { e.preventDefault(); setIsPrivacyOpen(true); }} className="underline hover:text-brand-teal text-brand-teal-dark">資料使用說明</button>
+              </span>
               {showAgreeError && !agreed && (
                 <p className="text-sm text-brand-coral mt-1 font-bold">請先閱讀並勾選同意，才能查看結果</p>
               )}
@@ -350,6 +354,8 @@ export default function AssessmentQuiz({ hasApplied, actualLevel, onResult }) {
           )}
         </div>
       </div>
+      
+      <PrivacyModal isOpen={isPrivacyOpen} onClose={() => setIsPrivacyOpen(false)} />
     </div>
   );
 }

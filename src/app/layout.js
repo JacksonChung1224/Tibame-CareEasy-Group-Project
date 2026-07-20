@@ -16,13 +16,18 @@ export const metadata = {
   description: "最快速的長照四包錢補助試算平台，幫助您了解長照等級與補助金額。",
 };
 
+import { Footer } from "@/components/LegalModals";
+
 export default function RootLayout({ children }) {
   return (
     <html
       lang="zh-TW"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <main className="flex-1">{children}</main>
+        <Footer />
+      </body>
     </html>
   );
 }
