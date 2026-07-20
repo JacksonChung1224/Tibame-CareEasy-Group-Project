@@ -115,7 +115,21 @@ export function reconcile(csvRows, ocrRows) {
 
   for (const ocr of ocrRows) {
     if (!usedOcr.has(ocr.id)) {
-      rows.push(buildRow("no_schedule", null, ocr, ""));
+      let defaultWorker = null;
+      const sameCaseDate = csvRows.find(c => c.caseNatId === ocr.caseNatId && c.dateROC === ocr.dateROC && c.workerNatId);
+      if (sameCaseDate) {
+        defaultWorker = sameCaseDate.workerNatId;
+      } else if (csvRows.length > 0) {
+        const anyWorker = csvRows.find(c => c.workerNatId);
+        if (anyWorker) defaultWorker = anyWorker.workerNatId;
+      }
+      
+      const newRow = buildRow("no_schedule", null, ocr, "");
+      if (defaultWorker) {
+        newRow.workerNatId = defaultWorker;
+        newRow.isWorkerAutoFilled = true;
+      }
+      rows.push(newRow);
     }
   }
 
@@ -232,6 +246,12 @@ export function getExportBlockers(rows) {
     if (!worker || worker === "待查") {
       missingWorker++;
     }
+  }
+
+  // 任務卡 M 邏輯：僅在排班檔完全無任何服務人員資料時，且有任一紀錄缺人員，才阻擋匯出
+  const hasAnyWorker = rows.some(r => r.csvWorkerNatId || r.workerNatId);
+  if (hasAnyWorker) {
+    missingWorker = 0; // 強制不阻擋，因為已嘗試帶入或排班有資料
   }
 
   return { undecided, missingReason, missingPrice, missingTime, missingWorker };

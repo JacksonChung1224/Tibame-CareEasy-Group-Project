@@ -86,12 +86,18 @@ function runTests() {
   assertEqual(resolvedNsPap.include, true, "no_schedule 採紙本 → include=true");
   assertEqual(resolvedNsPap.values[2], "BA05", "no_schedule 採紙本 → 解析值 code = 紙本(BA05)");
 
-  // no_schedule resolveAmount when worker is missing
+  // no_schedule auto-fill worker test
+  assertEqual(ns1.workerNatId, "A123456789", "no_schedule 自動帶入排班表第一人的服務人員身分證");
+  assertEqual(ns1.isWorkerAutoFilled, true, "no_schedule 標記為自動帶入");
+
+  // no_schedule resolveAmount when worker is missing (simulate empty schedule scenario by clearing auto-fill)
   ns1.workerNatId = null;
   const blockersNs = getExportBlockers([ns1]);
-  assertEqual(blockersNs.missingWorker, 1, "no_schedule 採紙本且無服務人員 → missingWorker === 1");
+  // Wait, our new logic in getExportBlockers checks `hasAnyWorker = rows.some(r => r.csvWorkerNatId || r.workerNatId);`
+  // So if we only pass `[ns1]` to getExportBlockers and ns1 has no workerNatId, missingWorker should be 1.
+  assertEqual(blockersNs.missingWorker, 1, "排班完全無人且紀錄無人員時 → missingWorker === 1");
   
-  // no_schedule resolveAmount when worker is present
+  // restore workerNatId for further tests
   ns1.workerNatId = "A123456789";
   const nsAmt = resolveAmount(ns1);
   assertEqual(nsAmt.subtotal, 310, "no_schedule 採紙本且有服務人員 → subtotal 正確");

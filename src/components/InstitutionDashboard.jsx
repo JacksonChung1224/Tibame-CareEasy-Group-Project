@@ -866,22 +866,17 @@ export default function InstitutionDashboard() {
                                     /> 採系統
                                   </label>
                                 </div>
-                                {row.status === 'no_schedule' && row.decision === 'paper' && (
-                                  <input
-                                    placeholder="服務人員身分證(必填)..."
-                                    className={`border bg-white text-slate-700 text-xs px-2 py-1 rounded outline-none w-full ${!row.workerNatId || row.workerNatId === '待查' ? 'border-red-300 ring-1 ring-red-300 bg-red-50' : 'border-slate-300'}`}
-                                    value={row.workerNatId === '待查' ? 'A123456789' : (row.workerNatId || "")}
-                                    onChange={(e) => {
-                                      setReconciledData(prev => prev.map(r => r.id === row.id ? { ...r, workerNatId: e.target.value } : r));
-                                    }}
+                                {row.status === 'no_schedule' && row.isWorkerAutoFilled && row.decision === 'paper' && (
+                                  <span className="text-[10px] text-slate-400 block mt-1">人員身分證：{row.workerNatId} (自動帶入)</span>
+                                )}
+                                {row.status === 'D1' && row.decision === 'paper' && (
+                                  <input 
+                                    placeholder="請填寫未執行原因(必填)..."
+                                    className={`border bg-white text-slate-700 text-xs px-2 py-1 rounded outline-none w-full ${!row.note ? 'border-red-300 ring-1 ring-red-300 bg-red-50' : 'border-slate-300'}`}
+                                    value={row.note || ""}
+                                    onChange={(e) => handleReconcileNote(row.id, e.target.value)}
                                   />
                                 )}
-                                <input 
-                                  placeholder={row.status === 'D1' && row.decision === 'paper' ? "請填寫未執行原因(必填)..." : "備註(選填)..."}
-                                  className={`border bg-white text-slate-700 text-xs px-2 py-1 rounded outline-none w-full ${row.status === 'D1' && row.decision === 'paper' && !row.note ? 'border-red-300 ring-1 ring-red-300 bg-red-50' : 'border-slate-300'}`}
-                                  value={row.note || ""}
-                                  onChange={(e) => handleReconcileNote(row.id, e.target.value)}
-                                />
                               </div>
                             )}
                             {isMissingPrice && <span className="text-[10px] text-amber-600 block mt-1">匯出前需人工補價</span>}
