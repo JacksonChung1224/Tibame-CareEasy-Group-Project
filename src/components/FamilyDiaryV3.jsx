@@ -449,21 +449,6 @@ export default function FamilyDiaryV3() {
   const [draftText, setDraftText] = useState(initial.text);
   const [saved, setSaved] = useState(false);
 
-  // F3 字體大小切換
-  const [fontSize, setFontSize] = useState("medium");
-  useEffect(() => {
-    const savedSize = localStorage.getItem("careeasy_fontsize");
-    if (savedSize) {
-      setFontSize(savedSize);
-      document.documentElement.setAttribute("data-fontsize", savedSize);
-    }
-  }, []);
-  const handleFontSize = (size) => {
-    setFontSize(size);
-    localStorage.setItem("careeasy_fontsize", size);
-    document.documentElement.setAttribute("data-fontsize", size);
-  };
-
   const [activeTab, setActiveTab] = useState("diary");
   const [expandSignal, setExpandSignal] = useState(null);
   const [showMedical, setShowMedical] = useState(false);
@@ -572,16 +557,6 @@ export default function FamilyDiaryV3() {
             <img src="/careeasy-logo-mark.png" alt="Logo" className="h-10 object-contain" />
             <span className="font-bold tracking-wider text-sm">照護一點通 · 家屬端</span>
           </Link>
-          <div className="flex bg-black/20 rounded-lg p-0.5">
-            {[["small","小"],["medium","中"],["large","大"]].map(([val, label])=>(
-              <button key={val} onClick={()=>handleFontSize(val)}
-                className={`px-2 py-1 rounded-md text-xs font-bold transition ${
-                  fontSize===val ? "bg-white text-stone-800" : "text-white/70 hover:text-white"
-                }`}>
-                {label}
-              </button>
-            ))}
-          </div>
         </div>
         <div className="flex items-start justify-between">
           <div>
