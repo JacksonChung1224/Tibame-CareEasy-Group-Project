@@ -138,12 +138,12 @@ export function Footer() {
         <div className="max-w-5xl mx-auto px-6 text-center flex flex-col md:flex-row justify-center items-center gap-2 md:gap-4">
           <span className="font-bold">© 2026 CareEasy 照護一點通</span>
           <span className="hidden md:inline text-ui-line">|</span>
-          <div className="flex items-center gap-4">
-            <button onClick={() => setIsPrivacyOpen(true)} className="hover:text-brand-teal-dark transition-colors">隱私權政策</button>
+          <div className="flex items-center flex-wrap justify-center gap-4">
+            <button onClick={() => setIsPrivacyOpen(true)} className="underline underline-offset-4 font-bold text-ui-ink hover:text-brand-teal-dark transition-colors">隱私權政策</button>
             <span className="text-ui-line">|</span>
-            <button onClick={() => setIsTermsOpen(true)} className="hover:text-brand-teal-dark transition-colors">服務條款</button>
+            <button onClick={() => setIsTermsOpen(true)} className="underline underline-offset-4 font-bold text-ui-ink hover:text-brand-teal-dark transition-colors">服務條款</button>
             <span className="text-ui-line">|</span>
-            <a href="mailto:careeasy0720@gmail.com" className="hover:text-brand-teal-dark transition-colors">聯絡我們</a>
+            <span>聯絡我們：careeasy0720@gmail.com</span>
           </div>
         </div>
       </footer>
