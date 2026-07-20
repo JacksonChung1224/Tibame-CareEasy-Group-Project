@@ -47,7 +47,7 @@ export function reconcile(csvRows, ocrRows) {
       csvStartM: csv ? csv.startM : null,
       csvEndH: csv ? csv.endH : null,
       csvEndM: csv ? csv.endM : null,
-      decision: status === "no_schedule" ? "system" : "paper",
+      decision: status === "ok" ? "system" : null,
       status: status,
       source: status === "D1" ? "csv" : (status === "no_schedule" ? "ocr_unmatched" : "ocr_confirmed"),
       note: note,
@@ -123,19 +123,28 @@ export function reconcile(csvRows, ocrRows) {
 }
 
 export function resolveRow(row) {
+  if (row.status !== "ok" && row.decision === null) {
+    return { include: null, values: [] };
+  }
+
   let include = true;
   let values = [];
 
   if (row.decision === "system") {
-    const qty = row.csvQty !== null ? row.csvQty : row.qty;
-    const price = row.csvPrice !== null ? row.csvPrice : (BA_MAP[row.csvCode || row.code]?.price || 0);
+    let price = row.csvPrice;
+    let priceSource = "sheet";
     const code = row.csvCode || row.code;
+    
+    if (price === null || price === undefined) {
+      price = BA_MAP[code]?.price || null;
+    }
+    
     values = [
       row.caseNatId || "",
       row.dateROC || "",
       code,
       row.category || 1,
-      qty,
+      row.csvQty !== null ? row.csvQty : (row.qty || 0),
       price,
       row.workerNatId || "待查",
       row.csvStartH ?? "",
@@ -144,13 +153,20 @@ export function resolveRow(row) {
       row.csvEndM ?? "",
     ];
   } else {
+    let price = row.price;
+    const code = row.code || "";
+    
+    if (price === null || price === undefined) {
+      price = BA_MAP[code]?.price || null;
+    }
+
     values = [
       row.caseNatId || "",
       row.dateROC || "",
-      row.code || "",
+      code,
       row.category || 1,
       row.qty || 0,
-      row.price || 0,
+      price,
       row.workerNatId || "待查",
       row.startH ?? "",
       row.startM ?? "",
@@ -167,4 +183,56 @@ export function resolveRow(row) {
   }
 
   return { include, values };
+}
+
+export function resolveAmount(row) {
+  const r = resolveRow(row);
+  if (r.include !== true) return null;
+  const [ , , , category, qty, price ] = r.values;
+  const subtotal = (typeof price === "number" && typeof qty === "number")
+    ? price * qty : null;
+  return { category, qty, price, subtotal };
+}
+
+export function getExportBlockers(rows) {
+  let undecided = 0;
+  let missingReason = 0;
+  let missingPrice = 0;
+  let missingTime = 0;
+  let missingWorker = 0;
+
+  for (const row of rows) {
+    if (row.status !== "ok" && row.decision === null) {
+      undecided++;
+      continue;
+    }
+
+    const res = resolveRow(row);
+    if (res.include === false || res.include === null) continue; // 不匯出，不用檢查
+
+    if (row.status === "D1" && row.decision === "paper" && (!row.note || row.note.trim() === "")) {
+      missingReason++;
+    }
+
+    const price = res.values[5];
+    if (price === null || price === undefined) {
+      missingPrice++;
+    }
+
+    const stH = res.values[7];
+    const stM = res.values[8];
+    const endH = res.values[9];
+    const endM = res.values[10];
+
+    if (stH === "" || stH === null || stM === "" || stM === null || endH === "" || endH === null || endM === "" || endM === null) {
+      missingTime++;
+    }
+
+    const worker = res.values[6];
+    if (!worker || worker === "待查") {
+      missingWorker++;
+    }
+  }
+
+  return { undecided, missingReason, missingPrice, missingTime, missingWorker };
 }

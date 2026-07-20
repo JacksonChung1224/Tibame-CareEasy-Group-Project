@@ -5,7 +5,7 @@ import Link from "next/link";
 import * as XLSX from "xlsx";
 import { CloudUpload, Table, Download, CheckCircle, AlertTriangle, FileSpreadsheet, ClipboardPaste, AlertCircle, Eye, Info, UserPlus, Camera } from "lucide-react";
 import { BA_MAP } from "@/utils/careData";
-import { reconcile, resolveRow } from "@/utils/reconcile";
+import { reconcile, resolveRow, resolveAmount, getExportBlockers } from "@/utils/reconcile";
 import { parseScheduleSheet, OFFICIAL_HEADERS } from "@/utils/scheduleImport";
 
 export default function InstitutionDashboard() {
@@ -198,8 +198,9 @@ export default function InstitutionDashboard() {
   };
 
 
-  const unhandledD1 = reconciledData.filter(r => r.status === 'D1' && r.decision === 'paper' && !r.note).length;
-  const missingTimeCount = reconciledData.filter(r => r.status !== 'D1' && r.status !== 'no_schedule' && (r.startH === null || r.startM === null || r.endH === null || r.endM === null)).length;
+  const blockers = getExportBlockers(reconciledData);
+  const unhandledD1 = blockers.missingReason;
+  const missingTimeCount = blockers.missingTime;
 
   const exportExcel = () => {
     // Sheet 1: 核銷明細 (resolved.include === true)
@@ -207,8 +208,6 @@ export default function InstitutionDashboard() {
     reconciledData.forEach(row => {
       const resolved = resolveRow(row);
       if (resolved.include) {
-        if (resolved.values[5] === null || resolved.values[5] === undefined) return;
-        if (resolved.values[6] === "待查") return;
         sheet1AOA.push(resolved.values);
       }
     });
@@ -238,7 +237,7 @@ export default function InstitutionDashboard() {
           row.csvCode || "-",
           row.status === 'D1' ? "-" : row.code,
           row.qty,
-          row.subtotal || "待補價",
+          resolveAmount(row)?.subtotal || "待補價",
           statusStr,
           row.category || 1,
           decisionStr,
@@ -251,7 +250,7 @@ export default function InstitutionDashboard() {
           row.code,
           row.code,
           row.qty,
-          row.subtotal || "待補價",
+          resolveAmount(row)?.subtotal || "待補價",
           "計價警示",
           row.category || 1,
           "",
@@ -341,6 +340,9 @@ export default function InstitutionDashboard() {
               <div className="flex items-center flex-wrap gap-2">
                 <h1 className="text-xl font-extrabold tracking-wide">長照 3.0 紙本對帳與多個案核銷系統</h1>
               </div>
+              <p className="text-xs font-semibold text-brand-orange mt-1">
+                差異逐筆裁決 • 自動稽核核銷欄位 • 杜絕漏項及人工比對疏漏
+              </p>
             </div>
           </Link>
         </div>
@@ -768,6 +770,11 @@ export default function InstitutionDashboard() {
                 <Table className="w-6 h-6" />
                 <h2 className="text-xl font-bold">步驟 3：個案紙本對帳比對室</h2>
               </div>
+              {blockers.undecided > 0 && (
+                <div className="bg-amber-100 text-amber-700 px-3 py-1 rounded-full font-bold text-sm">
+                  待裁決 {blockers.undecided} 筆
+                </div>
+              )}
             </div>
             
             <div className="overflow-x-auto">
@@ -786,13 +793,22 @@ export default function InstitutionDashboard() {
                 </thead>
                 <tbody className="divide-y divide-ui-line">
                   {reconciledData.map((row) => {
-                    const isMissingPrice = row.price === null && row.status !== 'D1';
-                    const isMissingTime = row.status !== 'D1' && (row.startH === null || row.startM === null || row.endH === null || row.endM === null);
-                    const displayPrice = row.price !== null ? `$${row.price}` : "待補價";
-                    const displaySubtotal = row.subtotal !== null ? `$${row.subtotal}` : "待補價";
+                    const resolved = resolveRow(row);
+                    const isUndecided = row.status !== 'ok' && row.decision === null;
+                    const isMissingPrice = resolved.values?.[5] === null || resolved.values?.[5] === undefined;
+                    const isMissingTime = row.status !== 'D1' && (resolved.values?.[7] === null || resolved.values?.[7] === "" || resolved.values?.[8] === null || resolved.values?.[8] === "" || resolved.values?.[9] === null || resolved.values?.[9] === "" || resolved.values?.[10] === null || resolved.values?.[10] === "");
+                    
+                    const displayPrice = isMissingPrice ? "待補價" : `$${resolved.values[5]}`;
+                    
+                    let subtotal = null;
+                    const finalQty = row.decision === "system" ? row.csvQty ?? row.qty : row.qty;
+                    if (!isMissingPrice && finalQty !== null && finalQty !== undefined) {
+                      subtotal = resolved.values[5] * finalQty;
+                    }
+                    const displaySubtotal = subtotal !== null ? `$${subtotal}` : "待補價";
 
                     return (
-                      <tr key={row.id} className={`hover:bg-slate-50 transition-colors ${row.status === 'D1' ? 'opacity-70 bg-slate-50/50' : ''}`}>
+                      <tr key={row.id} className={`hover:bg-slate-50 transition-colors ${row.status === 'D1' ? 'opacity-70 bg-slate-50/50' : ''} ${isUndecided ? 'border-l-4 border-amber-400' : ''}`}>
                         <td className="p-3 font-mono text-slate-500">{row.dateROC}</td>
                         <td className="p-3 font-bold text-slate-700">{row.caseNatId}</td>
                         <td className="p-3">
@@ -817,6 +833,11 @@ export default function InstitutionDashboard() {
                               <span className="text-yellow-800 bg-yellow-100 px-2 py-1 rounded-full font-bold text-xs w-max"><AlertCircle className="w-3 h-3 inline mr-1"/>🟡 D4 項目差異</span>
                               <span className="text-[10px] text-slate-500">{row.note}</span>
                             </div>
+                          )}
+                          {isUndecided && (
+                            <span className="text-amber-800 bg-amber-100 px-2 py-1 rounded-full font-bold text-xs mt-2 block w-max">
+                              ⚠ 待裁決
+                            </span>
                           )}
                         </td>
                         <td className="p-3">
@@ -845,6 +866,16 @@ export default function InstitutionDashboard() {
                                     /> 採系統
                                   </label>
                                 </div>
+                                {row.status === 'no_schedule' && row.decision === 'paper' && (
+                                  <input
+                                    placeholder="服務人員身分證(必填)..."
+                                    className={`border bg-white text-slate-700 text-xs px-2 py-1 rounded outline-none w-full ${!row.workerNatId || row.workerNatId === '待查' ? 'border-red-300 ring-1 ring-red-300 bg-red-50' : 'border-slate-300'}`}
+                                    value={row.workerNatId === '待查' ? 'A123456789' : (row.workerNatId || "")}
+                                    onChange={(e) => {
+                                      setReconciledData(prev => prev.map(r => r.id === row.id ? { ...r, workerNatId: e.target.value } : r));
+                                    }}
+                                  />
+                                )}
                                 <input 
                                   placeholder={row.status === 'D1' && row.decision === 'paper' ? "請填寫未執行原因(必填)..." : "備註(選填)..."}
                                   className={`border bg-white text-slate-700 text-xs px-2 py-1 rounded outline-none w-full ${row.status === 'D1' && row.decision === 'paper' && !row.note ? 'border-red-300 ring-1 ring-red-300 bg-red-50' : 'border-slate-300'}`}
@@ -872,14 +903,13 @@ export default function InstitutionDashboard() {
             </div>
             
             <div className="mt-6 flex justify-between items-center bg-slate-50 p-4 rounded-xl border">
-              <div className="flex items-center gap-2">
-                {unhandledD1 > 0 ? (
-                  <span className="text-red-600 font-bold text-sm bg-red-100 px-3 py-1 rounded-full flex items-center gap-1">
-                    <AlertTriangle className="w-4 h-4"/> 尚有 {unhandledD1} 筆未處理異常 (D1)
-                  </span>
-                ) : missingTimeCount > 0 ? (
+              <div className="flex flex-col gap-2">
+                {(blockers.undecided > 0 || blockers.missingReason > 0 || blockers.missingPrice > 0 || blockers.missingTime > 0 || blockers.missingWorker > 0) ? (
                   <span className="text-amber-600 font-bold text-sm bg-amber-100 px-3 py-1 rounded-full flex items-center gap-1">
-                    <AlertTriangle className="w-4 h-4"/> 尚有 {missingTimeCount} 筆缺時段紀錄
+                    <AlertTriangle className="w-4 h-4"/> 尚有 {blockers.undecided} 筆待裁決、{blockers.missingPrice} 筆待補價
+                    {blockers.missingReason > 0 && `、${blockers.missingReason} 筆未填 D1 原因`}
+                    {blockers.missingTime > 0 && `、${blockers.missingTime} 筆缺時段`}
+                    {blockers.missingWorker > 0 && `、${blockers.missingWorker} 筆待填服務人員`}
                   </span>
                 ) : (
                   <span className="text-emerald-600 font-bold text-sm bg-emerald-100 px-3 py-1 rounded-full flex items-center gap-1">
@@ -889,7 +919,7 @@ export default function InstitutionDashboard() {
               </div>
               <button 
                 onClick={() => setCurrentStep(4)} 
-                disabled={unhandledD1 > 0 || missingTimeCount > 0 || reconciledData.length === 0}
+                disabled={blockers.undecided > 0 || blockers.missingReason > 0 || blockers.missingPrice > 0 || blockers.missingTime > 0 || blockers.missingWorker > 0 || reconciledData.length === 0}
                 className="bg-slate-800 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-slate-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
                 前往月底核銷導出
               </button>
@@ -898,11 +928,12 @@ export default function InstitutionDashboard() {
         )}
 
         {view === "billing" && currentStep === 4 && (() => {
-          const validData = reconciledData.filter(r => r.status === 'ok' || r.status === 'D3' || r.status === 'D4' || (r.status === 'D2' && r.d2Confirmed));
-          const subsidyTotal = validData.filter(r => r.category === 1).reduce((sum, r) => sum + (r.subtotal || 0), 0);
-          const selfPayTotal = validData.filter(r => r.category === 2).reduce((sum, r) => sum + (r.subtotal || 0), 0);
-          const missingPriceCount = validData.filter(r => r.price === null).length;
-          const warningCount = validData.filter(r => r.priceWarning).length;
+          const amounts = reconciledData.map(r => resolveAmount(r)).filter(Boolean);
+          const subsidyTotal = amounts.filter(a => a.category === 1).reduce((sum, a) => sum + (a.subtotal || 0), 0);
+          const selfPayTotal = amounts.filter(a => a.category === 2).reduce((sum, a) => sum + (a.subtotal || 0), 0);
+          
+          const missingPriceCount = getExportBlockers(reconciledData).missingPrice;
+          const warningCount = reconciledData.filter(r => r.priceWarning).length;
 
           return (
             <section className="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 animate-in fade-in flex flex-col items-center justify-center min-h-[400px]">

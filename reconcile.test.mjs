@@ -1,4 +1,4 @@
-import { reconcile, resolveRow } from './src/utils/reconcile.js';
+import { reconcile, resolveRow, resolveAmount, getExportBlockers } from './src/utils/reconcile.js';
 
 function runTests() {
   let passed = 0;
@@ -64,6 +64,10 @@ function runTests() {
   const resolvedD3 = resolveRow(d3);
   assertEqual(resolvedD3.include, true, "D3 include is true");
   assertEqual(resolvedD3.values[4], 1, "D3 採系統 → 解析值 qty = 排班(1)");
+  
+  // D3 resolving system using resolveAmount
+  const d3Amt = resolveAmount(d3);
+  assertEqual(d3Amt.subtotal, 40, "D3 採系統 → resolveAmount.subtotal = 排班單價(40) * 排班數量(1)");
 
   const ok2 = res.find(r => r.code === "BA17e" && r.status === "ok");
   assertEqual(!!ok2, true, "Find ok for BA17e");
@@ -81,6 +85,16 @@ function runTests() {
   const resolvedNsPap = resolveRow(ns1);
   assertEqual(resolvedNsPap.include, true, "no_schedule 採紙本 → include=true");
   assertEqual(resolvedNsPap.values[2], "BA05", "no_schedule 採紙本 → 解析值 code = 紙本(BA05)");
+
+  // no_schedule resolveAmount when worker is missing
+  ns1.workerNatId = null;
+  const blockersNs = getExportBlockers([ns1]);
+  assertEqual(blockersNs.missingWorker, 1, "no_schedule 採紙本且無服務人員 → missingWorker === 1");
+  
+  // no_schedule resolveAmount when worker is present
+  ns1.workerNatId = "A123456789";
+  const nsAmt = resolveAmount(ns1);
+  assertEqual(nsAmt.subtotal, 310, "no_schedule 採紙本且有服務人員 → subtotal 正確");
 
   // H5 Cases validation
   const d4 = res.find(r => r.status === "D4");
@@ -105,11 +119,36 @@ function runTests() {
   const resolvedD1Sys = resolveRow(d1Case);
   assertEqual(resolvedD1Sys.include, true, "D1 採系統 → include=true");
   assertEqual(resolvedD1Sys.values[2], "BA01", "D1 採系統 → 解析值 = 排班");
+  assertEqual(resolvedD1Sys.values[4], 1, "D1 採系統 → qty = 排班");
+  assertEqual(resolvedD1Sys.values[5], 50, "D1 採系統 → price = 排班");
+
+  // D1 resolveAmount
+  const d1Amt = resolveAmount(d1Case);
+  assertEqual(d1Amt.subtotal, 50, "D1 採系統 → resolveAmount 傳回 qty * price = 50");
 
   // D1 resolving paper
   d1Case.decision = "paper";
   const resolvedD1Pap = resolveRow(d1Case);
   assertEqual(resolvedD1Pap.include, false, "D1 採紙本 → include=false");
+
+  // Test unresolved rows and getExportBlockers
+  const unresolvedRes = reconcile(csv, ocr);
+  const unresolvedD1 = unresolvedRes.find(r => r.status === "D1");
+  assertEqual(unresolvedD1.decision, null, "D1 初始 decision 為 null");
+  const resolvedNull = resolveRow(unresolvedD1);
+  assertEqual(resolvedNull.include, null, "未裁決列 include 為 null");
+
+  const blockers = getExportBlockers(unresolvedRes);
+  assertEqual(blockers.undecided, 7, "總共有 7 筆衝突紀錄待裁決");
+
+  // no_schedule fallback testing
+  const nsCase = unresolvedRes.find(r => r.status === "no_schedule" && r.code === "BA05");
+  nsCase.decision = "paper"; // 採紙本
+  // OCR only has qty and price for BA05. Let's say price is missing.
+  // Wait, BA05 in ocr has price 310. Let's test with a mock row
+  const mockFallbackRow = { ...nsCase, price: null, code: "BA05" };
+  const fallbackRes = resolveRow(mockFallbackRow);
+  assertEqual(fallbackRes.values[5], 310, "BA05 單價空時 fallback 到 310 (BA_MAP)");
 
   const c123_ok = res.find(r => r.status === "ok" && r.caseNatId === "C123");
   assertEqual(!!c123_ok, true, "Find C123 ok");
