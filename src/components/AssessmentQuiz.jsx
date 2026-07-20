@@ -303,11 +303,11 @@ export default function AssessmentQuiz({ hasApplied, actualLevel, onResult }) {
         <div className="bg-white rounded-2xl ring-1 ring-ui-line p-6 shadow-sm">
           <h3 className="text-lg font-bold text-ui-ink mb-3">📋 資料使用說明</h3>
           <div className="bg-ui-cream-deep rounded-xl p-4 text-sm text-ui-muted leading-relaxed space-y-2 mb-4">
-            <p>・蒐集目的：產生您的補助試算結果，並用於改善推估準確度。</p>
-            <p>・使用資料：您在本問卷填寫的評估選項（不含姓名、身分證等個人識別資料）。</p>
-            <p>・保存方式：以匿名方式保存於本平台資料庫；您可隨時來信要求停止使用。</p>
-            <p>・提供第三方：不會提供任何第三方。</p>
-            <p>・本試算為示範性參考，不是政府正式核定，也不是醫療診斷；<br/>　實際資格與額度須由各縣市長期照顧管理中心評估核定。</p>
+            <p>・蒐集目的：產生您的補助試算結果，並用於改善推估模型準確度、長照資源大數據統計分析與服務優化。</p>
+            <p>・使用資料：您在本問卷填寫之評估選項（包含身心失能狀況評估、年齡區塊及居住地區等；不含姓名、身分證字號、電話等任何個人識別資料）。</p>
+            <p>・保存方式與資料權利：資料將以完全去識別化（匿名）方式保存於本平台資料庫。因本平台無需登入且未蒐集個人識別資訊，資料送出後無法進行身分比對，故無法提供單一紀錄之查詢、更正或刪除服務。</p>
+            <p>・第三方提供與大數據應用：本平台得將去識別化處理後之統計數據，提供予第三方（如學術研究、長照機構或合作夥伴）進行大數據分析與研究，所有資料均確保無法直接連結或還原至特定自然人。</p>
+            <p>・注意事項：本試算為示範性參考，不是政府正式核定，也不是醫療診斷；<br/>　實際資格與額度，請撥打長照專線 1966，由各縣市長期照顧管理中心申請評估與核定。</p>
           </div>
           <label className="flex items-start gap-3 cursor-pointer group">
             <div className="relative flex items-center justify-center w-11 h-11 shrink-0">
