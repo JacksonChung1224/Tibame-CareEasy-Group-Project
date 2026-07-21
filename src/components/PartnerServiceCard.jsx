@@ -57,7 +57,7 @@ export default function PartnerServiceCard({ packageId, cmsLevel, identity }) {
 
         <button
           onClick={onClick}
-          className="w-full h-12 rounded-xl font-bold text-accent-foreground bg-accent hover:opacity-90 transition-opacity active:scale-95 flex items-center justify-center gap-1.5"
+          className="w-full h-12 rounded-xl font-bold text-white bg-brand-teal-dark hover:opacity-90 transition-opacity active:scale-95 flex items-center justify-center gap-1.5 shadow-sm"
         >
           {service.ctaLabel}
           <span aria-hidden="true">→</span>
@@ -94,7 +94,7 @@ export default function PartnerServiceCard({ packageId, cmsLevel, identity }) {
           target="_blank"
           rel="noopener noreferrer"
           onClick={() => trackPartnerClick({ packageId, channel: "gov", cmsLevel, identity })}
-          className="w-full h-12 rounded-xl font-bold text-foreground bg-card ring-1 ring-border hover:ring-foreground/40 transition-all active:scale-95 flex items-center justify-center gap-1.5"
+          className="w-full h-12 rounded-xl font-bold text-white bg-ui-brown hover:opacity-90 transition-all active:scale-95 flex items-center justify-center gap-1.5 shadow-sm"
         >
           {gov.label}
           <span aria-hidden="true">→</span>
@@ -103,7 +103,7 @@ export default function PartnerServiceCard({ packageId, cmsLevel, identity }) {
         <>
           <button
             onClick={onGovClick}
-            className="w-full h-12 rounded-xl font-bold text-foreground bg-card ring-1 ring-border hover:ring-foreground/40 transition-all active:scale-95 flex items-center justify-center gap-1.5"
+            className="w-full h-12 rounded-xl font-bold text-white bg-ui-brown hover:opacity-90 transition-all active:scale-95 flex items-center justify-center gap-1.5 shadow-sm"
           >
             {copied ? "✓ 號碼已複製：1966" : gov.label}
             <span aria-hidden="true">→</span>

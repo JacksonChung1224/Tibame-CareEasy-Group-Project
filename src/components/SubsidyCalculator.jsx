@@ -250,9 +250,9 @@ export default function SubsidyCalculator({ initLevel, onRestart }) {
             </button>
           </div>
           <div className="grid grid-cols-3 gap-2 text-center mt-3">
-            <div className="bg-ui-cream-deep/50 rounded-xl p-3"><div className="text-xs text-ui-muted mb-1 font-medium">補助上限</div><div className="text-base font-bold text-ui-ink">${aidsData.total.toLocaleString()}</div></div>
-            <div className="bg-brand-teal-dark/10 rounded-xl p-3"><div className="text-xs text-brand-teal-dark mb-1 font-medium">政府補助</div><div className="text-base font-bold text-brand-teal-dark">${aidsData.gov.toLocaleString()}</div></div>
-            <div className="bg-ui-cream-deep rounded-xl p-3"><div className="text-xs text-ui-muted mb-1 font-medium">自付額</div><div className="text-base font-bold text-ui-ink">{identity === "low" ? "免費" : `$${aidsData.self.toLocaleString()}`}</div></div>
+            <div className="bg-amber-50 ring-1 ring-amber-200/60 rounded-xl p-3"><div className="text-xs text-ui-muted mb-1 font-medium">補助上限</div><div className="text-base font-bold text-ui-ink">${aidsData.total.toLocaleString()}</div></div>
+            <div className="bg-teal-50 ring-1 ring-teal-200/60 rounded-xl p-3"><div className="text-xs text-brand-teal-dark mb-1 font-medium">政府補助</div><div className="text-base font-bold text-brand-teal-dark">${aidsData.gov.toLocaleString()}</div></div>
+            <div className="bg-stone-100 ring-1 ring-stone-200/60 rounded-xl p-3"><div className="text-xs text-ui-muted mb-1 font-medium">自付額</div><div className="text-base font-bold text-ui-ink">{identity === "low" ? "免費" : `$${aidsData.self.toLocaleString()}`}</div></div>
           </div>
           <div className="mt-3"><PackageBody detail={PACKAGE_DETAILS.aids} /></div>
           <PartnerServiceCard packageId="aids" {...ctx} />
