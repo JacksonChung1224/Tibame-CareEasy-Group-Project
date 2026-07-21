@@ -270,13 +270,7 @@ export default function SubsidyCalculator({ initLevel, onRestart }) {
         </ExpandablePackage>
       </div>
 
-      {/* ── 平台合規聲明 ────────────────────────────────── */}
-      <div className="mt-4 rounded-2xl bg-ui-cream-deep ring-1 ring-ui-line p-5 space-y-3">
-        <h4 className="text-xs font-bold text-ui-muted uppercase tracking-widest">關於本平台與試算結果</h4>
-        <p className="text-xs text-ui-muted leading-relaxed">{PLATFORM_DISCLAIMER.platformNature}</p>
-        <p className="text-xs text-ui-muted leading-relaxed">{PLATFORM_DISCLAIMER.calcNature}</p>
-        <p className="text-xs text-ui-muted leading-relaxed">{PLATFORM_DISCLAIMER.privacyNotice}</p>
-      </div>
+
     </div>
   );
 }
